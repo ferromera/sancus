@@ -3,13 +3,13 @@
 
 using namespace std;
 
-StudentRecord::StudentRecord():dirty(true),idNumber_(0),name_(string()){
+StudentRecord::StudentRecord():idNumber_(0),name_(string()){
     key_=new Key;
     size_=sizeof(idNumber_)+1;
     buffer= new char[260];
 }
 StudentRecord::StudentRecord(const StudentRecord & sr):
-dirty(true),idNumber_(sr.idNumber_),name_(sr.name_){
+idNumber_(sr.idNumber_),name_(sr.name_){
     key_=new Key(idNumber_);
     size_=sizeof(idNumber_)+1;
     buffer= new char[260];
@@ -22,7 +22,7 @@ StudentRecord::StudentRecord(char ** input){
 }
 
 StudentRecord::StudentRecord(uint16_t idNumber,const std::string & name)
-:dirty(true),idNumber_(idNumber),name_(name){
+:idNumber_(idNumber),name_(name){
     key_= new Key(idNumber);
     size_=sizeof(idNumber_)+1+name_.size();
     buffer= new char[260];
@@ -37,13 +37,11 @@ void StudentRecord::setKey(const Record::Key & k){
     delete key_;
     key_=new Key(ak);
     idNumber_=ak.getKey();
-    dirty=true;
 }
 void StudentRecord::setKey(int16_t k){
     delete key_;
     key_=new Key(k);
     idNumber_=k;
-    dirty=true;
 }
 void StudentRecord::read(char ** input){
     char * buffCurr=buffer;
@@ -68,13 +66,24 @@ void StudentRecord::read(char ** input){
     name_=c_str;
 
     delete c_str;
-    dirty=false;
 }
 void StudentRecord::write(char ** output){
-    if(dirty)
-        update();
+    update();
     memcpy(*output,buffer,size_);
     (*output)+=size_;
+}
+
+void StudentRecord::update(){
+	//write back to the buffer
+	char * buffCurr=buffer;
+	memcpy(buffCurr,&idNumber,2);
+	buffCurr+=2;
+	uint8_t nameSize=name_.size();
+	memcpy(buffCurr,&nameSize,1);
+	bufCurr++;
+	memcpy(buffCurr,name.c_str(),nameSize);
+
+
 }
 uint16_t StudentRecord::idNumber()const{
     return idNumber_;
@@ -87,7 +96,6 @@ void StudentRecord::idNumber(uint16_t p){
 }
 void StudentRecord::name(const string & n){
     name_=n;
-    dirty=true;
 }
 StudentRecord::~StudentRecord(){
     delete buffer;

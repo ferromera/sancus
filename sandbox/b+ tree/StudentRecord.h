@@ -4,6 +4,7 @@
 #include "Record.h"
 #include "Uint16Key.h"
 #include <string>
+#include "stdint.h"
 
 
 class StudentRecord : public Record{
@@ -18,7 +19,6 @@ public:
     };
 private:
     char * buffer;
-    bool dirty;
     uint16_t idNumber_;
     std::string name_;
     void update();
