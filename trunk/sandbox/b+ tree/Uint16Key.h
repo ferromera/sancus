@@ -2,6 +2,7 @@
 #define UINT16KEY_H_INCLUDED
 
 #include "Record.h"
+#include "stdint.h"
 
 class Uint16Key: public Record::Key{
         uint16_t buffer;
