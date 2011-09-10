@@ -76,12 +76,12 @@ void StudentRecord::write(char ** output){
 void StudentRecord::update(){
 	//write back to the buffer
 	char * buffCurr=buffer;
-	memcpy(buffCurr,&idNumber,2);
+	memcpy(buffCurr,&idNumber_,2);
 	buffCurr+=2;
 	uint8_t nameSize=name_.size();
 	memcpy(buffCurr,&nameSize,1);
-	bufCurr++;
-	memcpy(buffCurr,name.c_str(),nameSize);
+	buffCurr++;
+	memcpy(buffCurr,name_.c_str(),nameSize);
 
 
 }
