@@ -2,12 +2,12 @@
 #define BPTREENODE_H_INCLUDED
 
 #include "FreeSpaceStackBlock.h"
-#include <fstream>
+#include "File.h"
 
 template<class Record>
 class BPTreeNode{
 protected:
-            std::fstream & file_;
+            File & file_;
             unsigned int pos_;
             unsigned int count_;
             unsigned int level_;
@@ -16,14 +16,14 @@ protected:
             BPTreeNode(){}
 public:
             BPTreeNode(unsigned int blockSize);
-            void load(std::fstream & file,unsigned int pos);
-            unsigned int create(std::fstream &);
+            void load(File & file,unsigned int pos);
+            unsigned int create(File &);
             unsigned int level()const;
             unsigned int count()const;
             unsigned int pos()const;
             void level(unsigned int);
             void count(unsigned int);
-            void file(std::fstream &);
+            void file(File &);
             void pos(unsigned int);
             virtual void insert(Record &)=0;
             virtual void remove(Record &)=0;
