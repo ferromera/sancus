@@ -6,7 +6,7 @@ template<class Record>
 BPTreeNode<Record>::BPTreeNode(unsigned int blockSize):count_(0),blockSize_(blockSize){}
 
 template<class Record>
-BPTreeNode<Record>::load(fstream & file,unsigned int pos):
+BPTreeNode<Record>::load(File & file,unsigned int pos):
 file_(file),pos_(pos){
 	// Setea el archivo y la posición en el archivo asociada al nodo.
 	// y carga el nodo leyendolo desde el archivo.
@@ -14,16 +14,16 @@ file_(file),pos_(pos){
 }
 
 template<class Record>
-BPTreeNode<Record>::create(fstream & file):file_(file){
+BPTreeNode<Record>::create(File & file):file_(file){
 	//Crea un nuevo bloque en el archivo con los datos del Nodo.
 	FreeSpaceStackBlock<blockSize> *freeBlock= new FreeSpaceStackBlock<blockSize>;
-	file_.seekg(0,ios_base::beg);
+	file_.seek(0,File::BEG);
 	file_.read((char *)freeBlock,blockSize);
 	pos_=(freeBlock->blockNumber)*blockSize;
 	if(freeBlock->inFile){
-		file_.seekg(pos_,ios_base::beg);
+		file_.seekg(pos_,File::BEG);
 		file_.read((char *)freeBlock,blockSize);
-		file_.seekg(0,ios_base::beg);
+		file_.seekg(0,File::BEG);
 		file_.write((char *)freeBlock,blockSize);
 	}else{
 		freeBlock->blockNumber++;
@@ -56,7 +56,7 @@ void BPTreeNode<Record>::count(unsigned int c){
     count_=c;
 }
 template<class Record>
-void BPTreeNode<Record>::file(std::fstream & f){
+void BPTreeNode<Record>::file(File & f){
     file_=f;
 }
 template<class Record>
