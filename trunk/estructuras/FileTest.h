@@ -16,6 +16,8 @@ public:
 	bool writeTest1();
 	bool ioTest1();
 	bool ioTest2();
+	bool truncTest();
+
 };
 
 #endif /* FILETEST_H_ */

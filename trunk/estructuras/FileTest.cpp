@@ -53,3 +53,16 @@ bool FileTest::ioTest2(){
 	return true;
 
 }
+bool FileTest::truncTest(){
+	File file("truncTest.bin",File::BIN|File::NEW|File::IO);
+	char * buff= new char[10000];
+	for(int i=0;i<10000;i++)
+		buff[i]=i;
+	file.trunc(2000);
+	file.seek(0,File::END);
+	int size=file.tell();
+	if(size==2000)
+		return true;
+	return false;
+
+}
