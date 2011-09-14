@@ -3,7 +3,7 @@
 using namespace std;
 
 template<class Record>
-BPTreeNode<Record>::BPTreeNode(unsigned int blockSize):count_(0),blockSize_(blockSize){}
+BPTreeNode<Record>::BPTreeNode(unsigned int blockSize):count_(0),blockSize_(blockSize),freeSpace_(blockSize-2){}
 
 template<class Record>
 BPTreeNode<Record>::load(File & file,unsigned int pos):
