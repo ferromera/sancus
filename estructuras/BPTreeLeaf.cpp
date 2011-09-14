@@ -10,10 +10,25 @@
 using namespace std;
 
 template<class Record,unsigned int blockSize>
-BPTreeLeaf<Record,blockSize>::BPTreeLeaf():next_(0){}
+BPTreeLeaf<Record,blockSize>::BPTreeLeaf(File & file):
+BPTreeNode<Record,blockSize>(file),next_(0){
+}
 
 template<class Record,unsigned int blockSize>
-BPTreeLeaf<Record,blockSize>::BPTreeLeaf(unsigned int capacity):next_(0),capacity_(capacity){}
+BPTreeLeaf<Record,blockSize>::BPTreeLeaf(File & file,unsigned int pos):
+BPTreeNode<Record,blockSize>(file,pos),next_(0){
+}
+
+template<class Record,unsigned int blockSize>
+BPTreeLeaf<Record,blockSize>::BPTreeLeaf(unsigned int capacity,File & file):
+BPTreeNode<Record,blockSize>(file),next_(0),capacity_(capacity){
+}
+
+template<class Record,unsigned int blockSize>
+BPTreeLeaf<Record,blockSize>::BPTreeLeaf(unsigned int capacity,File & file,unsigned int pos):
+BPTreeNode<Record,blockSize>(file,pos),next_(0),capacity_(capacity){
+}
+
 
 template<class Record,unsigned int blockSize>
 typename list<Record>::iterator BPTreeLeaf<Record,blockSize>::search (const Record & rec){
@@ -23,6 +38,11 @@ typename list<Record>::iterator BPTreeLeaf<Record,blockSize>::search (const Reco
 	       break;
 	}
 	return it;
+}
+
+template<class Record,unsigned int blockSize>
+bool BPTreeLeaf<Record,blockSize>::isLeaf()const{
+	return true;
 }
 
 template<class Record,unsigned int blockSize>
