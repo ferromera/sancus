@@ -39,30 +39,37 @@ template<class Record>
 unsigned int BPTreeNode<Record>::level()const{
     return level_;
 }
+
 template<class Record>
 unsigned int BPTreeNode<Record>::count()const{
     return count_;
 }
+
 template<class Record>
 unsigned long BPTreeNode<Record>::pos()const{
-    return pos_;
+   return pos_;
 }
+
 template<class Record>
 void BPTreeNode<Record>::level(unsigned int l){
     level_=l;
 }
+
 template<class Record>
 void BPTreeNode<Record>::count(unsigned int c){
     count_=c;
 }
+
 template<class Record>
 void BPTreeNode<Record>::file(File & f){
     file_=f;
 }
+
 template<class Record>
 void BPTreeNode<Record>::pos(unsigned long p){
     pos_=p;
 }
+
 template<class Record>
 BPTreeNode<Record>::~BPTreeNode(){
 }
