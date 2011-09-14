@@ -12,6 +12,7 @@ protected:
             unsigned int count_;
             unsigned int level_;
             unsigned int blockSize_;
+            unsigned int freeSpace_;
             virtual void updateBlock()=0;
             BPTreeNode(){}
 public:
