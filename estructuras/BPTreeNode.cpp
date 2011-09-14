@@ -6,7 +6,7 @@ template<class Record>
 BPTreeNode<Record>::BPTreeNode(unsigned int blockSize):count_(0),blockSize_(blockSize),freeSpace_(blockSize-2){}
 
 template<class Record>
-BPTreeNode<Record>::load(File & file,unsigned int pos):
+BPTreeNode<Record>::load(File & file,unsigned long pos):
 file_(file),pos_(pos){
 	// Setea el archivo y la posición en el archivo asociada al nodo.
 	// y carga el nodo leyendolo desde el archivo.
@@ -19,7 +19,7 @@ BPTreeNode<Record>::create(File & file):file_(file){
 	FreeSpaceStackBlock<blockSize> *freeBlock= new FreeSpaceStackBlock<blockSize>;
 	file_.seek(0,File::BEG);
 	file_.read((char *)freeBlock,blockSize);
-	pos_=(freeBlock->blockNumber)*blockSize;
+	pos_=((unsigned long)(freeBlock->blockNumber))*blockSize;
 	if(freeBlock->inFile){
 		file_.seekg(pos_,File::BEG);
 		file_.read((char *)freeBlock,blockSize);
@@ -44,7 +44,7 @@ unsigned int BPTreeNode<Record>::count()const{
     return count_;
 }
 template<class Record>
-unsigned int BPTreeNode<Record>::pos()const{
+unsigned long BPTreeNode<Record>::pos()const{
     return pos_;
 }
 template<class Record>
@@ -60,7 +60,7 @@ void BPTreeNode<Record>::file(File & f){
     file_=f;
 }
 template<class Record>
-void BPTreeNode<Record>::pos(unsigned int p){
+void BPTreeNode<Record>::pos(unsigned long p){
     pos_=p;
 }
 template<class Record>

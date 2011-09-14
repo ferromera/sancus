@@ -8,7 +8,7 @@ template<class Record>
 class BPTreeNode{
 protected:
             File & file_;
-            unsigned int pos_;
+            unsigned long  pos_;
             unsigned int count_;
             unsigned int level_;
             unsigned int blockSize_;
@@ -17,15 +17,15 @@ protected:
             BPTreeNode(){}
 public:
             BPTreeNode(unsigned int blockSize);
-            void load(File & file,unsigned int pos);
+            void load(File & file,unsigned long pos);
             unsigned int create(File &);
             unsigned int level()const;
             unsigned int count()const;
-            unsigned int pos()const;
+            unsigned long pos()const;
             void level(unsigned int);
             void count(unsigned int);
             void file(File &);
-            void pos(unsigned int);
+            void pos(unsigned long);
             virtual void insert(Record &)=0;
             virtual void remove(Record &)=0;
             virtual bool isLeaf()const=0;
