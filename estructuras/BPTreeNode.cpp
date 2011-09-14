@@ -2,28 +2,32 @@
 #include "BPTreeNode.h"
 using namespace std;
 
-template<class Record>
-BPTreeNode<Record>::BPTreeNode(unsigned int blockSize):count_(0),blockSize_(blockSize),freeSpace_(blockSize-2){}
+template<class Record,unsigned int blockSize>
+BPTreeNode<Record,blockSize>::BPTreeNode():count_(0),freeSpace_(blockSize-2){}
 
-template<class Record>
-BPTreeNode<Record>::load(File & file,unsigned long pos):
-file_(file),pos_(pos){
+template<class Record,unsigned int blockSize>
+void BPTreeNode<Record,blockSize>::load(File & file,unsigned long pos){
 	// Setea el archivo y la posición en el archivo asociada al nodo.
 	// y carga el nodo leyendolo desde el archivo.
+	file_=file;
+	pos_=pos;
 	read();
 }
 
-template<class Record>
-BPTreeNode<Record>::create(File & file):file_(file){
+template<class Record,unsigned int blockSize>
+unsigned int BPTreeNode<Record,blockSize>::create(File & file){
 	//Crea un nuevo bloque en el archivo con los datos del Nodo.
-	FreeSpaceStackBlock<blockSize> *freeBlock= new FreeSpaceStackBlock<blockSize>;
+
+	file_=file;
+	FreeSpaceStackBlock<blockSize> *freeBlock;//= new FreeSpaceStackBlock<size>;
 	file_.seek(0,File::BEG);
 	file_.read((char *)freeBlock,blockSize);
-	pos_=((unsigned long)(freeBlock->blockNumber))*blockSize;
+	unsigned int blockNumber=freeBlock->blockNumber;
+	pos_=((unsigned long)blockNumber)*blockSize;
 	if(freeBlock->inFile){
-		file_.seekg(pos_,File::BEG);
+		file_.seek(pos_,File::BEG);
 		file_.read((char *)freeBlock,blockSize);
-		file_.seekg(0,File::BEG);
+		file_.seek(0,File::BEG);
 		file_.write((char *)freeBlock,blockSize);
 	}else{
 		freeBlock->blockNumber++;
@@ -31,45 +35,45 @@ BPTreeNode<Record>::create(File & file):file_(file){
 	}
 	delete freeBlock;
 	write();
-	return pos_;
+	return blockNumber;
 }
 
 
-template<class Record>
-unsigned int BPTreeNode<Record>::level()const{
+template<class Record,unsigned int blockSize>
+unsigned int BPTreeNode<Record,blockSize>::level()const{
     return level_;
 }
 
-template<class Record>
-unsigned int BPTreeNode<Record>::count()const{
+template<class Record,unsigned int blockSize>
+unsigned int BPTreeNode<Record,blockSize>::count()const{
     return count_;
 }
 
-template<class Record>
-unsigned long BPTreeNode<Record>::pos()const{
+template<class Record,unsigned int blockSize>
+unsigned long BPTreeNode<Record,blockSize>::pos()const{
    return pos_;
 }
 
-template<class Record>
-void BPTreeNode<Record>::level(unsigned int l){
+template<class Record,unsigned int blockSize>
+void BPTreeNode<Record,blockSize>::level(unsigned int l){
     level_=l;
 }
 
-template<class Record>
-void BPTreeNode<Record>::count(unsigned int c){
+template<class Record,unsigned int blockSize>
+void BPTreeNode<Record,blockSize>::count(unsigned int c){
     count_=c;
 }
 
-template<class Record>
-void BPTreeNode<Record>::file(File & f){
+template<class Record,unsigned int blockSize>
+void BPTreeNode<Record,blockSize>::file(File & f){
     file_=f;
 }
 
-template<class Record>
-void BPTreeNode<Record>::pos(unsigned long p){
+template<class Record,unsigned int blockSize>
+void BPTreeNode<Record,blockSize>::pos(unsigned long p){
     pos_=p;
 }
 
-template<class Record>
-BPTreeNode<Record>::~BPTreeNode(){
+template<class Record,unsigned int blockSize>
+BPTreeNode<Record,blockSize>::~BPTreeNode(){
 }

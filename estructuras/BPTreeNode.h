@@ -4,20 +4,19 @@
 #include "FreeSpaceStackBlock.h"
 #include "File.h"
 
-template<class Record>
+template<class Record,unsigned int blockSize>
 class BPTreeNode{
 protected:
             File & file_;
             unsigned long  pos_;
             unsigned int count_;
             unsigned int level_;
-            unsigned int blockSize_;
             unsigned int freeSpace_;
             virtual void readFromBlock(char *)=0;
             virtual char *writeToBlock()=0;
-            BPTreeNode(){}
+
 public:
-            BPTreeNode(unsigned int blockSize);
+            BPTreeNode();
             void load(File & file,unsigned long pos);
             unsigned int create(File &);
             unsigned int level()const;
