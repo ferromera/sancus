@@ -14,11 +14,12 @@ protected:
             unsigned int freeSpace_;
             virtual void readFromBlock(char *)=0;
             virtual char *writeToBlock()=0;
+            BPTreeNode(){}
 
 public:
-            BPTreeNode();
-            void load(File & file,unsigned long pos);
-            unsigned int create(File &);
+            BPTreeNode(File & file);
+            BPTreeNode(File & file,unsigned long pos);
+
             unsigned int level()const;
             unsigned int count()const;
             unsigned long pos()const;

@@ -17,9 +17,14 @@ protected:
 	unsigned int capacity_;
 	typename std::list<Record>::iterator search (const Record &);
 public:
-	BPTreeLeaf();
-	BPTreeLeaf(unsigned int capacity);
+	BPTreeLeaf(File & file);
+	BPTreeLeaf(File & file,unsigned int pos);
+
+	BPTreeLeaf(unsigned int capacity,File & file);
+	BPTreeLeaf(unsigned int capacity,File & file,unsigned int pos);
+
 	virtual BPTreeLeaf * nextLeaf()=0;
+	bool isLeaf()const;
 	~BPTreeLeaf();
 
 };

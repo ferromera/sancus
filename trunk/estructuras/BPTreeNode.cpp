@@ -3,23 +3,15 @@
 using namespace std;
 
 template<class Record,unsigned int blockSize>
-BPTreeNode<Record,blockSize>::BPTreeNode():count_(0),freeSpace_(blockSize-2){}
-
-template<class Record,unsigned int blockSize>
-void BPTreeNode<Record,blockSize>::load(File & file,unsigned long pos){
-	// Setea el archivo y la posición en el archivo asociada al nodo.
-	// y carga el nodo leyendolo desde el archivo.
-	file_=file;
-	pos_=pos;
+BPTreeNode<Record,blockSize>::BPTreeNode(File & file,unsigned long pos):
+file_(file),pos_(pos),count_(0){
 	read();
 }
-
 template<class Record,unsigned int blockSize>
-unsigned int BPTreeNode<Record,blockSize>::create(File & file){
-	//Crea un nuevo bloque en el archivo con los datos del Nodo.
+BPTreeNode<Record,blockSize>::BPTreeNode(File & file):
+file_(file),count_(0){
 
-	file_=file;
-	FreeSpaceStackBlock<blockSize> *freeBlock;//= new FreeSpaceStackBlock<size>;
+	FreeSpaceStackBlock<blockSize> *freeBlock= new FreeSpaceStackBlock<blockSize>;
 	file_.seek(0,File::BEG);
 	file_.read((char *)freeBlock,blockSize);
 	unsigned int blockNumber=freeBlock->blockNumber;
@@ -35,9 +27,7 @@ unsigned int BPTreeNode<Record,blockSize>::create(File & file){
 	}
 	delete freeBlock;
 	write();
-	return blockNumber;
 }
-
 
 template<class Record,unsigned int blockSize>
 unsigned int BPTreeNode<Record,blockSize>::level()const{
