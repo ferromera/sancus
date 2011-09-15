@@ -12,8 +12,7 @@ protected:
             unsigned int count_;
             unsigned int level_;
             unsigned int freeSpace_;
-            virtual void readFromBlock(char *)=0;
-            virtual char *writeToBlock()=0;
+
             BPTreeNode(){}
 
 public:
