@@ -12,21 +12,25 @@ using namespace std;
 template<class Record,unsigned int blockSize>
 BPTreeLeaf<Record,blockSize>::BPTreeLeaf(File & file):
 BPTreeNode<Record,blockSize>(file),next_(0){
+	level_=0;
 }
 
 template<class Record,unsigned int blockSize>
 BPTreeLeaf<Record,blockSize>::BPTreeLeaf(File & file,unsigned int pos):
 BPTreeNode<Record,blockSize>(file,pos),next_(0){
+	level_=0;
 }
 
 template<class Record,unsigned int blockSize>
 BPTreeLeaf<Record,blockSize>::BPTreeLeaf(unsigned int capacity,File & file):
 BPTreeNode<Record,blockSize>(file),next_(0),capacity_(capacity){
+	level_=0;
 }
 
 template<class Record,unsigned int blockSize>
 BPTreeLeaf<Record,blockSize>::BPTreeLeaf(unsigned int capacity,File & file,unsigned int pos):
 BPTreeNode<Record,blockSize>(file,pos),next_(0),capacity_(capacity){
+	level_=0;
 }
 
 
