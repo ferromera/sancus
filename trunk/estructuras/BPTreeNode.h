@@ -7,7 +7,7 @@
 template<class Record,unsigned int blockSize>
 class BPTreeNode{
 protected:
-            File & file_;
+            File * file_;
             unsigned long  blockNumber_;
             unsigned int count_;
             unsigned int level_;
@@ -36,25 +36,25 @@ public:
 
 template<class Record,unsigned int blockSize>
 BPTreeNode<Record,blockSize>::BPTreeNode(File & file,unsigned long blockNum):
-file_(file),blockNumber_(blockNum),count_(0){
+file_(&file),blockNumber_(blockNum),count_(0){
 }
 template<class Record,unsigned int blockSize>
 BPTreeNode<Record,blockSize>::BPTreeNode(File & file):
-file_(file),count_(0){
+file_(&file),count_(0){
 
 	FreeSpaceStackBlock<blockSize> *freeBlock= new FreeSpaceStackBlock<blockSize>;
-	file_.seek(0,File::BEG);
-	file_.read((char *)freeBlock,blockSize);
+	file_->seek(0,File::BEG);
+	file_->read((char *)freeBlock,blockSize);
 	blockNumber_=freeBlock->blockNumber;
 	unsigned long pos= blockNumber * blockSize;
 	if(freeBlock->inFile){
-		file_.seek(pos,File::BEG);
-		file_.read((char *)freeBlock,blockSize);
-		file_.seek(0,File::BEG);
-		file_.write((char *)freeBlock,blockSize);
+		file_->seek(pos,File::BEG);
+		file_->read((char *)freeBlock,blockSize);
+		file_->seek(0,File::BEG);
+		file_->write((char *)freeBlock,blockSize);
 	}else{
 		freeBlock->blockNumber++;
-		file_.write((char *)freeBlock,blockSize);
+		file_->write((char *)freeBlock,blockSize);
 	}
 	delete freeBlock;
 }
@@ -86,7 +86,7 @@ void BPTreeNode<Record,blockSize>::count(unsigned int c){
 
 template<class Record,unsigned int blockSize>
 void BPTreeNode<Record,blockSize>::file(File & f){
-    file_=f;
+    file_=&f;
 }
 
 template<class Record,unsigned int blockSize>
