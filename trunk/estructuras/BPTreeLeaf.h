@@ -20,10 +20,10 @@ protected:
 	typename std::list<Record>::iterator search (const Record &);
 public:
 	BPTreeLeaf(File & file);
-	BPTreeLeaf(File & file,unsigned long pos);
+	BPTreeLeaf(File & file,unsigned long blockNumber);
 
 	BPTreeLeaf(unsigned int capacity,File & file);
-	BPTreeLeaf(unsigned int capacity,File & file,unsigned long pos);
+	BPTreeLeaf(unsigned int capacity,File & file,unsigned long blockNumber);
 
 	virtual BPTreeLeaf<Record,blockSize> * nextLeaf()=0;
 	bool isLeaf()const;
@@ -40,8 +40,8 @@ BPTreeNode<Record,blockSize>(file),next_(0){
 }
 
 template<class Record,unsigned int blockSize>
-BPTreeLeaf<Record,blockSize>::BPTreeLeaf(File & file,unsigned long pos):
-BPTreeNode<Record,blockSize>(file,pos),next_(0){
+BPTreeLeaf<Record,blockSize>::BPTreeLeaf(File & file,unsigned long blockNumber):
+BPTreeNode<Record,blockSize>(file,blockNumber),next_(0){
 	BPTreeNode<Record,blockSize>::level_=0;
 }
 
@@ -52,8 +52,8 @@ BPTreeNode<Record,blockSize>(file),next_(0),capacity_(capacity){
 }
 
 template<class Record,unsigned int blockSize>
-BPTreeLeaf<Record,blockSize>::BPTreeLeaf(unsigned int capacity,File & file,unsigned long pos):
-BPTreeNode<Record,blockSize>(file,pos),next_(0),capacity_(capacity){
+BPTreeLeaf<Record,blockSize>::BPTreeLeaf(unsigned int capacity,File & file,unsigned long blockNumber):
+BPTreeNode<Record,blockSize>(file,blockNumber),next_(0),capacity_(capacity){
 	BPTreeNode<Record,blockSize>::level_=0;
 }
 

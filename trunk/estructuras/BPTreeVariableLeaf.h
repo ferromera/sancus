@@ -13,6 +13,8 @@
 template<class Record,unsigned int blockSize>
 class BPTreeVariableLeaf: public BPTreeLeaf<Record,blockSize>{
 	std::list<unsigned int> blockNumbers;
+	std::list<unsigned int> blockCounts;
+	std::list<unsigned int> freeSpaces;
 	void readRecords(BPTreeVariableLeafBlock<blockSize> *);
 public:
 	BPTreeVariableLeaf(unsigned int capacity,File & file);
@@ -29,12 +31,16 @@ public:
 template<class Record,unsigned int blockSize>
 BPTreeVariableLeaf<Record,blockSize>::BPTreeVariableLeaf(unsigned int capacity,File & file):
 BPTreeLeaf<Record,blockSize>(capacity,file){
+	blockCounts.push_back(0);
+	blockNumbers.push_back(BPTreeNode<Record,blockSize>::blockNumber_);
+	BPTreeNode<Record,blockSize>::freeSpace_=blockSize-9;
+	freeSpaces.push_back(blockSize-9);
 	write();
 }
 
 template<class Record,unsigned int blockSize>
-BPTreeVariableLeaf<Record,blockSize>::BPTreeVariableLeaf(unsigned int capacity,File & file,unsigned long pos):
-BPTreeLeaf<Record,blockSize>(capacity,file,pos){
+BPTreeVariableLeaf<Record,blockSize>::BPTreeVariableLeaf(unsigned int capacity,File & file,unsigned long blockNumber):
+BPTreeLeaf<Record,blockSize>(capacity,file,blockNumber){
 	read();
 }
 
@@ -43,22 +49,32 @@ void BPTreeVariableLeaf<Record,blockSize>::read(){
 	BPTreeVariableLeafBlock<blockSize> * block= new BPTreeVariableLeafBlock<blockSize>;
 
 	File & file=BPTreeNode<Record,blockSize>::file_;
-	unsigned long pos=BPTreeNode<Record,blockSize>::pos_;
-	unsigned int count=BPTreeNode<Record,blockSize>::count_;
+	unsigned long & blockNumber=BPTreeNode<Record,blockSize>::blockNumber_;
+	unsigned int & count=BPTreeNode<Record,blockSize>::count_;
 
+	blockCounts.clear();
+	blockNumbers.clear();
+	freeSpaces.clear();
+	BPTreeLeaf<Record,blockSize>::records_.clear();
+
+	blockNumbers.push_back(blockNumber);
+	unsigned long pos=blockNumber*blockSize;
 	file.seek(pos,File::BEG);
 	file.read((char*)block,blockSize);
 	count=0;
 	while(block->nestedBlocks!=0){
+		blockCounts.push_back(block->count);
 		count+=block->count;
 		blockNumbers.push_back(block->next);
+		freeSpaces.push_back(block->freeSpace);
 		readRecords(block);
 		unsigned long nextPos=((unsigned long)block->next)*blockSize;
 		file.seek(nextPos,File::BEG);
 		file.read((char*)block,blockSize);
 	}
+	blockCounts.push_back(block->count);
 	count+=block->count;
-	BPTreeNode<Record,blockSize>::count_=count;
+	freeSpaces.push_back(block->freeSpace);
 	BPTreeNode<Record,blockSize>::freeSpace_=block->freeSpace;
 	BPTreeLeaf<Record,blockSize>::next_=block->next;
 	readRecords(block);
@@ -74,11 +90,11 @@ void BPTreeVariableLeaf<Record,blockSize>::readRecords(BPTreeVariableLeafBlock<b
 		delete newRecord;
 		alreadyRead++;
 	}
-
 }
 
 template<class Record,unsigned int blockSize>
 void BPTreeVariableLeaf<Record,blockSize>::write(){
+
 	// No Implementado
 }
 
