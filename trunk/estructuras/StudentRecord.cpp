@@ -21,7 +21,7 @@ StudentRecord::StudentRecord(char ** input){
     read(input);
 }
 
-StudentRecord::StudentRecord(uint16_t idNumber,const std::string & name)
+StudentRecord::StudentRecord(uint16_t idNumber,const string & name)
 :idNumber_(idNumber),name_(name){
     key_= new Key(idNumber);
     size_=sizeof(idNumber_)+1+name_.size();
