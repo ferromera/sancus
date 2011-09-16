@@ -8,7 +8,7 @@ template<class Record,unsigned int blockSize>
 class BPTreeNode{
 protected:
             File & file_;
-            unsigned long  pos_;
+            unsigned long  blockNumber_;
             unsigned int count_;
             unsigned int level_;
             unsigned int freeSpace_;
@@ -21,11 +21,11 @@ public:
 
             unsigned int level()const;
             unsigned int count()const;
-            unsigned long pos()const;
+            unsigned long blockNumber()const;
             void level(unsigned int);
             void count(unsigned int);
             void file(File &);
-            void pos(unsigned long);
+            void blockNumber(unsigned long);
             virtual void read()=0;
             virtual void write()=0;
             virtual void insert(Record &)=0;
@@ -35,8 +35,8 @@ public:
 };
 
 template<class Record,unsigned int blockSize>
-BPTreeNode<Record,blockSize>::BPTreeNode(File & file,unsigned long pos):
-file_(file),pos_(pos),count_(0){
+BPTreeNode<Record,blockSize>::BPTreeNode(File & file,unsigned long blockNum):
+file_(file),blockNumber_(blockNum),count_(0){
 }
 template<class Record,unsigned int blockSize>
 BPTreeNode<Record,blockSize>::BPTreeNode(File & file):
@@ -45,10 +45,10 @@ file_(file),count_(0){
 	FreeSpaceStackBlock<blockSize> *freeBlock= new FreeSpaceStackBlock<blockSize>;
 	file_.seek(0,File::BEG);
 	file_.read((char *)freeBlock,blockSize);
-	unsigned int blockNumber=freeBlock->blockNumber;
-	pos_=((unsigned long)blockNumber)*blockSize;
+	blockNumber_=freeBlock->blockNumber;
+	unsigned long pos= blockNumber * blockSize;
 	if(freeBlock->inFile){
-		file_.seek(pos_,File::BEG);
+		file_.seek(pos,File::BEG);
 		file_.read((char *)freeBlock,blockSize);
 		file_.seek(0,File::BEG);
 		file_.write((char *)freeBlock,blockSize);
@@ -70,8 +70,8 @@ unsigned int BPTreeNode<Record,blockSize>::count()const{
 }
 
 template<class Record,unsigned int blockSize>
-unsigned long BPTreeNode<Record,blockSize>::pos()const{
-   return pos_;
+unsigned long BPTreeNode<Record,blockSize>::blockNumber()const{
+   return blockNumber_;
 }
 
 template<class Record,unsigned int blockSize>
@@ -90,8 +90,8 @@ void BPTreeNode<Record,blockSize>::file(File & f){
 }
 
 template<class Record,unsigned int blockSize>
-void BPTreeNode<Record,blockSize>::pos(unsigned long p){
-    pos_=p;
+void BPTreeNode<Record,blockSize>::blockNumber(unsigned long blockNum){
+	blockNumber_=blockNum;
 }
 
 template<class Record,unsigned int blockSize>
