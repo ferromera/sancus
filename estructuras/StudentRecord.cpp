@@ -1,6 +1,7 @@
 #include "StudentRecord.h"
 #include <cstring>
 
+
 using namespace std;
 
 StudentRecord::StudentRecord():idNumber_(0),name_(string()){
@@ -11,7 +12,7 @@ StudentRecord::StudentRecord():idNumber_(0),name_(string()){
 StudentRecord::StudentRecord(const StudentRecord & sr):
 idNumber_(sr.idNumber_),name_(sr.name_){
     key_=new Key(idNumber_);
-    size_=sizeof(idNumber_)+1;
+    size_=sr.size_;
     buffer= new char[260];
 }
 
@@ -61,9 +62,12 @@ void StudentRecord::read(char ** input){
     char * c_str=new char[nameSize+1];
     memcpy(buffCurr,*input,nameSize);
     memcpy(c_str,*input,nameSize);
+    (*input)+=nameSize;
+
     size_=3+nameSize;
     c_str[nameSize]='\0';
     name_=c_str;
+
 
     delete c_str;
 }
@@ -95,6 +99,7 @@ void StudentRecord::idNumber(uint16_t p){
     setKey(p);
 }
 void StudentRecord::name(const string & n){
+	size_=3+n.size();
     name_=n;
 }
 StudentRecord::~StudentRecord(){
