@@ -9,7 +9,7 @@
 
 using namespace std;
 
-File::File():filep(NULL){}
+
 File::File(const std::string & path,char openMode):path_(path),filep(NULL){
 	open(path,openMode);
 }
