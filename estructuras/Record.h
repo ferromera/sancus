@@ -18,7 +18,6 @@ public:
     };
 protected:
     Key *key_;
-    unsigned int size_;
 
 public:
     Record(){}
@@ -27,8 +26,7 @@ public:
     virtual void setKey(const Key & k)=0;
     virtual void read(char ** input)=0;
     virtual void write(char ** output)=0;
-
-    unsigned int size()const{return size_;}
+    virtual unsigned int size()const=0;
 
 
     bool operator <(const Record &r)const{return (*key_)<(*(r.key_));}

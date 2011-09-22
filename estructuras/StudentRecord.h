@@ -34,6 +34,7 @@ public:
 
     void read(char ** input);
     void write(char ** output);
+    unsigned int size()const;
 
     uint16_t idNumber()const;
     const std::string & name()const;
