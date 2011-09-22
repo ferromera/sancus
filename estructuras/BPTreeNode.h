@@ -46,7 +46,7 @@ file_(&file),count_(0){
 	file_->seek(0,File::BEG);
 	file_->read((char *)freeBlock,blockSize);
 	blockNumber_=freeBlock->blockNumber;
-	unsigned long pos= blockNumber * blockSize;
+	unsigned long pos= blockNumber_ * blockSize;
 	if(freeBlock->inFile){
 		file_->seek(pos,File::BEG);
 		file_->read((char *)freeBlock,blockSize);
