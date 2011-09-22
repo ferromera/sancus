@@ -9,11 +9,8 @@
 using namespace std;
 
 bool FileTest::constructorTest(){
-	File f1;
-	if(f1.isOpen())
-		return false;
-	File f2("TestFile.txt",File::NEW|File::IO);
-	if(!f2.isOpen())
+	File f1("TestFile.txt",File::NEW|File::IO);
+	if(!f1.isOpen())
 		return false;
 	return true;
 }
