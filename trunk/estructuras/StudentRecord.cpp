@@ -6,13 +6,11 @@ using namespace std;
 
 StudentRecord::StudentRecord():idNumber_(0),name_(string()){
     key_=new Key;
-    size_=sizeof(idNumber_)+1;
     buffer= new char[260];
 }
 StudentRecord::StudentRecord(const StudentRecord & sr):
 idNumber_(sr.idNumber_),name_(sr.name_){
     key_=new Key(idNumber_);
-    size_=sr.size_;
     buffer= new char[260];
 }
 
@@ -25,7 +23,6 @@ StudentRecord::StudentRecord(char ** input){
 StudentRecord::StudentRecord(uint16_t idNumber,const string & name)
 :idNumber_(idNumber),name_(name){
     key_= new Key(idNumber);
-    size_=sizeof(idNumber_)+1+name_.size();
     buffer= new char[260];
 }
 
@@ -64,7 +61,6 @@ void StudentRecord::read(char ** input){
     memcpy(c_str,*input,nameSize);
     (*input)+=nameSize;
 
-    size_=3+nameSize;
     c_str[nameSize]='\0';
     name_=c_str;
 
@@ -73,8 +69,8 @@ void StudentRecord::read(char ** input){
 }
 void StudentRecord::write(char ** output){
     update();
-    memcpy(*output,buffer,size_);
-    (*output)+=size_;
+    memcpy(*output,buffer,size());
+    (*output)+=size();
 }
 
 void StudentRecord::update(){
@@ -89,6 +85,11 @@ void StudentRecord::update(){
 
 
 }
+
+unsigned int StudentRecord::size()const{
+	return sizeof(idNumber_)+1+name_.size();
+
+}
 uint16_t StudentRecord::idNumber()const{
     return idNumber_;
 }
@@ -99,7 +100,6 @@ void StudentRecord::idNumber(uint16_t p){
     setKey(p);
 }
 void StudentRecord::name(const string & n){
-	size_=3+n.size();
     name_=n;
 }
 StudentRecord::~StudentRecord(){
