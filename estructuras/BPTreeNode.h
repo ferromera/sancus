@@ -3,6 +3,7 @@
 
 #include "FreeSpaceStackBlock.h"
 #include "File.h"
+#include "BPlusTreeExceptions.h"
 
 template<class Record,unsigned int blockSize>
 class BPTreeNode{
@@ -11,9 +12,9 @@ protected:
             unsigned long  blockNumber_;
             unsigned int count_;
             unsigned int level_;
-            unsigned int freeSpace_;
 
             BPTreeNode(){}
+            unsigned int getFreeBlock();
 
 public:
             BPTreeNode(File & file);
@@ -40,13 +41,17 @@ file_(&file),blockNumber_(blockNum),count_(0){
 }
 template<class Record,unsigned int blockSize>
 BPTreeNode<Record,blockSize>::BPTreeNode(File & file):
-file_(&file),count_(0){
+file_(&file),blockNumber_(getFreeBlock()),count_(0){
+}
 
+template<class Record,unsigned int blockSize>
+unsigned int BPTreeNode<Record,blockSize>::getFreeBlock(){
+	unsigned int newBlockNumber;
 	FreeSpaceStackBlock<blockSize> *freeBlock= new FreeSpaceStackBlock<blockSize>;
 	file_->seek(0,File::BEG);
 	file_->read((char *)freeBlock,blockSize);
-	blockNumber_=freeBlock->blockNumber;
-	unsigned long pos= blockNumber_ * blockSize;
+	newBlockNumber=freeBlock->blockNumber;
+	unsigned long pos= newBlockNumber * blockSize;
 	if(freeBlock->inFile){
 		file_->seek(pos,File::BEG);
 		file_->read((char *)freeBlock,blockSize);
@@ -57,6 +62,7 @@ file_(&file),count_(0){
 		file_->write((char *)freeBlock,blockSize);
 	}
 	delete freeBlock;
+	return newBlockNumber;
 }
 
 template<class Record,unsigned int blockSize>
