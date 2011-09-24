@@ -13,7 +13,6 @@ using namespace std;
 BPTreeVariableLeafTest::BPTreeVariableLeafTest() {}
 
 bool BPTreeVariableLeafTest::testRead1(){
-	unsigned long t;
 	BPTreeVariableLeafBlock<4096> * block = new BPTreeVariableLeafBlock<4096>;
 	File file("testRead.bin",File::NEW|File::IO|File::BIN);
 
@@ -23,7 +22,7 @@ bool BPTreeVariableLeafTest::testRead1(){
 	block->nestedBlocks=0;
 	block->next=0;
 
-	StudentRecord * stRec1=new StudentRecord(8405,"Fer");
+	StudentRecord * stRec1=new StudentRecord(8406,"Fer");
 	StudentRecord * stRec2=new StudentRecord(8405,"Juan");
 	StudentRecord * stRec3=new StudentRecord(9999,"Pedro");
 	StudentRecord * stRec4=new StudentRecord(6666,"Diablo");

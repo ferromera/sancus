@@ -61,8 +61,8 @@ BPTreeNode<Record,blockSize>(file,blockNumber),next_(0),capacity_(capacity){
 template<class Record,unsigned int blockSize>
 typename std::list<Record>::iterator BPTreeLeaf<Record,blockSize>::search (const Record & rec){
 	typename std::list<Record>::iterator it;
-	for(it=records_.begin();it<records_.end();it++){
-       if(rec <= (**it))
+	for(it=records_.begin();it!=records_.end();it++){
+       if(rec <= (*it))
 	       break;
 	}
 	return it;
