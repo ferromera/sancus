@@ -41,7 +41,8 @@ file_(&file),blockNumber_(blockNum),count_(0){
 }
 template<class Record,unsigned int blockSize>
 BPTreeNode<Record,blockSize>::BPTreeNode(File & file):
-file_(&file),blockNumber_(getFreeBlock()),count_(0){
+file_(&file),count_(0){
+	blockNumber_=getFreeBlock();
 }
 
 template<class Record,unsigned int blockSize>
@@ -59,6 +60,7 @@ unsigned int BPTreeNode<Record,blockSize>::getFreeBlock(){
 		file_->write((char *)freeBlock,blockSize);
 	}else{
 		freeBlock->blockNumber++;
+		file_->seek(0,File::BEG);
 		file_->write((char *)freeBlock,blockSize);
 	}
 	delete freeBlock;

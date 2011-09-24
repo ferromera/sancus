@@ -16,7 +16,7 @@ class BPTreeVariableLeaf: public BPTreeLeaf<Record,blockSize>{
 	std::list<unsigned int> blockCounts;
 	std::list<unsigned int> freeSpaces;
 	void readRecords(BPTreeVariableLeafBlock<blockSize> *);
-	void writeRecords(BPTreeVariableLeafBlock<blockSize> *);
+	void writeRecords(BPTreeVariableLeafBlock<blockSize> *,unsigned int);
 	unsigned int getBlockPosition(typename std::list<Record>::iterator &);
 	typename std::list<Record>::iterator getFirstRecordOfBlock(unsigned int);
 	void expand();
@@ -102,10 +102,10 @@ void BPTreeVariableLeaf<Record,blockSize>::write(){
 	std::list<unsigned int>::iterator itNumber,itCount,itFree,itLastNumber;
 	itLastNumber=--(blockNumbers.end());
 	unsigned int blockQuantity=blockNumbers.size();
+	unsigned int blockPos;
 
-
-	for(itNumber=blockNumbers.begin() , itCount=blockCounts.begin(), itFree=freeSpaces.begin()
-		; itNumber!=blockNumbers.end(); itNumber++ , itCount++, itFree++){
+	for( blockPos=0,itNumber=blockNumbers.begin() , itCount=blockCounts.begin(), itFree=freeSpaces.begin()
+		; itNumber!=blockNumbers.end(); itNumber++ , itCount++, itFree++,blockPos++){
 		block->count=*itCount;
 		block->freeSpace=*itFree;
 		block->nestedBlocks=--blockQuantity;
@@ -115,7 +115,7 @@ void BPTreeVariableLeaf<Record,blockSize>::write(){
 			itNumber--;
 		}else
 			block->next=BPTreeLeaf<Record,blockSize>::next_;
-		writeRecords(block);
+		writeRecords(block,blockPos);
 		file->seek((*itNumber)*blockSize,File::BEG);
 		file->write(block,blockSize);
 	}
@@ -123,11 +123,22 @@ void BPTreeVariableLeaf<Record,blockSize>::write(){
 }
 
 template<class Record,unsigned int blockSize>
-void BPTreeVariableLeaf<Record,blockSize>::writeRecords(BPTreeVariableLeafBlock<blockSize> * block){
+void BPTreeVariableLeaf<Record,blockSize>::writeRecords(BPTreeVariableLeafBlock<blockSize> * block,unsigned int blockPos){
+
+	typename std::list<Record>::iterator itRecord=BPTreeLeaf<Record,blockSize>::records_.begin();
+	std::list<unsigned int>::iterator itBlockCount=blockCounts.begin();
+	unsigned int currBlock=0;
+	int t=BPTreeLeaf<Record,blockSize>::records_.size();
+
+	for(unsigned int count=1;currBlock!=blockPos;itRecord++,count++)
+			if(count==(*itBlockCount)){
+				count=0;
+				itBlockCount++;
+				currBlock++;
+			}
+
 	unsigned int alreadyWritten=0;
 	char * currentPos=block->bytes;
-	typename std::list<Record>::iterator itRecord=BPTreeLeaf<Record,blockSize>::records_.begin();
-
 	while(alreadyWritten!=block->count){
 		itRecord->write(&currentPos);
 		alreadyWritten++;
@@ -142,11 +153,11 @@ void BPTreeVariableLeaf<Record,blockSize>::insert(Record & rec){
 		throw BPTreeRecordSizeException();
 
 	typename std::list<Record>::iterator itInsertionPos=search(rec);
-	if((*itInsertionPos)==rec)
+	if( itInsertionPos!=BPTreeLeaf<Record,blockSize>::records_.end()
+			&& (*itInsertionPos)==rec)
 		throw LeafUnicityException();
 	Record * rp=new Record(rec);
-	BPTreeLeaf<Record,blockSize>::records_.insert(itInsertionPos,*rp);
-	BPTreeNode<Record,blockSize>::count_++;
+
 
 	std::list<unsigned int>::iterator itBlockNumber=blockNumbers.begin();
 	std::list<unsigned int>::iterator itBlockCount=blockCounts.begin();
@@ -155,6 +166,9 @@ void BPTreeVariableLeaf<Record,blockSize>::insert(Record & rec){
 
 	//Posiciono los iteradores en el bloque donde se va a insertar el registro.
 	unsigned int blockPos=getBlockPosition(itInsertionPos);
+
+	BPTreeLeaf<Record,blockSize>::records_.insert(itInsertionPos,*rp);
+	BPTreeNode<Record,blockSize>::count_++;
 
 	for(unsigned int i=0;i<blockPos;i++){
 		itBlockCount++;
@@ -199,12 +213,16 @@ unsigned int BPTreeVariableLeaf<Record,blockSize>::getBlockPosition(typename std
 	std::list<unsigned int>::iterator itBlockCount=blockCounts.begin();
 	unsigned int blockPos=0;
 
-	for(unsigned int count=0;it!=itRecord;it++,count++)
+	if(itRecord==BPTreeLeaf<Record,blockSize>::records_.end())
+			return blockCounts.size()-1;
+
+	for(unsigned int count=1;it!=itRecord;it++,count++)
 		if(count==(*itBlockCount)){
 			count=0;
 			itBlockCount++;
 			blockPos++;
 		}
+
 	return blockPos;
 }
 
@@ -214,7 +232,8 @@ typename std::list<Record>::iterator BPTreeVariableLeaf<Record,blockSize>::getFi
 	std::list<unsigned int>::iterator itBlockCount=blockCounts.begin();
 	unsigned int currBlock=0;
 
-	for(unsigned int count=0;currBlock!=blockPos;itFirstRecord++,count++)
+
+	for(unsigned int count=1;currBlock!=blockPos;itFirstRecord++,count++)
 		if(count==(*itBlockCount)){
 			count=0;
 			itBlockCount++;

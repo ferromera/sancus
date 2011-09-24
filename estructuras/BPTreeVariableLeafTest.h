@@ -13,7 +13,9 @@
 class BPTreeVariableLeafTest {
 public:
 	BPTreeVariableLeafTest();
+	void run();
 	bool testRead1();
+	bool testInsert1();
 	virtual ~BPTreeVariableLeafTest();
 };
 
