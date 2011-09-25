@@ -22,13 +22,5 @@ public:
     void remove(const Record & rec);
     const Record & search(const Record & rec);
     void update(const Record & rec);
-
-
-
 };
-
-
-
-
-
 #endif // BPLUSTREE_H_INCLUDED

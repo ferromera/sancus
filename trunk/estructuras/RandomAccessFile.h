@@ -17,7 +17,7 @@ class RandomAccessFile {
 
 private:
 	int bucketSize;
-	HashTable* table;
+	HashTable<T> * table;
 	File * file;
 
 public:
