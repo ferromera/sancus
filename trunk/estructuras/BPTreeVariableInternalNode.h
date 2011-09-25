@@ -153,7 +153,6 @@ void BPTreeVariableInternalNode<Record,blockSize>::writeRecords(BPTreeVariableNo
 	char * currentPos=block->bytes;
 	while(alreadyWritten!=block->count){
 		itKeys->write(&currentPos);
-		unsigned int t = *itChildren;
 		memcpy(currentPos,&(*itChildren),4);
 		currentPos+=4;
 		alreadyWritten++;
