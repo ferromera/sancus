@@ -26,7 +26,7 @@ void Uint16Key::read(char ** input){
     memcpy(&buffer,*input,2);
     (*input)+=2;
 }
-void Uint16Key::write(char ** output){
+void Uint16Key::write(char ** output)const{
     memcpy(*output,&buffer,2);
     (*output)+=2;
 }
