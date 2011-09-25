@@ -13,6 +13,8 @@
 
 #include "RandomAccessFile.h"
 
+#define PACKAGE_DENSITY 0.7
+
 template<class T>
 class HashTable {
 
@@ -22,17 +24,19 @@ private:
 	/* El numero de filas de la tabla*/
 	unsigned int size;
 
+	int table[];
+
 public:
 
 	/**
 	 * Primitiva de creación
 	 *
 	 * @randomAccessFile archivo de acceso aleatorio, vacio
-	 *
-	 * Crea una tabla con un solo bucket apuntando al primer
-	 * registro del archivo.r
+	 * @bucketSize numero de registros por cubeta
+	 * @numberOfRecords numero maximo de registros en el archivo (cuando se llegue a este numero se debera
+	 * enfrentar una reorganización de la tabla).
 	 */
-	HashTable(const RandomAccessFile<T> & randomAccessFile);
+	HashTable(const RandomAccessFile<T> & randomAccessFile, const int bucketSize, const int numberOfRecords);
 
 };
 

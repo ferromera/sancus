@@ -4,7 +4,7 @@
 template <class T>
 RandomAccessFile<T>::RandomAccessFile(const File & file, const int bucketSize){
 	this->file = file;
-	this->table = new HashTable<T>(this);
+	this->table = new HashTable<T>(this,bucketSize,10);
 }
 
 template <class T>
