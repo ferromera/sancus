@@ -22,6 +22,10 @@ void BPTreeVariableLeafTest::run(){
 		cout<<"testInsert1: OK"<<endl;
 	}else
 		cout<<"testInsert1: ERROR"<<endl;
+	if(testRemove1()){
+		cout<<"testRemove1: OK"<<endl;
+	}else
+		cout<<"testRemove1: ERROR"<<endl;
 
 }
 
@@ -138,6 +142,153 @@ bool BPTreeVariableLeafTest::testInsert1(){
 
 	return true;
 
+
+}
+
+bool BPTreeVariableLeafTest::testRemove1(){
+	//Escribo el bloque de espacio libre 0
+	File file("testInsert1.bin",File::NEW|File::IO|File::BIN);
+	FreeSpaceStackBlock<512> * fblock=new FreeSpaceStackBlock<512>;
+	fblock->blockNumber=1;
+	fblock->inFile=0; //No esta en el archivo.
+	file.write(fblock,512);
+	delete fblock;
+	BPTreeVariableLeaf<StudentRecord,512>* leaf=new BPTreeVariableLeaf<StudentRecord,512>(22,file);
+
+	StudentRecord *stRec;
+	for(int i=0;i<20;i++){
+		//Record de tamaño 80.
+		stRec=new StudentRecord(1000-i,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+		leaf->insert(*stRec);
+		delete stRec;
+	}
+
+	stRec=new StudentRecord(995,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	leaf->remove(*stRec);
+	delete stRec;
+	stRec=new StudentRecord(991,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	leaf->remove(*stRec);
+	delete stRec;
+	stRec=new StudentRecord(983,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	leaf->remove(*stRec);
+	delete stRec;
+	stRec=new StudentRecord(987,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	leaf->remove(*stRec);
+	delete stRec;
+	leaf->write();
+	delete leaf;
+
+	BPTreeVariableLeafBlock<512>* block1=new BPTreeVariableLeafBlock<512>;
+	block1->count=6;
+	block1->freeSpace=512-9-480;
+	block1->nestedBlocks=2;
+	block1->next=2;
+	char * currPos=block1->bytes;
+	stRec=new StudentRecord(981,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	stRec->write(&currPos);
+	delete stRec;
+	stRec=new StudentRecord(982,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	stRec->write(&currPos);
+	delete stRec;
+	stRec=new StudentRecord(984,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	stRec->write(&currPos);
+	delete stRec;
+	stRec=new StudentRecord(985,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	stRec->write(&currPos);
+	delete stRec;
+	stRec=new StudentRecord(986,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	stRec->write(&currPos);
+	delete stRec;
+	stRec=new StudentRecord(988,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	stRec->write(&currPos);
+	delete stRec;
+
+	BPTreeVariableLeafBlock<512>* block2=new BPTreeVariableLeafBlock<512>;
+	block2->count=6;
+	block2->freeSpace=512-9-480;
+	block2->nestedBlocks=1;
+	block2->next=3;
+	currPos=block2->bytes;
+	stRec=new StudentRecord(989,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	stRec->write(&currPos);
+	delete stRec;
+	stRec=new StudentRecord(990,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	stRec->write(&currPos);
+	delete stRec;
+	stRec=new StudentRecord(992,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	stRec->write(&currPos);
+	delete stRec;
+	stRec=new StudentRecord(993,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	stRec->write(&currPos);
+	delete stRec;
+	stRec=new StudentRecord(994,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	stRec->write(&currPos);
+	delete stRec;
+	stRec=new StudentRecord(996,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	stRec->write(&currPos);
+	delete stRec;
+
+	BPTreeVariableLeafBlock<512>* block3=new BPTreeVariableLeafBlock<512>;
+	block3->count=4;
+	block3->freeSpace=512-9-320;
+	block3->nestedBlocks=0;
+	block3->next=0;
+	currPos=block3->bytes;
+	stRec=new StudentRecord(997,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	stRec->write(&currPos);
+	delete stRec;
+	stRec=new StudentRecord(998,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	stRec->write(&currPos);
+	delete stRec;
+	stRec=new StudentRecord(999,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	stRec->write(&currPos);
+	delete stRec;
+	stRec=new StudentRecord(1000,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_1234567");
+	stRec->write(&currPos);
+	delete stRec;
+
+	currPos=(char*)block1;
+	char * blockRead = new char[512];
+	file.seek(512,File::BEG);
+	file.read(blockRead,512);
+	for(int i=0;i<489;i++){
+		if(currPos[i]!=blockRead[i]){
+			delete block1;
+			delete block2;
+			delete block3;
+			delete blockRead;
+			return false;
+		}
+	}
+	currPos=(char*)block2;
+	file.seek(1024,File::BEG);
+	file.read(blockRead,512);
+	for(int i=0;i<489;i++){
+		if(currPos[i]!=blockRead[i]){
+			delete block1;
+			delete block2;
+			delete block3;
+			delete blockRead;
+			return false;
+		}
+	}
+	currPos=(char*)block3;
+	file.seek(1536,File::BEG);
+	file.read(blockRead,512);
+	for(int i=0;i<329;i++){
+		if(currPos[i]!=blockRead[i]){
+			delete block1;
+			delete block2;
+			delete block3;
+			delete blockRead;
+			return false;
+		}
+	}
+	delete block1;
+	delete block2;
+	delete block3;
+	delete blockRead;
+	return true;
 
 }
 
