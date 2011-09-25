@@ -9,4 +9,5 @@ class LeafUnderflowException:public BPlusTreeException{};
 class LeafUnicityException:public BPlusTreeException{};
 class LeafNotFoundException:public BPlusTreeException{};
 class BPTreeRecordSizeException: public BPlusTreeException{};
+class LeafRecordNotFoundException: public BPlusTreeException{};
 #endif // BPLUSTREEEXCEPTIONS_H_INCLUDED

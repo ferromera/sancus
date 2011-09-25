@@ -15,6 +15,7 @@ protected:
 
             BPTreeNode(){}
             unsigned int getFreeBlock();
+            void eraseBlock(unsigned int blockNum);
 
 public:
             BPTreeNode(File & file);
@@ -65,6 +66,23 @@ unsigned int BPTreeNode<Record,blockSize>::getFreeBlock(){
 	}
 	delete freeBlock;
 	return newBlockNumber;
+}
+
+template<class Record,unsigned int blockSize>
+void BPTreeNode<Record,blockSize>::eraseBlock(unsigned int blockNum){
+	FreeSpaceStackBlock<blockSize> *freeBlock= new FreeSpaceStackBlock<blockSize>;
+	file_->seek(0,File::BEG);
+	file_->read((char *)freeBlock,blockSize);
+	unsigned long pos= blockNum * blockSize;
+	file_->seek(pos,File::BEG);
+	file_->write((char *)freeBlock,blockSize);
+	freeBlock->blockNumber=blockNum;
+	freeBlock->inFile=1;
+	file_->seek(0,File::BEG);
+	file_->write((char *)freeBlock,blockSize);
+
+	delete freeBlock;
+
 }
 
 template<class Record,unsigned int blockSize>

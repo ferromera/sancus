@@ -20,6 +20,7 @@ class BPTreeVariableLeaf: public BPTreeLeaf<Record,blockSize>{
 	unsigned int getBlockPosition(typename std::list<Record>::iterator &);
 	typename std::list<Record>::iterator getFirstRecordOfBlock(unsigned int);
 	void expand();
+	void reduce();
 public:
 	BPTreeVariableLeaf(unsigned int capacity,File & file);
 	BPTreeVariableLeaf(unsigned int capacity,File & file,unsigned long pos);
@@ -128,7 +129,6 @@ void BPTreeVariableLeaf<Record,blockSize>::writeRecords(BPTreeVariableLeafBlock<
 	typename std::list<Record>::iterator itRecord=BPTreeLeaf<Record,blockSize>::records_.begin();
 	std::list<unsigned int>::iterator itBlockCount=blockCounts.begin();
 	unsigned int currBlock=0;
-	int t=BPTreeLeaf<Record,blockSize>::records_.size();
 
 	for(unsigned int count=1;currBlock!=blockPos;itRecord++,count++)
 			if(count==(*itBlockCount)){
@@ -159,7 +159,6 @@ void BPTreeVariableLeaf<Record,blockSize>::insert(Record & rec){
 	Record * rp=new Record(rec);
 
 
-	std::list<unsigned int>::iterator itBlockNumber=blockNumbers.begin();
 	std::list<unsigned int>::iterator itBlockCount=blockCounts.begin();
 	std::list<unsigned int>::iterator itFreeSpace=freeSpaces.begin();
 
@@ -253,9 +252,65 @@ void BPTreeVariableLeaf<Record,blockSize>::expand(){
 }
 
 template<class Record,unsigned int blockSize>
-void BPTreeVariableLeaf<Record,blockSize>::remove(Record &){
-	// No Implementado
+void BPTreeVariableLeaf<Record,blockSize>::remove(Record & rec){
+	typename std::list<Record>::iterator itRemovePos=search(rec);
+	if( itRemovePos==BPTreeLeaf<Record,blockSize>::records_.end()
+				|| (*itRemovePos)!=rec)
+			throw LeafRecordNotFoundException();
+
+	std::list<unsigned int>::iterator itBlockCount=blockCounts.begin();
+	std::list<unsigned int>::iterator itFreeSpace=freeSpaces.begin();
+
+
+	//Posiciono los iteradores en el bloque donde se va a borrar el registro.
+	unsigned int blockPos=getBlockPosition(itRemovePos);
+
+	BPTreeLeaf<Record,blockSize>::records_.erase(itRemovePos);
+	BPTreeNode<Record,blockSize>::count_--;
+
+		for(unsigned int i=0;i<blockPos;i++){
+			itBlockCount++;
+			itFreeSpace++;
+		}
+
+	//empiezo a insertar desde el primer registro del bloque.
+	typename std::list<Record>::iterator currentRecord=getFirstRecordOfBlock(blockPos);
+
+	while(currentRecord!=BPTreeLeaf<Record,blockSize>::records_.end()){
+			(*itBlockCount)=0;
+			//Tengo todo el espacio libre.
+			(*itFreeSpace)=VARIABLE_LEAF_RECORDS_SPACE;
+			while((*itFreeSpace)>=currentRecord->size()){
+				//inserto el current record aumentando el count y disminuyendo el freeSpace
+				(*itBlockCount)++;
+				(*itFreeSpace)-=currentRecord->size();
+				currentRecord++;
+				if(currentRecord==BPTreeLeaf<Record,blockSize>::records_.end())
+					break;
+			}
+			if(currentRecord==BPTreeLeaf<Record,blockSize>::records_.end())
+				break;
+			//Me muevo al siguiente bloque
+			itFreeSpace++;
+			itBlockCount++;
+	}
+	itBlockCount++;
+	if(itBlockCount!=blockCounts.end())
+		reduce();
+
+	if(BPTreeNode<Record,blockSize>::count_<BPTreeLeaf<Record,blockSize>::capacity_/2)
+		   throw LeafUnderflowException();
+
+
 }
+template<class Record,unsigned int blockSize>
+void BPTreeVariableLeaf<Record,blockSize>::reduce(){
+	BPTreeNode<Record,blockSize>::eraseBlock(*(--blockNumbers.end()));
+	blockNumbers.pop_back();
+	freeSpaces.pop_back();
+	blockCounts.pop_back();
+}
+
 template<class Record,unsigned int blockSize>
 BPTreeLeaf<Record,blockSize>* BPTreeVariableLeaf<Record,blockSize>::nextLeaf( ){
 	// No Implementado
