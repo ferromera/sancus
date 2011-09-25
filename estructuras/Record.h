@@ -38,7 +38,4 @@ public:
     virtual ~Record(){ delete key_;}
 };
 
-
-
-
 #endif // RECORD_H_INCLUDED
