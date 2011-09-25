@@ -17,7 +17,7 @@ class Uint16Key: public Record::Key{
         uint16_t getKey()const;
 
         void read(char ** input);
-        void write(char ** output);
+        void write(char ** output)const;
 
         bool operator <(const Record::Key &r)const;
         bool operator ==(const Record::Key &r)const;

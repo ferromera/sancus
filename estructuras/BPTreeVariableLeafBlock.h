@@ -5,8 +5,8 @@
  *      Author: fernando
  */
 
-#ifndef BPTREEVARIABLELEAFBLOCK_H_
-#define BPTREEVARIABLELEAFBLOCK_H_
+#ifndef BPTREEVARIABLENODEBLOCK_H_
+#define BPTREEVARIABLENODEBLOCK_H_
 
 #include "stdint.h"
 

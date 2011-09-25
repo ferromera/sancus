@@ -9,7 +9,7 @@ public:
     public:
 
     virtual void read(char ** input)=0;
-    virtual void write(char ** output)=0;
+    virtual void write(char ** output)const=0;
     virtual bool operator <(const Key &r)const=0;
     virtual bool operator ==(const Key &r)const=0;
     virtual Key & operator=(const Record::Key & rk)=0;
