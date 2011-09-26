@@ -25,6 +25,8 @@ public:
 	BPTreeLeaf(unsigned int capacity,File & file);
 	BPTreeLeaf(unsigned int capacity,File & file,unsigned long blockNumber);
 
+	const typename std::list<Record>& getRecords();
+
 	virtual BPTreeLeaf<Record,blockSize> * nextLeaf()=0;
 	bool isLeaf()const;
 	~BPTreeLeaf();
@@ -71,6 +73,11 @@ typename std::list<Record>::iterator BPTreeLeaf<Record,blockSize>::search (const
 template<class Record,unsigned int blockSize>
 bool BPTreeLeaf<Record,blockSize>::isLeaf()const{
 	return true;
+}
+template<class Record,unsigned int blockSize>
+const typename std::list<Record> &  BPTreeLeaf<Record,blockSize>::getRecords()
+{
+	return records_;
 }
 
 template<class Record,unsigned int blockSize>
