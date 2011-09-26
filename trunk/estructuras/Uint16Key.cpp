@@ -42,9 +42,26 @@ bool Uint16Key::operator <=(const Record::Key &rk)const{
     const Uint16Key & ik= dynamic_cast<const Uint16Key &>(rk);
     return buffer<=ik.buffer;
 }
+bool Uint16Key::operator >(const Record::Key & rk)const{
+	const Uint16Key & ik= dynamic_cast<const Uint16Key &>(rk);
+    return buffer>ik.buffer;
+}
+bool Uint16Key::operator >=(const Record::Key & rk)const{
+	const Uint16Key & ik= dynamic_cast<const Uint16Key &>(rk);
+	return buffer>=ik.buffer;
+}
+bool Uint16Key::operator !=(const Record::Key & rk)const{
+	const Uint16Key & ik= dynamic_cast<const Uint16Key &>(rk);
+	return buffer!=ik.buffer;
+}
+
 Record::Key & Uint16Key::operator=(const Record::Key & rk){
     const Uint16Key & ik= dynamic_cast<const Uint16Key &>(rk);
     buffer=ik.buffer;
+    return (*this);
+}
+Uint16Key & Uint16Key::operator=(const Uint16Key & u){
+    buffer=u.buffer;
     return (*this);
 }
 Uint16Key & Uint16Key::operator=(uint16_t i){

@@ -21,9 +21,14 @@ class Uint16Key: public Record::Key{
 
         bool operator <(const Record::Key &r)const;
         bool operator ==(const Record::Key &r)const;
-        Record::Key & operator=(const Record::Key & rk);
-        Uint16Key & operator=(uint16_t i);
         bool operator <=(const Record::Key & r)const;
+        bool operator >(const Record::Key &r)const;
+        bool operator !=(const Record::Key &r)const;
+        bool operator >=(const Record::Key & r)const;
+
+        Record::Key & operator=(const Record::Key & rk);
+        Uint16Key & operator=(const Uint16Key & rk);
+        Uint16Key & operator=(uint16_t i);
         unsigned int size()const{ return 2; }
     };
 
