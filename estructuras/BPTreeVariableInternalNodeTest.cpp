@@ -25,6 +25,9 @@ void BPTreeVariableInternalNodeTest::run(){
 		std::cout<<"FAIL"<<std::endl;
 
 }
+bool BPTreeVariableInternalNodeTest::testInsert1(){
+
+}
 bool BPTreeVariableInternalNodeTest::testReadWrite1(){
 	BPTreeVariableNodeBlock<512> *block1=new BPTreeVariableNodeBlock<512>;
 	BPTreeVariableNodeBlock<512> *block2=new BPTreeVariableNodeBlock<512>;
@@ -89,7 +92,7 @@ bool BPTreeVariableInternalNodeTest::testReadWrite1(){
 	file.write(block3,512);
 	File outputFile("testInternalNode2.bin",File::BIN|File::NEW|File::IO);
 	file.write(fblock,512);
-	BPTreeVariableInternalNode<StudentRecord,512> * internal=new BPTreeVariableInternalNode<StudentRecord,512>(200,file,1);
+	BPTreeVariableInternalNode<StudentRecord,512> * internal=new BPTreeVariableInternalNode<StudentRecord,512>(200,200,file,1);
 
 	internal->file(outputFile);
 	internal->write();

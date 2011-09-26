@@ -200,10 +200,11 @@ void BPTreeVariableLeaf<Record,blockSize>::insert(Record & rec){
 			itFreeSpace--;
 			itBlockCount--;
 		}
+
+		if(BPTreeNode<Record,blockSize>::count_ > BPTreeLeaf<Record,blockSize>::capacity_)
+		   throw LeafOverflowException();
 	}
 
-	if(BPTreeNode<Record,blockSize>::count_>BPTreeLeaf<Record,blockSize>::capacity_)
-	   throw LeafOverflowException();
 }
 
 template<class Record,unsigned int blockSize>
