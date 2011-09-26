@@ -5,7 +5,7 @@
 #include "File.h"
 #include "BPlusTreeExceptions.h"
 
-template<class Record,unsigned int blockSize>
+template<class TRecord,unsigned int blockSize>
 class BPTreeNode{
 protected:
             File * file_;
@@ -30,24 +30,24 @@ public:
             void blockNumber(unsigned long);
             virtual void read()=0;
             virtual void write()=0;
-            virtual void insert(Record &)=0;
-            virtual void remove(Record &)=0;
+            virtual void insert(TRecord &)=0;
+            virtual void remove(TRecord &)=0;
             virtual bool isLeaf()const=0;
             virtual ~BPTreeNode();
 };
 
-template<class Record,unsigned int blockSize>
-BPTreeNode<Record,blockSize>::BPTreeNode(File & file,unsigned long blockNum):
+template<class TRecord,unsigned int blockSize>
+BPTreeNode<TRecord,blockSize>::BPTreeNode(File & file,unsigned long blockNum):
 file_(&file),blockNumber_(blockNum),count_(0){
 }
-template<class Record,unsigned int blockSize>
-BPTreeNode<Record,blockSize>::BPTreeNode(File & file):
+template<class TRecord,unsigned int blockSize>
+BPTreeNode<TRecord,blockSize>::BPTreeNode(File & file):
 file_(&file),count_(0){
 	blockNumber_=getFreeBlock();
 }
 
-template<class Record,unsigned int blockSize>
-unsigned int BPTreeNode<Record,blockSize>::getFreeBlock(){
+template<class TRecord,unsigned int blockSize>
+unsigned int BPTreeNode<TRecord,blockSize>::getFreeBlock(){
 	unsigned int newBlockNumber;
 	FreeSpaceStackBlock<blockSize> *freeBlock= new FreeSpaceStackBlock<blockSize>;
 	file_->seek(0,File::BEG);
@@ -68,8 +68,8 @@ unsigned int BPTreeNode<Record,blockSize>::getFreeBlock(){
 	return newBlockNumber;
 }
 
-template<class Record,unsigned int blockSize>
-void BPTreeNode<Record,blockSize>::eraseBlock(unsigned int blockNum){
+template<class TRecord,unsigned int blockSize>
+void BPTreeNode<TRecord,blockSize>::eraseBlock(unsigned int blockNum){
 	FreeSpaceStackBlock<blockSize> *freeBlock= new FreeSpaceStackBlock<blockSize>;
 	file_->seek(0,File::BEG);
 	file_->read((char *)freeBlock,blockSize);
@@ -85,43 +85,43 @@ void BPTreeNode<Record,blockSize>::eraseBlock(unsigned int blockNum){
 
 }
 
-template<class Record,unsigned int blockSize>
-unsigned int BPTreeNode<Record,blockSize>::level()const{
+template<class TRecord,unsigned int blockSize>
+unsigned int BPTreeNode<TRecord,blockSize>::level()const{
     return level_;
 }
 
-template<class Record,unsigned int blockSize>
-unsigned int BPTreeNode<Record,blockSize>::count()const{
+template<class TRecord,unsigned int blockSize>
+unsigned int BPTreeNode<TRecord,blockSize>::count()const{
     return count_;
 }
 
-template<class Record,unsigned int blockSize>
-unsigned long BPTreeNode<Record,blockSize>::blockNumber()const{
+template<class TRecord,unsigned int blockSize>
+unsigned long BPTreeNode<TRecord,blockSize>::blockNumber()const{
    return blockNumber_;
 }
 
-template<class Record,unsigned int blockSize>
-void BPTreeNode<Record,blockSize>::level(unsigned int l){
+template<class TRecord,unsigned int blockSize>
+void BPTreeNode<TRecord,blockSize>::level(unsigned int l){
     level_=l;
 }
 
-template<class Record,unsigned int blockSize>
-void BPTreeNode<Record,blockSize>::count(unsigned int c){
+template<class TRecord,unsigned int blockSize>
+void BPTreeNode<TRecord,blockSize>::count(unsigned int c){
     count_=c;
 }
 
-template<class Record,unsigned int blockSize>
-void BPTreeNode<Record,blockSize>::file(File & f){
+template<class TRecord,unsigned int blockSize>
+void BPTreeNode<TRecord,blockSize>::file(File & f){
     file_=&f;
 }
 
-template<class Record,unsigned int blockSize>
-void BPTreeNode<Record,blockSize>::blockNumber(unsigned long blockNum){
+template<class TRecord,unsigned int blockSize>
+void BPTreeNode<TRecord,blockSize>::blockNumber(unsigned long blockNum){
 	blockNumber_=blockNum;
 }
 
-template<class Record,unsigned int blockSize>
-BPTreeNode<Record,blockSize>::~BPTreeNode(){
+template<class TRecord,unsigned int blockSize>
+BPTreeNode<TRecord,blockSize>::~BPTreeNode(){
 }
 
 #endif // BPTREENODE_H_INCLUDED
