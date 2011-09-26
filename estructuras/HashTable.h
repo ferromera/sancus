@@ -1,5 +1,4 @@
 /*
- * Representación en memoria de una tabla de hash.
  * Los desbordes se resuelven usando direccionamiento abierto y doble dispersión.
  * Se usa una funcion para obtener la direccion base y otra para dar los saltos
  * en caso de desborde
@@ -11,7 +10,7 @@
 #ifndef HASHTABLE_H_
 #define HASHTABLE_H_
 
-#include "RandomAccessFile.h"
+#include "File.h"
 
 #define PACKAGE_DENSITY 0.7
 
@@ -24,6 +23,10 @@ private:
 	/* El numero de filas de la tabla*/
 	unsigned int size;
 
+	unsigned int bucketSize;
+
+	unsigned int maxNumberOfRecords;
+
 	int table[];
 
 public:
@@ -31,13 +34,14 @@ public:
 	/**
 	 * Primitiva de creación
 	 *
-	 * @randomAccessFile archivo de acceso aleatorio, vacio
-	 * @bucketSize numero de registros por cubeta
-	 * @numberOfRecords numero maximo de registros en el archivo (cuando se llegue a este numero se debera
+	 * @file
+	 * @recordsPerBucket numero de registros por cubeta
+	 * @maxNumberOfRecords numero maximo de registros en el archivo (cuando se llegue a este numero se debera
 	 * enfrentar una reorganización de la tabla).
 	 */
-	HashTable(const RandomAccessFile<T> & randomAccessFile, const int bucketSize, const int numberOfRecords);
+	HashTable(const File & file, const unsigned int recordsPerBucket, const unsigned int maxNumberOfRecords);
 
+	void load(File & file);
 };
 
 #endif /* HASHTABLE_H_ */
