@@ -14,6 +14,9 @@ public:
     virtual bool operator <(const Key &r)const=0;
     virtual bool operator <=(const Key &r)const=0;
     virtual bool operator ==(const Key &r)const=0;
+    virtual bool operator >(const Record::Key & r)const=0;
+    virtual bool operator >=(const Record::Key & r)const=0;
+    virtual bool operator !=(const Record::Key & r)const=0;
     virtual Key & operator=(const Record::Key & rk)=0;
     virtual ~Key(){}
 
