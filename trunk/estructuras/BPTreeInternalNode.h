@@ -12,16 +12,16 @@
 #include "Record.h"
 #include <list>
 
-template<class Record,unsigned int blockSize>
-class BPTreeInternalNode: public BPTreeNode<Record, blockSize> {
+template<class TRecord,unsigned int blockSize>
+class BPTreeInternalNode: public BPTreeNode<TRecord, blockSize> {
 protected:
-	typename std::list<typename Record::Key> keys_;
+	typename std::list<typename TRecord::Key> keys_;
 	std::list<unsigned int> children_;
 	unsigned int capacity_;
 	unsigned int leafCapacity_;
-	typename std::list<typename Record::Key>::iterator search(const typename Record::Key & key);
-	std::list<unsigned int>::iterator getLeftChild(const typename Record::Key &);
-	std::list<unsigned int>::iterator getRightChild(const typename Record::Key &);
+	typename std::list<typename TRecord::Key>::iterator search(const typename TRecord::Key & key);
+	std::list<unsigned int>::iterator getLeftChild(const typename TRecord::Key &);
+	std::list<unsigned int>::iterator getRightChild(const typename TRecord::Key &);
 public:
 	BPTreeInternalNode(unsigned int level,File & file);
 	BPTreeInternalNode(File & file,unsigned long blockNumber);
@@ -29,40 +29,44 @@ public:
 	BPTreeInternalNode(unsigned int capacity,unsigned int leafCapacity_,unsigned int level,File & file);
 	BPTreeInternalNode(unsigned int capacity,unsigned int leafCapacity_,File & file,unsigned long blockNumber);
 
+	const typename std::list<typename TRecord::Key>& getKeys()const;
+	const std::list<unsigned int>& getChildrens()const;
+	void setFirstChild(unsigned int);
+
 	bool isLeaf()const;
 	~BPTreeInternalNode();
 };
 
-template<class Record,unsigned int blockSize>
-BPTreeInternalNode<Record,blockSize>::BPTreeInternalNode(unsigned int level,File & file):BPTreeNode<Record,blockSize>(file)
+template<class TRecord,unsigned int blockSize>
+BPTreeInternalNode<TRecord,blockSize>::BPTreeInternalNode(unsigned int level,File & file):BPTreeNode<TRecord,blockSize>(file)
 {
-	BPTreeNode<Record,blockSize>::level_ = level;
+	BPTreeNode<TRecord,blockSize>::level_ = level;
 }
-template<class Record,unsigned int blockSize>
-BPTreeInternalNode<Record,blockSize>::BPTreeInternalNode(File & file, unsigned long blockNumber):
-BPTreeNode<Record,blockSize>(file,blockNumber)
+template<class TRecord,unsigned int blockSize>
+BPTreeInternalNode<TRecord,blockSize>::BPTreeInternalNode(File & file, unsigned long blockNumber):
+BPTreeNode<TRecord,blockSize>(file,blockNumber)
 {
 }
-template<class Record,unsigned int blockSize>
-BPTreeInternalNode<Record,blockSize>::BPTreeInternalNode(unsigned int capacity, unsigned int leafCapacity_,unsigned int level,File & file):
-BPTreeNode<Record,blockSize>(file),capacity_(capacity),leafCapacity_(leafCapacity_)
+template<class TRecord,unsigned int blockSize>
+BPTreeInternalNode<TRecord,blockSize>::BPTreeInternalNode(unsigned int capacity, unsigned int leafCapacity_,unsigned int level,File & file):
+BPTreeNode<TRecord,blockSize>(file),capacity_(capacity),leafCapacity_(leafCapacity_)
 {
-	BPTreeNode<Record,blockSize>::level_ = level;
+	BPTreeNode<TRecord,blockSize>::level_ = level;
 }
 
-template<class Record,unsigned int blockSize>
-BPTreeInternalNode<Record,blockSize>::BPTreeInternalNode(unsigned int capacity,unsigned int leafCapacity_, File & file,unsigned long blockNumber):
-BPTreeNode<Record,blockSize>(file,blockNumber),capacity_(capacity),leafCapacity_(leafCapacity_)
+template<class TRecord,unsigned int blockSize>
+BPTreeInternalNode<TRecord,blockSize>::BPTreeInternalNode(unsigned int capacity,unsigned int leafCapacity_, File & file,unsigned long blockNumber):
+BPTreeNode<TRecord,blockSize>(file,blockNumber),capacity_(capacity),leafCapacity_(leafCapacity_)
 {
 }
-template<class Record,unsigned int blockSize>
-bool BPTreeInternalNode<Record,blockSize>::isLeaf()const{
+template<class TRecord,unsigned int blockSize>
+bool BPTreeInternalNode<TRecord,blockSize>::isLeaf()const{
 	return false;
 }
-template<class Record,unsigned int blockSize>
-typename std::list<typename Record::Key>::iterator BPTreeInternalNode<Record,blockSize>::search( const typename Record::Key & key)
+template<class TRecord,unsigned int blockSize>
+typename std::list<typename TRecord::Key>::iterator BPTreeInternalNode<TRecord,blockSize>::search( const typename TRecord::Key & key)
 {
-		typename std::list<typename Record::Key>::iterator it;
+		typename std::list<typename TRecord::Key>::iterator it;
 		for(it=keys_.begin();it!=keys_.end();it++){
 	       if(key <= (*it))
 		       break;
@@ -70,10 +74,10 @@ typename std::list<typename Record::Key>::iterator BPTreeInternalNode<Record,blo
 		return it;
 
 }
-template<class Record,unsigned int blockSize>
-std::list<unsigned int>::iterator BPTreeInternalNode<Record,blockSize>::getLeftChild(const typename Record::Key & key)
+template<class TRecord,unsigned int blockSize>
+std::list<unsigned int>::iterator BPTreeInternalNode<TRecord,blockSize>::getLeftChild(const typename TRecord::Key & key)
 {
-	typename std::list<typename Record::Key>::iterator itKeys;
+	typename std::list<typename TRecord::Key>::iterator itKeys;
 	typename std::list<unsigned int>::iterator itChildren = children_.begin();
 	for(itKeys=keys_.begin();itKeys!=keys_.end();itKeys++,itChildren++){
        if(key <= (*itKeys))
@@ -82,11 +86,11 @@ std::list<unsigned int>::iterator BPTreeInternalNode<Record,blockSize>::getLeftC
 
 	return itChildren;
 }
-template<class Record,unsigned int blockSize>
-std::list<unsigned int>::iterator BPTreeInternalNode<Record,blockSize>::getRightChild(const typename Record::Key & key)
+template<class TRecord,unsigned int blockSize>
+std::list<unsigned int>::iterator BPTreeInternalNode<TRecord,blockSize>::getRightChild(const typename TRecord::Key & key)
 {
 
-	typename std::list<typename Record::Key>::iterator itKeys;
+	typename std::list<typename TRecord::Key>::iterator itKeys;
 	typename std::list<unsigned int>::iterator itChildren = children_.begin();
 	for(itKeys=keys_.begin();itKeys!=keys_.end();itKeys++,itChildren++){
        if(key <= (*itKeys))
@@ -96,8 +100,23 @@ std::list<unsigned int>::iterator BPTreeInternalNode<Record,blockSize>::getRight
 	return itChildren;
 }
 
-template<class Record,unsigned int blockSize>
-BPTreeInternalNode<Record,blockSize>::~BPTreeInternalNode(){}
+template<class TRecord,unsigned int blockSize>
+const typename std::list<typename TRecord::Key>& BPTreeInternalNode<TRecord,blockSize>::getKeys()const{
+	return keys_;
+}
+template<class TRecord,unsigned int blockSize>
+const std::list<unsigned int>& BPTreeInternalNode<TRecord,blockSize>::getChildrens()const{
+	return children_;
+}
+
+template<class TRecord,unsigned int blockSize>
+void BPTreeInternalNode<TRecord,blockSize>::setFirstChild(unsigned int child){
+	children_.pop_front();
+	children_.push_front(child);
+}
+
+template<class TRecord,unsigned int blockSize>
+BPTreeInternalNode<TRecord,blockSize>::~BPTreeInternalNode(){}
 
 
 
