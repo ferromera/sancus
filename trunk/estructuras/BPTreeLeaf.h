@@ -26,7 +26,8 @@ public:
 	BPTreeLeaf(unsigned int capacity,File & file,unsigned long blockNumber);
 
 	const typename std::list<TRecord>& getRecords();
-
+	uint32_t next()const;
+	void next(uint32_t n);
 	virtual BPTreeLeaf<TRecord,blockSize> * nextLeaf()=0;
 	bool isLeaf()const;
 	~BPTreeLeaf();
@@ -78,6 +79,16 @@ template<class TRecord,unsigned int blockSize>
 const typename std::list<TRecord> &  BPTreeLeaf<TRecord,blockSize>::getRecords()
 {
 	return records_;
+}
+template<class TRecord,unsigned int blockSize>
+uint32_t  BPTreeLeaf<TRecord,blockSize>::next()const
+{
+	return next_;
+}
+template<class TRecord,unsigned int blockSize>
+void  BPTreeLeaf<TRecord,blockSize>::next(uint32_t n)
+{
+	next_=n;
 }
 
 template<class TRecord,unsigned int blockSize>

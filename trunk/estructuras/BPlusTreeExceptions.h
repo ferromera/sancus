@@ -24,4 +24,6 @@ public:
 	~NodeOverflowException()throw(){}
 
 };
+class NodeUnderflowException:public BPlusTreeException{};
+class NodeKeyNotFoundException:public BPlusTreeException{};
 #endif // BPLUSTREEEXCEPTIONS_H_INCLUDED
