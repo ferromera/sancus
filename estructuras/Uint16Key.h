@@ -30,6 +30,7 @@ class Uint16Key: public Record::Key{
         Uint16Key & operator=(const Uint16Key & rk);
         Uint16Key & operator=(uint16_t i);
         unsigned int size()const{ return 2; }
+        ~Uint16Key(){}
     };
 
 
