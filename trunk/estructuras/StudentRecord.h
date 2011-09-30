@@ -16,6 +16,7 @@ public:
     public:
         Key(char ** input):Uint16Key(input){}
         Key(uint16_t key=0):Uint16Key(key){}
+        ~Key(){}
     };
 private:
     char * buffer;
@@ -40,6 +41,7 @@ public:
     const std::string & name()const;
     void idNumber(uint16_t );
     void name(const std::string &);
+    StudentRecord& operator=(const StudentRecord&);
     ~StudentRecord();
 
 };

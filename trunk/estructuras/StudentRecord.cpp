@@ -10,7 +10,7 @@ StudentRecord::StudentRecord():idNumber_(0),name_(string()){
 }
 StudentRecord::StudentRecord(const StudentRecord & sr):
 idNumber_(sr.idNumber_),name_(sr.name_){
-    key_=new Key(idNumber_);
+    key_=new Key((uint16_t) idNumber_);
     buffer= new char[260];
 }
 
@@ -101,6 +101,15 @@ void StudentRecord::idNumber(uint16_t p){
 }
 void StudentRecord::name(const string & n){
     name_=n;
+}
+StudentRecord& StudentRecord::operator=(const StudentRecord& rec){
+	if(this==&rec)
+		return *this;
+	idNumber_=rec.idNumber_;
+	name_=rec.name_;
+	key_=new Key((uint16_t) idNumber_);
+	buffer= new char[260];
+	return *this;
 }
 StudentRecord::~StudentRecord(){
     delete buffer;
