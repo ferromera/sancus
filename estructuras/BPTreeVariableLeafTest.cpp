@@ -14,18 +14,34 @@ using namespace std;
 BPTreeVariableLeafTest::BPTreeVariableLeafTest() {}
 
 void BPTreeVariableLeafTest::run(){
+
+	std::cout<<"Testing BPTreeVariableLeaf ..."<<std::endl;
+	bool testOK=true;
 	if(testRead1()){
-		cout<<"testRead1: OK"<<endl;
-	}else
-		cout<<"testRead1: ERROR"<<endl;
+		std::cout<<"testRead1: OK"<<std::endl;
+	}else{
+		std::cout<<"testRead1: ERROR"<<std::endl;
+		testOK=false;
+	}
 	if(testInsert1()){
-		cout<<"testInsert1: OK"<<endl;
-	}else
-		cout<<"testInsert1: ERROR"<<endl;
+		std::cout<<"testInsert1: OK"<<std::endl;
+	}else{
+		std::cout<<"testInsert1: ERROR"<<std::endl;
+		testOK=false;
+	}
 	if(testRemove1()){
-		cout<<"testRemove1: OK"<<endl;
-	}else
-		cout<<"testRemove1: ERROR"<<endl;
+		std::cout<<"testRemove1: OK"<<std::endl;
+	}else{
+		std::cout<<"testRemove1: ERROR"<<std::endl;
+		testOK=false;
+	}
+
+
+	std::cout<<"End of test of BPTreeVariableLeaf , result: ";
+	if(testOK)
+			std::cout<<"ALL OK!"<<std::endl;
+	else
+			std::cout<<"FAILED"<<std::endl;
 
 }
 

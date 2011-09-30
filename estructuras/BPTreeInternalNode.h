@@ -111,7 +111,8 @@ const std::list<unsigned int>& BPTreeInternalNode<TRecord,blockSize>::getChildre
 
 template<class TRecord,unsigned int blockSize>
 void BPTreeInternalNode<TRecord,blockSize>::setFirstChild(unsigned int child){
-	children_.pop_front();
+	if(!children_.empty())
+		children_.pop_front();
 	children_.push_front(child);
 }
 

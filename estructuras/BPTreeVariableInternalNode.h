@@ -26,6 +26,7 @@ class BPTreeVariableInternalNode : public BPTreeInternalNode<TRecord,blockSize>{
 	typename std::list<typename TRecord::Key>::iterator getFirstKeyOfBlock(unsigned int);
 
 	void expand();
+	void reduce();
 public:
 	BPTreeVariableInternalNode(unsigned int capacity,unsigned int leafCapacity,unsigned int level,File & file);
 	BPTreeVariableInternalNode(unsigned int capacity,unsigned int leafCapacity,File & file,unsigned long blockNumber);
@@ -35,7 +36,7 @@ public:
 	void insert(TRecord &);
 	void remove(TRecord &);
 	void insertInNode(typename TRecord::Key & , unsigned int);
-	void removeInNode(typename TRecord::Key & , unsigned int);
+	void removeInNode(typename TRecord::Key & );
 	virtual ~BPTreeVariableInternalNode(){}
 };
 
@@ -129,7 +130,8 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::write(){
 			itNumber++;
 			block->next=*itNumber;
 			itNumber--;
-		}
+		}else
+			block->next=0;
 
 		writeRecords(block,blockPos);
 		file->seek((*itNumber)*blockSize,File::BEG);
@@ -172,18 +174,18 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::insert(TRecord & record)
 	typename std::list<typename TRecord::Key>::iterator itKey =
 			BPTreeInternalNode<TRecord,blockSize>::search(key);
 	std::list<unsigned int>::iterator itChildren;
-	bool entrySideLeft = true;
 
 	//Obtengo el bloque donde se debera insertar
 
-	if(itKey != BPTreeInternalNode<TRecord,blockSize>::keys_.end())
-		itChildren = BPTreeInternalNode<TRecord,blockSize>::getLeftChild(*itKey);
-	else
-	{
+	if(itKey == BPTreeInternalNode<TRecord,blockSize>::keys_.end()){
 		itKey--;
 		itChildren = BPTreeInternalNode<TRecord,blockSize>::getRightChild(*itKey);
-		entrySideLeft = false;
 	}
+	else if(*itKey==key)
+		itChildren = BPTreeInternalNode<TRecord,blockSize>::getRightChild(*itKey);
+	else // (*itKey)>key
+		itChildren = BPTreeInternalNode<TRecord,blockSize>::getLeftChild(*itKey);
+
 
 	if(BPTreeNode<TRecord,blockSize>::level_ == 1)
 	{
@@ -197,14 +199,19 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::insert(TRecord & record)
 			delete childLeaf;
 
 		}
-		catch(LeafOverflowException exception)
+		catch(LeafOverflowException ovException)
 		{
+
+
+			typename std::list<TRecord> recordList = childLeaf->getRecords();
+			typename std::list<TRecord>::iterator recordIt = recordList.begin();
+
 			BPTreeVariableLeaf<TRecord,blockSize> *newLeaf = new BPTreeVariableLeaf<TRecord,blockSize>(BPTreeInternalNode<TRecord,blockSize>::leafCapacity_,
 					*BPTreeNode<TRecord,blockSize>::file_);
-			typename std::list<TRecord> recordList = childLeaf->getRecords();
+
 
 			unsigned int mediaList = BPTreeInternalNode<TRecord,blockSize>::leafCapacity_/2;
-			typename std::list<TRecord>::iterator recordIt = recordList.begin();
+
 
 			for(unsigned int i = 0 ; i < mediaList;i++,recordIt++);
 
@@ -229,9 +236,12 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::insert(TRecord & record)
 				}
 				newLeaf->insert(record);
 			}
+			newLeaf->next(childLeaf->next());
+			childLeaf->next(newLeaf->blockNumber());
 			childLeaf->write();
-			newLeaf->write();
 			recordList  = newLeaf->getRecords();
+			newLeaf->write();
+
 			TRecord firstRecord = recordList.front();
 			typename TRecord::Key newKey = dynamic_cast<const typename TRecord::Key &>(firstRecord.getKey());
 			unsigned int newBlockNumber=newLeaf->blockNumber();
@@ -247,7 +257,7 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::insert(TRecord & record)
 			throw;
 		}
 	}
-	else
+	else  //level > 1
 	{
 		BPTreeVariableInternalNode<TRecord,blockSize>* childNode=new BPTreeVariableInternalNode<TRecord,blockSize>(
 				BPTreeInternalNode<TRecord,blockSize>::capacity_,BPTreeInternalNode<TRecord,blockSize>::leafCapacity_,*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
@@ -260,54 +270,57 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::insert(TRecord & record)
 		catch(NodeOverflowException<typename TRecord::Key> ovException)
 		{
 			BPTreeVariableInternalNode<TRecord,blockSize>* newNode=new BPTreeVariableInternalNode<TRecord,blockSize>(BPTreeInternalNode<TRecord,blockSize>::capacity_,
-					BPTreeInternalNode<TRecord,blockSize>::leafCapacity_,BPTreeNode<TRecord,blockSize>::level_,*BPTreeNode<TRecord,blockSize>::file_);
+					BPTreeInternalNode<TRecord,blockSize>::leafCapacity_,BPTreeNode<TRecord,blockSize>::level_-1,*BPTreeNode<TRecord,blockSize>::file_);
 
 			typename std::list<typename TRecord::Key> childKeys=childNode->getKeys();
 			std::list <unsigned int> childChildren = childNode->getChildrens();
 
-			typename std::list<typename TRecord::Key>::iterator itKey =
-						BPTreeInternalNode<TRecord,blockSize>::search(ovException.key);
-
-			typename std::list<unsigned int>::iterator itChildren ;
-			if(itKey!= BPTreeInternalNode<TRecord,blockSize>::keys_.end())
-						itChildren=BPTreeInternalNode<TRecord,blockSize>::getRightChild(*itKey);
-			else
-						itChildren=BPTreeInternalNode<TRecord,blockSize>::children_.end();
+			//Busco donde voy a insertar la clave que subio y donde voy a insertar su hijo derecho.
+			typename std::list<typename TRecord::Key>::iterator itKey=childKeys.begin() ;
+			std::list<unsigned int>::iterator itChildren=childChildren.begin()  ;
+			for(itChildren++;itKey!=childKeys.end();itKey++,itChildren++){
+				       if(ovException.key <= (*itKey))
+					       break;
+			}
 			childKeys.insert(itKey,ovException.key);
 			childChildren.insert(itChildren,ovException.child);
-			unsigned int mediaList = BPTreeInternalNode<TRecord,blockSize>::capacity_/2;
+
+			unsigned int mediaList = (BPTreeInternalNode<TRecord,blockSize>::capacity_+1)/2;
 			itKey = childKeys.begin();
 			itChildren = childChildren.begin();
 			itChildren++;
 			for(unsigned int i = 0 ; i < mediaList;i++,itKey++,itChildren++);
 
-			newNode->setFirstChild(*itChildren);
-			if((*itKey)!=ovException.key)
-				childNode->removeInNode(*itKey,*itChildren);
+			typename TRecord::Key medianKey =*itKey;
+			unsigned int medianRightChild=*itChildren;
+
+			newNode->setFirstChild(medianRightChild);
+
+			if(medianKey !=ovException.key)
+				childNode->removeInNode(*itKey);
 			itKey++;
 			itChildren++;
 			while(itKey != childKeys.end())
 			{
-				childNode->removeInNode(*itKey,*itChildren);
+				childNode->removeInNode(*itKey);
 				newNode->insertInNode(*itKey,*itChildren);
 				itKey++;
 				itChildren++;
 			}
-			if((*itKey)>ovException.key)
+			if(medianKey>ovException.key)
 				childNode->insertInNode(ovException.key,ovException.child);
-			else if(*itKey<ovException.key)
+			else if(medianKey<ovException.key)
 				newNode->insertInNode(ovException.key,ovException.child);
 
 			childNode->write();
 			newNode->write();
 
-			for(unsigned int i = 0 ; i < mediaList;i++,itKey++,itChildren++);
 
 			unsigned int newBlockNumber=newNode->blockNumber();
 			delete newNode;
 			delete childNode;
 
-			insertInNode(*itKey,newBlockNumber);
+			insertInNode(medianKey,newBlockNumber);
 			return;
 
 		}
@@ -360,7 +373,7 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::insertInNode(typename TRecor
 		(*itBlockCount)=0;
 		//Tengo todo el espacio libre.
 		(*itFreeSpace)=VARIABLE_NODE_RECORDS_SPACE;
-		while((*itFreeSpace)>=currentKey->size()){
+		while((*itFreeSpace)>=currentKey->size()+4){
 			//inserto el current Key aumentando el count y disminuyendo el freeSpace
 			(*itBlockCount)++;
 			(*itFreeSpace)-=currentKey->size() + 4;
@@ -430,8 +443,63 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::remove(TRecord &)
 
 }
 template<class TRecord,unsigned int blockSize>
-void BPTreeVariableInternalNode<TRecord,blockSize>::removeInNode(typename TRecord::Key & key, unsigned int child){
+void BPTreeVariableInternalNode<TRecord,blockSize>::removeInNode(typename TRecord::Key & key){
+	if(BPTreeNode<TRecord,blockSize>::count_==BPTreeInternalNode<TRecord,blockSize>::capacity_/2)
+				   throw NodeUnderflowException();
 
+	typename std::list<typename TRecord::Key>::iterator itRemovePos=search(key);
+	if( itRemovePos==BPTreeInternalNode<TRecord,blockSize>::keys_.end()
+					|| (*itRemovePos)!=key)
+				throw NodeKeyNotFoundException();
+
+	std::list<unsigned int>::iterator itBlockCount=blockCounts.begin();
+	std::list<unsigned int>::iterator itFreeSpace=freeSpaces.begin();
+
+
+	//Posiciono los iteradores en el bloque donde se va a borrar la clave.
+	unsigned int blockPos=getBlockPosition(itRemovePos);
+	std::list<unsigned int>::iterator itRightChild=getRightChild(key);
+	BPTreeInternalNode<TRecord,blockSize>::children_.erase(itRightChild);
+	BPTreeInternalNode<TRecord,blockSize>::keys_.erase(itRemovePos);
+	BPTreeNode<TRecord,blockSize>::count_--;
+
+	for(unsigned int i=0;i<blockPos;i++){
+		itBlockCount++;
+		itFreeSpace++;
+	}
+
+	//empiezo a insertar desde la primera clave del bloque.
+	typename std::list<typename TRecord::Key>::iterator currentKey=getFirstKeyOfBlock(blockPos);
+
+	while(currentKey!=BPTreeInternalNode<TRecord,blockSize>::keys_.end()){
+				(*itBlockCount)=0;
+				//Tengo todo el espacio libre.
+				(*itFreeSpace)=VARIABLE_NODE_RECORDS_SPACE;
+				while((*itFreeSpace)>=currentKey->size()+4){
+					//inserto la currentKey aumentando el count y disminuyendo el freeSpace
+					(*itBlockCount)++;
+					(*itFreeSpace)-=currentKey->size()+4;
+					currentKey++;
+					if(currentKey==BPTreeInternalNode<TRecord,blockSize>::keys_.end())
+						break;
+				}
+				if(currentKey==BPTreeInternalNode<TRecord,blockSize>::keys_.end())
+					break;
+				//Me muevo al siguiente bloque
+				itFreeSpace++;
+				itBlockCount++;
+		}
+		itBlockCount++;
+		if(itBlockCount!=blockCounts.end())
+			reduce();
+}
+
+template<class TRecord,unsigned int blockSize>
+void BPTreeVariableInternalNode<TRecord,blockSize>::reduce(){
+	BPTreeNode<TRecord,blockSize>::eraseBlock(*(--blockNumbers.end()));
+	blockNumbers.pop_back();
+	freeSpaces.pop_back();
+	blockCounts.pop_back();
 }
 
 
