@@ -10,7 +10,7 @@
 
 #include "stdint.h"
 
-#define BUCKET_SPACE bucketSize-3
+#define BUCKET_SPACE bucketSize-5
 
 #pragma pack(push)
 #pragma pack(1)
@@ -18,6 +18,7 @@ template<unsigned int bucketSize>
 struct Bucket{
 	uint8_t overflow;
 	uint16_t freeSpace;
+	uint16_t count;
 	char bytes[BUCKET_SPACE];
 };
 
