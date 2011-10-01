@@ -10,11 +10,18 @@
 #ifndef HASHTABLE_H_
 #define HASHTABLE_H_
 
+#include <iostream>
 #include "File.h"
+#include "Bucket.h"
+#include <list>
+#include "Record.h"
+#include "HashTableExceptions.h"
 
 #define PACKAGE_DENSITY 0.7
+#define BUCKET_LOAD_FACTOR 0.75
+#define MAX_NUMBER_OF_REHASHES 5
 
-template<class T>
+template<class T, unsigned int bucketSize>
 class HashTable {
 
 private:
@@ -22,12 +29,14 @@ private:
 
 	/* El numero de filas de la tabla*/
 	unsigned int size;
-
-	unsigned int bucketSize;
-
 	unsigned int maxNumberOfRecords;
+	unsigned int offset_to_file_data;
 
 	int table[];
+
+	int insertRecord(T record,int* (*hashFunction)(Record::Key * key), int jump);
+	int hash(Record::Key * key);
+	int rehash(Record::Key * key);
 
 public:
 
@@ -39,9 +48,14 @@ public:
 	 * @maxNumberOfRecords numero maximo de registros en el archivo (cuando se llegue a este numero se debera
 	 * enfrentar una reorganización de la tabla).
 	 */
-	HashTable(const File & file, const unsigned int recordsPerBucket, const unsigned int maxNumberOfRecords);
+	HashTable(File & file,
+				const unsigned int recordsPerBucket,
+				const unsigned int maxNumberOfRecords);
 
 	void load(File & file);
+
+	void insert(T & record);
+
 };
 
 #endif /* HASHTABLE_H_ */
