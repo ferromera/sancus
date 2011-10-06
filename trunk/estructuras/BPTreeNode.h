@@ -10,7 +10,6 @@ class BPTreeNode{
 protected:
             File * file_;
             unsigned long  blockNumber_;
-            unsigned int count_;
             unsigned int level_;
 
             BPTreeNode(){}
@@ -22,10 +21,8 @@ public:
             BPTreeNode(File & file,unsigned long pos);
 
             unsigned int level()const;
-            unsigned int count()const;
             unsigned long blockNumber()const;
             void level(unsigned int);
-            void count(unsigned int);
             void file(File &);
             void blockNumber(unsigned long);
             virtual void read()=0;
@@ -38,11 +35,11 @@ public:
 
 template<class TRecord,unsigned int blockSize>
 BPTreeNode<TRecord,blockSize>::BPTreeNode(File & file,unsigned long blockNum):
-file_(&file),blockNumber_(blockNum),count_(0){
+file_(&file),blockNumber_(blockNum){
 }
 template<class TRecord,unsigned int blockSize>
 BPTreeNode<TRecord,blockSize>::BPTreeNode(File & file):
-file_(&file),count_(0){
+file_(&file){
 	blockNumber_=getFreeBlock();
 }
 
@@ -90,10 +87,6 @@ unsigned int BPTreeNode<TRecord,blockSize>::level()const{
     return level_;
 }
 
-template<class TRecord,unsigned int blockSize>
-unsigned int BPTreeNode<TRecord,blockSize>::count()const{
-    return count_;
-}
 
 template<class TRecord,unsigned int blockSize>
 unsigned long BPTreeNode<TRecord,blockSize>::blockNumber()const{
@@ -105,10 +98,6 @@ void BPTreeNode<TRecord,blockSize>::level(unsigned int l){
     level_=l;
 }
 
-template<class TRecord,unsigned int blockSize>
-void BPTreeNode<TRecord,blockSize>::count(unsigned int c){
-    count_=c;
-}
 
 template<class TRecord,unsigned int blockSize>
 void BPTreeNode<TRecord,blockSize>::file(File & f){

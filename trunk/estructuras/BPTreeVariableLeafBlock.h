@@ -10,17 +10,15 @@
 
 #include "stdint.h"
 
-#define VARIABLE_LEAF_RECORDS_SPACE blockSize-9
+#define VARIABLE_LEAF_CONTROL_BYTES 6
 
 #pragma pack(push)
 #pragma pack(1)
 template<unsigned int blockSize>
 struct BPTreeVariableLeafBlock{
-	uint8_t nestedBlocks;
 	uint16_t freeSpace;
-	uint16_t count;
 	uint32_t next; //siguiente bloque anidado o siguiente hoja.
-	char bytes[VARIABLE_LEAF_RECORDS_SPACE];
+	char bytes[blockSize - VARIABLE_LEAF_CONTROL_BYTES];
 };
 
 #pragma pack(pop)

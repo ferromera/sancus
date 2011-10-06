@@ -17,8 +17,7 @@ class BPTreeInternalNode: public BPTreeNode<TRecord, blockSize> {
 protected:
 	typename std::list<typename TRecord::Key> keys_;
 	std::list<unsigned int> children_;
-	unsigned int capacity_;
-	unsigned int leafCapacity_;
+
 	typename std::list<typename TRecord::Key>::iterator search(const typename TRecord::Key & key);
 	std::list<unsigned int>::iterator getLeftChild(const typename TRecord::Key &);
 	std::list<unsigned int>::iterator getRightChild(const typename TRecord::Key &);
@@ -26,12 +25,10 @@ public:
 	BPTreeInternalNode(unsigned int level,File & file);
 	BPTreeInternalNode(File & file,unsigned long blockNumber);
 
-	BPTreeInternalNode(unsigned int capacity,unsigned int leafCapacity_,unsigned int level,File & file);
-	BPTreeInternalNode(unsigned int capacity,unsigned int leafCapacity_,File & file,unsigned long blockNumber);
-
 	const typename std::list<typename TRecord::Key>& getKeys()const;
 	const std::list<unsigned int>& getChildrens()const;
 	void setFirstChild(unsigned int);
+	virtual void clear();
 
 	bool isLeaf()const;
 	~BPTreeInternalNode();
@@ -47,18 +44,7 @@ BPTreeInternalNode<TRecord,blockSize>::BPTreeInternalNode(File & file, unsigned 
 BPTreeNode<TRecord,blockSize>(file,blockNumber)
 {
 }
-template<class TRecord,unsigned int blockSize>
-BPTreeInternalNode<TRecord,blockSize>::BPTreeInternalNode(unsigned int capacity, unsigned int leafCapacity_,unsigned int level,File & file):
-BPTreeNode<TRecord,blockSize>(file),capacity_(capacity),leafCapacity_(leafCapacity_)
-{
-	BPTreeNode<TRecord,blockSize>::level_ = level;
-}
 
-template<class TRecord,unsigned int blockSize>
-BPTreeInternalNode<TRecord,blockSize>::BPTreeInternalNode(unsigned int capacity,unsigned int leafCapacity_, File & file,unsigned long blockNumber):
-BPTreeNode<TRecord,blockSize>(file,blockNumber),capacity_(capacity),leafCapacity_(leafCapacity_)
-{
-}
 template<class TRecord,unsigned int blockSize>
 bool BPTreeInternalNode<TRecord,blockSize>::isLeaf()const{
 	return false;
@@ -114,6 +100,12 @@ void BPTreeInternalNode<TRecord,blockSize>::setFirstChild(unsigned int child){
 	if(!children_.empty())
 		children_.pop_front();
 	children_.push_front(child);
+}
+
+template<class TRecord,unsigned int blockSize>
+void BPTreeInternalNode<TRecord,blockSize>::clear(){
+	keys_.clear();
+	children_.clear();
 }
 
 template<class TRecord,unsigned int blockSize>
