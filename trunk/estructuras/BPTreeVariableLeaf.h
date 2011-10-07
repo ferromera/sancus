@@ -30,6 +30,7 @@ public:
 	void clear();
 	bool hasMinimumCapacity();
 	TRecord * search(const TRecord &);
+	void update( TRecord & rec);
 	~BPTreeVariableLeaf();
 
 };
@@ -147,14 +148,16 @@ void BPTreeVariableLeaf<TRecord,blockSize>::remove(TRecord & rec){
 				|| (*itRemovePos)!=rec)
 			throw LeafRecordNotFoundException();
 
-	BPTreeLeaf<TRecord,blockSize>::records_.erase(itRemovePos);
+
 
 	if(freeSpace > (blockSize - VARIABLE_LEAF_CONTROL_BYTES)/2){
-		freeSpace+=rec.size();
+		freeSpace+=itRemovePos->size();
+		BPTreeLeaf<TRecord,blockSize>::records_.erase(itRemovePos);
 		throw LeafUnderflowException();
 	}
 
-	freeSpace+=rec.size();
+	freeSpace+=itRemovePos->size();
+	BPTreeLeaf<TRecord,blockSize>::records_.erase(itRemovePos);
 
 }
 
@@ -201,8 +204,22 @@ TRecord * BPTreeVariableLeaf<TRecord,blockSize>::search(const TRecord & rec){
 
 	return found;
 }
+template<class TRecord,unsigned int blockSize>
+void BPTreeVariableLeaf<TRecord,blockSize>::update(TRecord & rec){
+	unsigned int oldFreeSpace=freeSpace;
+	try{
+		remove(rec);
+	}catch(LeafUnderflowException){
+	}
+	insert(rec);
+	if(oldFreeSpace >(blockSize - VARIABLE_LEAF_CONTROL_BYTES)/2
+		&& oldFreeSpace<freeSpace){
+		throw LeafUnderflowException();
+}
 
 
+
+}
 template<class TRecord,unsigned int blockSize>
 BPTreeVariableLeaf<TRecord,blockSize>::~BPTreeVariableLeaf(){
 }
