@@ -26,7 +26,7 @@ public:
 	BPTreeInternalNode(File & file,unsigned long blockNumber);
 
 	const typename std::list<typename TRecord::Key>& getKeys()const;
-	const std::list<unsigned int>& getChildrens()const;
+	const std::list<unsigned int>& getChildren()const;
 	void setFirstChild(unsigned int);
 	virtual void clear();
 
@@ -91,7 +91,7 @@ const typename std::list<typename TRecord::Key>& BPTreeInternalNode<TRecord,bloc
 	return keys_;
 }
 template<class TRecord,unsigned int blockSize>
-const std::list<unsigned int>& BPTreeInternalNode<TRecord,blockSize>::getChildrens()const{
+const std::list<unsigned int>& BPTreeInternalNode<TRecord,blockSize>::getChildren()const{
 	return children_;
 }
 

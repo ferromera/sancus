@@ -11,10 +11,10 @@ protected:
             File * file_;
             unsigned long  blockNumber_;
             unsigned int level_;
+            bool isFree_;
 
             BPTreeNode(){}
             unsigned int getFreeBlock();
-            void eraseBlock(unsigned int blockNum);
 
 public:
             BPTreeNode(File & file);
@@ -24,22 +24,25 @@ public:
             unsigned long blockNumber()const;
             void level(unsigned int);
             void file(File &);
-            void blockNumber(unsigned long);
+            void free();
+
             virtual void read()=0;
             virtual void write()=0;
             virtual void insert(TRecord &)=0;
             virtual void remove(TRecord &)=0;
             virtual bool isLeaf()const=0;
+
             virtual ~BPTreeNode();
+
 };
 
 template<class TRecord,unsigned int blockSize>
 BPTreeNode<TRecord,blockSize>::BPTreeNode(File & file,unsigned long blockNum):
-file_(&file),blockNumber_(blockNum){
+file_(&file),blockNumber_(blockNum),isFree_(false){
 }
 template<class TRecord,unsigned int blockSize>
 BPTreeNode<TRecord,blockSize>::BPTreeNode(File & file):
-file_(&file){
+file_(&file),isFree_(false){
 	blockNumber_=getFreeBlock();
 }
 
@@ -66,19 +69,20 @@ unsigned int BPTreeNode<TRecord,blockSize>::getFreeBlock(){
 }
 
 template<class TRecord,unsigned int blockSize>
-void BPTreeNode<TRecord,blockSize>::eraseBlock(unsigned int blockNum){
+void BPTreeNode<TRecord,blockSize>::free(){
 	FreeSpaceStackBlock<blockSize> *freeBlock= new FreeSpaceStackBlock<blockSize>;
 	file_->seek(0,File::BEG);
 	file_->read((char *)freeBlock,blockSize);
-	unsigned long pos= blockNum * blockSize;
+	unsigned long pos= blockNumber_ * blockSize;
 	file_->seek(pos,File::BEG);
 	file_->write((char *)freeBlock,blockSize);
-	freeBlock->blockNumber=blockNum;
+	freeBlock->blockNumber=blockNumber_;
 	freeBlock->inFile=1;
 	file_->seek(0,File::BEG);
 	file_->write((char *)freeBlock,blockSize);
 
 	delete freeBlock;
+	isFree_=true;
 
 }
 
@@ -104,10 +108,6 @@ void BPTreeNode<TRecord,blockSize>::file(File & f){
     file_=&f;
 }
 
-template<class TRecord,unsigned int blockSize>
-void BPTreeNode<TRecord,blockSize>::blockNumber(unsigned long blockNum){
-	blockNumber_=blockNum;
-}
 
 template<class TRecord,unsigned int blockSize>
 BPTreeNode<TRecord,blockSize>::~BPTreeNode(){

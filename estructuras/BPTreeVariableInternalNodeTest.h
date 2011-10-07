@@ -17,6 +17,7 @@ public:
 	void run();
 	bool testReadWrite1();
 	bool testInsert1();
+	bool testRemove1();
 	virtual ~BPTreeVariableInternalNodeTest();
 };
 
