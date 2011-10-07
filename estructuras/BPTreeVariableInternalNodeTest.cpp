@@ -34,11 +34,17 @@ void BPTreeVariableInternalNodeTest::run(){
 		testOK=false;
 	}
 	if(testRemove1())
-			std::cout<<"testRemove1: OK"<<std::endl;
-		else{
-			std::cout<<"testRemove1: FAIL"<<std::endl;
-			testOK=false;
-		}
+		std::cout<<"testRemove1: OK"<<std::endl;
+	else{
+		std::cout<<"testRemove1: FAIL"<<std::endl;
+		testOK=false;
+	}
+	if(testSearch1())
+		std::cout<<"testSearch1: OK"<<std::endl;
+	else{
+		std::cout<<"testSearch1: FAIL"<<std::endl;
+		testOK=false;
+	}
 	std::cout<<"End of test of BPTreeVariableInternalNode , result: ";
 	if(testOK)
 		std::cout<<"ALL OK!"<<std::endl;
@@ -49,209 +55,14 @@ void BPTreeVariableInternalNodeTest::run(){
 bool BPTreeVariableInternalNodeTest::testInsert1(){
 	//Creo el archivo de entrada
 	File file("testInternalNode3.bin",File::BIN|File::NEW|File::IO);
-	FreeSpaceStackBlock<25> * fblock=new FreeSpaceStackBlock<25>;
-	fblock->blockNumber=14;
-	fblock->inFile=0; //No esta en el archivo.
-	file.write((char*)fblock,25);
-	delete fblock;
 	StudentRecord * stRec;
 	uint32_t rightChild;
-	// Nodo 1 /////////////////////////////////////////////////////////////////////////
-	BPTreeVariableNodeBlock<25> *internalBlock=new BPTreeVariableNodeBlock<25>;
-	internalBlock->level=2;
-	internalBlock->freeSpace=25-VARIABLE_NODE_CONTROL_BYTES-12;
-	internalBlock->leftChild=2;
-	char * bytesPtr=internalBlock->bytes;
-	stRec = new StudentRecord(92,"ABC");
-	stRec->getKey().write(&bytesPtr);
-	rightChild=3;
-	memcpy(bytesPtr,&rightChild,4);
-	bytesPtr+=4;
-	delete stRec;
-	stRec = new StudentRecord(160,"ABC");
-	stRec->getKey().write(&bytesPtr);
-	rightChild=4;
-	memcpy(bytesPtr,&rightChild,4);
-	file.write((char*)internalBlock,25);
-	delete stRec;
-	delete internalBlock;
-	// Nodo 2 /////////////////////////////////////////////////////////////////////////
-	internalBlock=new BPTreeVariableNodeBlock<25>;
-	internalBlock->level=1;
-	internalBlock->freeSpace=25-VARIABLE_NODE_CONTROL_BYTES-12;
-	internalBlock->leftChild=5;
-	bytesPtr=internalBlock->bytes;
-	stRec = new StudentRecord(40,"ABC");
-	stRec->getKey().write(&bytesPtr);
-	rightChild=6;
-	memcpy(bytesPtr,&rightChild,4);
-	bytesPtr+=4;
-	delete stRec;
-	stRec = new StudentRecord(72,"ABC");
-	stRec->getKey().write(&bytesPtr);
-	rightChild=7;
-	memcpy(bytesPtr,&rightChild,4);
-	delete stRec;
-	file.write((char*)internalBlock,25);
-	delete internalBlock;
-	// Nodo 3 /////////////////////////////////////////////////////////////////////////
-	internalBlock=new BPTreeVariableNodeBlock<25>;
-	internalBlock->level=1;
-	internalBlock->freeSpace=25-VARIABLE_NODE_CONTROL_BYTES-12;
-	internalBlock->leftChild=8;
-	bytesPtr=internalBlock->bytes;
-	stRec = new StudentRecord(120,"ABC");
-	stRec->getKey().write(&bytesPtr);
-	rightChild=9;
-	memcpy(bytesPtr,&rightChild,4);
-	bytesPtr+=4;
-	delete stRec;
-	stRec = new StudentRecord(130,"ABC");
-	stRec->getKey().write(&bytesPtr);
-	rightChild=10;
-	memcpy(bytesPtr,&rightChild,4);
-	delete stRec;
-	file.write((char*)internalBlock,25);
-	delete internalBlock;
-	// Nodo 4 /////////////////////////////////////////////////////////////////////////
-	internalBlock=new BPTreeVariableNodeBlock<25>;
-	internalBlock->level=1;
-	internalBlock->freeSpace=25-VARIABLE_NODE_CONTROL_BYTES-12;
-	internalBlock->leftChild=11;
-	bytesPtr=internalBlock->bytes;
-	stRec = new StudentRecord(170,"ABC");
-	stRec->getKey().write(&bytesPtr);
-	rightChild=12;
-	memcpy(bytesPtr,&rightChild,4);
-	bytesPtr+=4;
-	delete stRec;
-	stRec = new StudentRecord(190,"ABC");
-	stRec->getKey().write(&bytesPtr);
-	rightChild=13;
-	memcpy(bytesPtr,&rightChild,4);
-	delete stRec;
-	file.write((char*)internalBlock,25);
-	delete internalBlock;
-	// Nodo 5 /////////////////////////////////////////////////////////////////////////
-	BPTreeVariableLeafBlock<25>* leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-18;
-	leafBlock->next=6;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(2,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(10,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(15,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
-	// Nodo 6 /////////////////////////////////////////////////////////////////////////
-	leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
-	leafBlock->next=7;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(40,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(51,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
-	// Nodo 7 /////////////////////////////////////////////////////////////////////////
-	leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
-	leafBlock->next=8;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(72,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(80,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
-	// Nodo 8 /////////////////////////////////////////////////////////////////////////
-	leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
-	leafBlock->next=9;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(92,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(104,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
-	// Nodo 9 /////////////////////////////////////////////////////////////////////////
-	leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
-	leafBlock->next=10;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(120,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(125,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
-	// Nodo 10 /////////////////////////////////////////////////////////////////////////
-	leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
-	leafBlock->next=11;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(130,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(140,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
-	// Nodo 11 /////////////////////////////////////////////////////////////////////////
-	leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
-	leafBlock->next=12;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(160,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(165,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
-	// Nodo 12 /////////////////////////////////////////////////////////////////////////
-	leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
-	leafBlock->next=13;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(170,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(175,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
-	// Nodo 13 /////////////////////////////////////////////////////////////////////////
-	leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
-	leafBlock->next=0;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(200,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(210,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
+	BPTreeVariableNodeBlock<25> *internalBlock;
+	char * bytesPtr;
+	BPTreeVariableLeafBlock<25>* leafBlock;
+
+	//Creo un arbol en el archivo.
+	arrenge1(file);
 
 	//Cargo la raiz (Nodo 1)
 	BPTreeVariableInternalNode<StudentRecord,25> * root=new BPTreeVariableInternalNode<StudentRecord,25>(file,1);
@@ -634,209 +445,15 @@ bool BPTreeVariableInternalNodeTest::testInsert1(){
 bool BPTreeVariableInternalNodeTest::testRemove1(){
 	//Creo el archivo de entrada
 	File file("testInternalNode4.bin",File::BIN|File::NEW|File::IO);
-	FreeSpaceStackBlock<25> * fblock=new FreeSpaceStackBlock<25>;
-	fblock->blockNumber=14;
-	fblock->inFile=0; //No esta en el archivo.
-	file.write((char*)fblock,25);
-	delete fblock;
 	StudentRecord * stRec;
 	uint32_t rightChild;
-	// Nodo 1 /////////////////////////////////////////////////////////////////////////
-	BPTreeVariableNodeBlock<25> *internalBlock=new BPTreeVariableNodeBlock<25>;
-	internalBlock->level=2;
-	internalBlock->freeSpace=25-VARIABLE_NODE_CONTROL_BYTES-12;
-	internalBlock->leftChild=2;
-	char * bytesPtr=internalBlock->bytes;
-	stRec = new StudentRecord(92,"ABC");
-	stRec->getKey().write(&bytesPtr);
-	rightChild=3;
-	memcpy(bytesPtr,&rightChild,4);
-	bytesPtr+=4;
-	delete stRec;
-	stRec = new StudentRecord(160,"ABC");
-	stRec->getKey().write(&bytesPtr);
-	rightChild=4;
-	memcpy(bytesPtr,&rightChild,4);
-	file.write((char*)internalBlock,25);
-	delete stRec;
-	delete internalBlock;
-	// Nodo 2 /////////////////////////////////////////////////////////////////////////
-	internalBlock=new BPTreeVariableNodeBlock<25>;
-	internalBlock->level=1;
-	internalBlock->freeSpace=25-VARIABLE_NODE_CONTROL_BYTES-12;
-	internalBlock->leftChild=5;
-	bytesPtr=internalBlock->bytes;
-	stRec = new StudentRecord(40,"ABC");
-	stRec->getKey().write(&bytesPtr);
-	rightChild=6;
-	memcpy(bytesPtr,&rightChild,4);
-	bytesPtr+=4;
-	delete stRec;
-	stRec = new StudentRecord(72,"ABC");
-	stRec->getKey().write(&bytesPtr);
-	rightChild=7;
-	memcpy(bytesPtr,&rightChild,4);
-	delete stRec;
-	file.write((char*)internalBlock,25);
-	delete internalBlock;
-	// Nodo 3 /////////////////////////////////////////////////////////////////////////
-	internalBlock=new BPTreeVariableNodeBlock<25>;
-	internalBlock->level=1;
-	internalBlock->freeSpace=25-VARIABLE_NODE_CONTROL_BYTES-12;
-	internalBlock->leftChild=8;
-	bytesPtr=internalBlock->bytes;
-	stRec = new StudentRecord(120,"ABC");
-	stRec->getKey().write(&bytesPtr);
-	rightChild=9;
-	memcpy(bytesPtr,&rightChild,4);
-	bytesPtr+=4;
-	delete stRec;
-	stRec = new StudentRecord(130,"ABC");
-	stRec->getKey().write(&bytesPtr);
-	rightChild=10;
-	memcpy(bytesPtr,&rightChild,4);
-	delete stRec;
-	file.write((char*)internalBlock,25);
-	delete internalBlock;
-	// Nodo 4 /////////////////////////////////////////////////////////////////////////
-	internalBlock=new BPTreeVariableNodeBlock<25>;
-	internalBlock->level=1;
-	internalBlock->freeSpace=25-VARIABLE_NODE_CONTROL_BYTES-12;
-	internalBlock->leftChild=11;
-	bytesPtr=internalBlock->bytes;
-	stRec = new StudentRecord(170,"ABC");
-	stRec->getKey().write(&bytesPtr);
-	rightChild=12;
-	memcpy(bytesPtr,&rightChild,4);
-	bytesPtr+=4;
-	delete stRec;
-	stRec = new StudentRecord(190,"ABC");
-	stRec->getKey().write(&bytesPtr);
-	rightChild=13;
-	memcpy(bytesPtr,&rightChild,4);
-	delete stRec;
-	file.write((char*)internalBlock,25);
-	delete internalBlock;
-	// Nodo 5 /////////////////////////////////////////////////////////////////////////
-	BPTreeVariableLeafBlock<25>* leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-18;
-	leafBlock->next=6;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(2,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(10,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(15,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
-	// Nodo 6 /////////////////////////////////////////////////////////////////////////
-	leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
-	leafBlock->next=7;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(40,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(51,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
-	// Nodo 7 /////////////////////////////////////////////////////////////////////////
-	leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
-	leafBlock->next=8;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(72,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(80,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
-	// Nodo 8 /////////////////////////////////////////////////////////////////////////
-	leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
-	leafBlock->next=9;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(92,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(104,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
-	// Nodo 9 /////////////////////////////////////////////////////////////////////////
-	leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
-	leafBlock->next=10;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(120,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(125,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
-	// Nodo 10 /////////////////////////////////////////////////////////////////////////
-	leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
-	leafBlock->next=11;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(130,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(140,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
-	// Nodo 11 /////////////////////////////////////////////////////////////////////////
-	leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
-	leafBlock->next=12;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(160,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(165,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
-	// Nodo 12 /////////////////////////////////////////////////////////////////////////
-	leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
-	leafBlock->next=13;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(170,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(175,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
-	// Nodo 13 /////////////////////////////////////////////////////////////////////////
-	leafBlock=new BPTreeVariableLeafBlock<25>;
-	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
-	leafBlock->next=0;
-	bytesPtr=leafBlock->bytes;
-	stRec= new StudentRecord(200,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	stRec= new StudentRecord(210,"ABC");
-	stRec->write(&bytesPtr);
-	delete stRec;
-	file.write((char*)leafBlock,25);
-	delete leafBlock;
+	BPTreeVariableNodeBlock<25> *internalBlock;
+	char * bytesPtr;
+	BPTreeVariableLeafBlock<25>* leafBlock;
+
+	//Creo un arbol en el archivo.
+	arrenge1(file);
+
 
 	//Cargo la raiz (Nodo 1)
 	BPTreeVariableInternalNode<StudentRecord,25> * root=new BPTreeVariableInternalNode<StudentRecord,25>(file,1);
@@ -1087,9 +704,250 @@ bool BPTreeVariableInternalNodeTest::testRemove1(){
 	}
 	delete leafBlock;
 
+	return comparisonOK;
+}
+void BPTreeVariableInternalNodeTest::arrenge1( File & file){
+	//Creo el archivo de entrada
+	FreeSpaceStackBlock<25> * fblock=new FreeSpaceStackBlock<25>;
+	fblock->blockNumber=14;
+	fblock->inFile=0; //No esta en el archivo.
+	file.write((char*)fblock,25);
+	delete fblock;
+	StudentRecord * stRec;
+	uint32_t rightChild;
+	// Nodo 1 /////////////////////////////////////////////////////////////////////////
+	BPTreeVariableNodeBlock<25> *internalBlock=new BPTreeVariableNodeBlock<25>;
+	internalBlock->level=2;
+	internalBlock->freeSpace=25-VARIABLE_NODE_CONTROL_BYTES-12;
+	internalBlock->leftChild=2;
+	char * bytesPtr=internalBlock->bytes;
+	stRec = new StudentRecord(92,"ABC");
+	stRec->getKey().write(&bytesPtr);
+	rightChild=3;
+	memcpy(bytesPtr,&rightChild,4);
+	bytesPtr+=4;
+	delete stRec;
+	stRec = new StudentRecord(160,"ABC");
+	stRec->getKey().write(&bytesPtr);
+	rightChild=4;
+	memcpy(bytesPtr,&rightChild,4);
+	file.write((char*)internalBlock,25);
+	delete stRec;
+	delete internalBlock;
+	// Nodo 2 /////////////////////////////////////////////////////////////////////////
+	internalBlock=new BPTreeVariableNodeBlock<25>;
+	internalBlock->level=1;
+	internalBlock->freeSpace=25-VARIABLE_NODE_CONTROL_BYTES-12;
+	internalBlock->leftChild=5;
+	bytesPtr=internalBlock->bytes;
+	stRec = new StudentRecord(40,"ABC");
+	stRec->getKey().write(&bytesPtr);
+	rightChild=6;
+	memcpy(bytesPtr,&rightChild,4);
+	bytesPtr+=4;
+	delete stRec;
+	stRec = new StudentRecord(72,"ABC");
+	stRec->getKey().write(&bytesPtr);
+	rightChild=7;
+	memcpy(bytesPtr,&rightChild,4);
+	delete stRec;
+	file.write((char*)internalBlock,25);
+	delete internalBlock;
+	// Nodo 3 /////////////////////////////////////////////////////////////////////////
+	internalBlock=new BPTreeVariableNodeBlock<25>;
+	internalBlock->level=1;
+	internalBlock->freeSpace=25-VARIABLE_NODE_CONTROL_BYTES-12;
+	internalBlock->leftChild=8;
+	bytesPtr=internalBlock->bytes;
+	stRec = new StudentRecord(120,"ABC");
+	stRec->getKey().write(&bytesPtr);
+	rightChild=9;
+	memcpy(bytesPtr,&rightChild,4);
+	bytesPtr+=4;
+	delete stRec;
+	stRec = new StudentRecord(130,"ABC");
+	stRec->getKey().write(&bytesPtr);
+	rightChild=10;
+	memcpy(bytesPtr,&rightChild,4);
+	delete stRec;
+	file.write((char*)internalBlock,25);
+	delete internalBlock;
+	// Nodo 4 /////////////////////////////////////////////////////////////////////////
+	internalBlock=new BPTreeVariableNodeBlock<25>;
+	internalBlock->level=1;
+	internalBlock->freeSpace=25-VARIABLE_NODE_CONTROL_BYTES-12;
+	internalBlock->leftChild=11;
+	bytesPtr=internalBlock->bytes;
+	stRec = new StudentRecord(170,"ABC");
+	stRec->getKey().write(&bytesPtr);
+	rightChild=12;
+	memcpy(bytesPtr,&rightChild,4);
+	bytesPtr+=4;
+	delete stRec;
+	stRec = new StudentRecord(190,"ABC");
+	stRec->getKey().write(&bytesPtr);
+	rightChild=13;
+	memcpy(bytesPtr,&rightChild,4);
+	delete stRec;
+	file.write((char*)internalBlock,25);
+	delete internalBlock;
+	// Nodo 5 /////////////////////////////////////////////////////////////////////////
+	BPTreeVariableLeafBlock<25>* leafBlock=new BPTreeVariableLeafBlock<25>;
+	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-18;
+	leafBlock->next=6;
+	bytesPtr=leafBlock->bytes;
+	stRec= new StudentRecord(2,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	stRec= new StudentRecord(10,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	stRec= new StudentRecord(15,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	file.write((char*)leafBlock,25);
+	delete leafBlock;
+	// Nodo 6 ///////////////////////////////////////////BPTreeVariableInternalNodeTest//////////////////////////////
+	leafBlock=new BPTreeVariableLeafBlock<25>;
+	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->next=7;
+	bytesPtr=leafBlock->bytes;
+	stRec= new StudentRecord(40,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	stRec= new StudentRecord(51,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	file.write((char*)leafBlock,25);
+	delete leafBlock;
+	// Nodo 7 /////////////////////////////////////////////////////////////////////////
+	leafBlock=new BPTreeVariableLeafBlock<25>;
+	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->next=8;
+	bytesPtr=leafBlock->bytes;
+	stRec= new StudentRecord(72,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	stRec= new StudentRecord(80,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	file.write((char*)leafBlock,25);
+	delete leafBlock;
+	// Nodo 8 /////////////////////////////////////////////////////////////////////////
+	leafBlock=new BPTreeVariableLeafBlock<25>;
+	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->next=9;
+	bytesPtr=leafBlock->bytes;
+	stRec= new StudentRecord(92,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	stRec= new StudentRecord(104,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	file.write((char*)leafBlock,25);
+	delete leafBlock;
+	// Nodo 9 /////////////////////////////////////////////////////////////////////////
+	leafBlock=new BPTreeVariableLeafBlock<25>;
+	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->next=10;
+	bytesPtr=leafBlock->bytes;
+	stRec= new StudentRecord(120,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	stRec= new StudentRecord(125,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	file.write((char*)leafBlock,25);
+	delete leafBlock;
+	// Nodo 10 /////////////////////////////////////////////////////////////////////////
+	leafBlock=new BPTreeVariableLeafBlock<25>;
+	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->next=11;
+	bytesPtr=leafBlock->bytes;
+	stRec= new StudentRecord(130,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	stRec= new StudentRecord(140,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	file.write((char*)leafBlock,25);
+	delete leafBlock;
+	// Nodo 11 /////////////////////////////////////////////////////////////////////////
+	leafBlock=new BPTreeVariableLeafBlock<25>;
+	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->next=12;
+	bytesPtr=leafBlock->bytes;
+	stRec= new StudentRecord(160,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	stRec= new StudentRecord(165,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	file.write((char*)leafBlock,25);
+	delete leafBlock;
+	// Nodo 12 /////////////////////////////////////////////////////////////////////////
+	leafBlock=new BPTreeVariableLeafBlock<25>;
+	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->next=13;
+	bytesPtr=leafBlock->bytes;
+	stRec= new StudentRecord(170,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	stRec= new StudentRecord(175,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	file.write((char*)leafBlock,25);
+	delete leafBlock;
+	// Nodo 13 /////////////////////////////////////////////////////////////////////////
+	leafBlock=new BPTreeVariableLeafBlock<25>;
+	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->next=0;
+	bytesPtr=leafBlock->bytes;
+	stRec= new StudentRecord(200,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	stRec= new StudentRecord(210,"ABC");
+	stRec->write(&bytesPtr);
+	delete stRec;
+	file.write((char*)leafBlock,25);
+	delete leafBlock;
+}
+bool BPTreeVariableInternalNodeTest::testSearch1(){
+	File file("testInternalNode4.bin",File::NEW|File::IO|File::BIN);
+	arrenge1(file);
+	BPTreeVariableInternalNode<StudentRecord,25> * root=new BPTreeVariableInternalNode<StudentRecord,25>(file,1);
+	StudentRecord * stRec,*found;
 
+	stRec= new StudentRecord(170,"FFF");
+	found=root->search(*stRec);
+	delete stRec;
+	bool result=true;
+	if(found->idNumber()!=170||found->name().compare("ABC")!=0)
+		result=false;
+	delete found;
+	stRec= new StudentRecord(161,"ASD");
+	found=root->search(*stRec);
+	delete stRec;
+	if(found->idNumber()!=165||found->name().compare("ABC")!=0)
+		result=false;
+	delete found;
+	stRec= new StudentRecord(176,"ASD");
+	found=root->search(*stRec);
+	delete stRec;
+	if(found->idNumber()!=200||found->name().compare("ABC")!=0)
+		result=false;
+	delete found;
+	try{
+		stRec= new StudentRecord(220,"ASD");
+		found=root->search(*stRec);
+		delete stRec;
+		result=false;
+		delete found;
+	}catch(ThereIsNoGreaterRecordException e){
+		delete stRec;
+	}
 
-		return comparisonOK;
+	return result;
 }
 bool BPTreeVariableInternalNodeTest::testReadWrite1(){
 	BPTreeVariableNodeBlock<512> *block=new BPTreeVariableNodeBlock<512>;
