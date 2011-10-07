@@ -18,7 +18,7 @@ protected:
 	typename std::list<typename TRecord::Key> keys_;
 	std::list<unsigned int> children_;
 
-	typename std::list<typename TRecord::Key>::iterator search(const typename TRecord::Key & key);
+	typename std::list<typename TRecord::Key>::iterator itSearch(const typename TRecord::Key & key);
 	std::list<unsigned int>::iterator getLeftChild(const typename TRecord::Key &);
 	std::list<unsigned int>::iterator getRightChild(const typename TRecord::Key &);
 public:
@@ -50,7 +50,7 @@ bool BPTreeInternalNode<TRecord,blockSize>::isLeaf()const{
 	return false;
 }
 template<class TRecord,unsigned int blockSize>
-typename std::list<typename TRecord::Key>::iterator BPTreeInternalNode<TRecord,blockSize>::search( const typename TRecord::Key & key)
+typename std::list<typename TRecord::Key>::iterator BPTreeInternalNode<TRecord,blockSize>::itSearch( const typename TRecord::Key & key)
 {
 		typename std::list<typename TRecord::Key>::iterator it;
 		for(it=keys_.begin();it!=keys_.end();it++){

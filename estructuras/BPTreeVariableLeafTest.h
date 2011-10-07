@@ -17,6 +17,7 @@ public:
 	bool testRead1();
 	bool testInsert1();
 	bool testRemove1();
+	bool testSearch1();
 	virtual ~BPTreeVariableLeafTest();
 };
 
