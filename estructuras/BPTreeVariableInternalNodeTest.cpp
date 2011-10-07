@@ -917,29 +917,30 @@ bool BPTreeVariableInternalNodeTest::testSearch1(){
 	arrenge1(file);
 	BPTreeVariableInternalNode<StudentRecord,25> * root=new BPTreeVariableInternalNode<StudentRecord,25>(file,1);
 	StudentRecord * stRec,*found;
+	BPTreeVariableLeaf<StudentRecord,25> * lastLeaf=new BPTreeVariableLeaf<StudentRecord,25>(file,8);
 
 	stRec= new StudentRecord(170,"FFF");
-	found=root->search(*stRec);
+	found=root->search(*stRec,&lastLeaf);
 	delete stRec;
 	bool result=true;
 	if(found->idNumber()!=170||found->name().compare("ABC")!=0)
 		result=false;
 	delete found;
 	stRec= new StudentRecord(161,"ASD");
-	found=root->search(*stRec);
+	found=root->search(*stRec,&lastLeaf);
 	delete stRec;
 	if(found->idNumber()!=165||found->name().compare("ABC")!=0)
 		result=false;
 	delete found;
 	stRec= new StudentRecord(176,"ASD");
-	found=root->search(*stRec);
+	found=root->search(*stRec,&lastLeaf);
 	delete stRec;
 	if(found->idNumber()!=200||found->name().compare("ABC")!=0)
 		result=false;
 	delete found;
 	try{
 		stRec= new StudentRecord(220,"ASD");
-		found=root->search(*stRec);
+		found=root->search(*stRec,&lastLeaf);
 		delete stRec;
 		result=false;
 		delete found;

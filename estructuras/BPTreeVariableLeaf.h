@@ -13,6 +13,7 @@
 template<class TRecord,unsigned int blockSize>
 class BPTreeVariableLeaf: public BPTreeLeaf<TRecord,blockSize>{
 	unsigned int freeSpace;
+	unsigned int searchIndex_;
 
 	void readRecords(BPTreeVariableLeafBlock<blockSize> *);
 	void writeRecords(BPTreeVariableLeafBlock<blockSize> *);
@@ -37,13 +38,13 @@ public:
 
 template<class TRecord,unsigned int blockSize>
 BPTreeVariableLeaf<TRecord,blockSize>::BPTreeVariableLeaf(File & file):
-BPTreeLeaf<TRecord,blockSize>(file){
+BPTreeLeaf<TRecord,blockSize>(file),searchIndex_(0){
 	freeSpace=blockSize - VARIABLE_LEAF_CONTROL_BYTES;
 }
 
 template<class TRecord,unsigned int blockSize>
 BPTreeVariableLeaf<TRecord,blockSize>::BPTreeVariableLeaf(File & file,unsigned long blockNumber):
-BPTreeLeaf<TRecord,blockSize>(file,blockNumber){
+BPTreeLeaf<TRecord,blockSize>(file,blockNumber),searchIndex_(0){
 	read();
 }
 
@@ -186,22 +187,13 @@ void BPTreeVariableLeaf<TRecord,blockSize>::clear(){
 
 template<class TRecord,unsigned int blockSize>
 TRecord * BPTreeVariableLeaf<TRecord,blockSize>::search(const TRecord & rec){
-	TRecord * found;
 	typename std::list<TRecord>::iterator it=BPTreeLeaf<TRecord,blockSize>::itSearch(rec);
-	if(it==BPTreeLeaf<TRecord,blockSize>::records_.end()){
-		BPTreeVariableLeaf<TRecord,blockSize> * myNextLeaf;
-		try{
-			myNextLeaf=(BPTreeVariableLeaf<TRecord,blockSize> *)nextLeaf();
-			it=myNextLeaf->records_.begin();
-			found=new TRecord(*it);
-			delete myNextLeaf;
-		}catch(ThereIsNoNextLeafException e){
-			throw ThereIsNoGreaterRecordException();
-		}
-	}else{
-		found=new TRecord(*it);
-	}
-
+	typename std::list<TRecord>::iterator it2=BPTreeLeaf<TRecord,blockSize>::records_.begin();
+	for(searchIndex_=0;it2!=it;it2++)
+		searchIndex_++;
+	if(it==BPTreeLeaf<TRecord,blockSize>::records_.end())
+		throw LeafRecordNotFoundException();
+	TRecord * found=new TRecord(*it);
 	return found;
 }
 template<class TRecord,unsigned int blockSize>

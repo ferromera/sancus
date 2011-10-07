@@ -254,20 +254,12 @@ bool BPTreeVariableLeafTest::testSearch1(){
 	leaf->next(2);
 	leaf->write();
 	delete leaf;
-	leaf=new BPTreeVariableLeaf<StudentRecord,512>(file);
-	for(int i=35;i<70;i++){
-		//Record de tamaño 10.
-		stRec=new StudentRecord(1000+10*i,"abcdefg");
-		leaf->insert(*stRec);
-		delete stRec;
-	}
-	leaf->write();
-	delete leaf;
+
 	leaf=new BPTreeVariableLeaf<StudentRecord,512>(file,1);
 	StudentRecord rec(1240,"A");
 	StudentRecord rec2(1135,"B");
 	StudentRecord rec3(1345,"C");
-	StudentRecord rec4(2000,"D");
+
 	StudentRecord* found=leaf->search(rec);
 	bool result=true;
 	if(found->idNumber()!=1240 || found->name().compare("1234567")!=0)
@@ -277,17 +269,11 @@ bool BPTreeVariableLeafTest::testSearch1(){
 	if(found->idNumber()!=1140 || found->name().compare("1234567")!=0)
 		result=false;
 	delete found;
-	found=leaf->search(rec3);
-	if(found->idNumber()!=1350 || found->name().compare("abcdefg")!=0)
-		result=false;
-	delete found;
-	delete leaf;
-	leaf=new BPTreeVariableLeaf<StudentRecord,512>(file,2);
 	try{
-		found=leaf->search(rec4);
+		found=leaf->search(rec3);
 		result=false;
 		delete found;
-	}catch(ThereIsNoGreaterRecordException e){
+	}catch(LeafRecordNotFoundException e){
 	}
 	delete leaf;
 	return result;
