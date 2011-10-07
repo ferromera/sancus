@@ -36,11 +36,17 @@ void BPTreeVariableLeafTest::run(){
 		testOK=false;
 	}
 	if(testSearch1()){
-			std::cout<<"testSearch1: OK"<<std::endl;
-		}else{
-			std::cout<<"testSearch1: ERROR"<<std::endl;
-			testOK=false;
-		}
+		std::cout<<"testSearch1: OK"<<std::endl;
+	}else{
+		std::cout<<"testSearch1: ERROR"<<std::endl;
+		testOK=false;
+	}
+	if(testUpdate1()){
+		std::cout<<"testUpdate1: OK"<<std::endl;
+	}else{
+		std::cout<<"testUpdate1: ERROR"<<std::endl;
+		testOK=false;
+	}
 
 	std::cout<<"End of test of BPTreeVariableLeaf , result: ";
 	if(testOK)
@@ -230,7 +236,7 @@ bool BPTreeVariableLeafTest::testRemove1(){
 }
 bool BPTreeVariableLeafTest::testSearch1(){
 	//Escribo el bloque de espacio libre 0
-	File file("VariableLeafTest3.bin",File::NEW|File::IO|File::BIN);
+	File file("VariableLeafTest4.bin",File::NEW|File::IO|File::BIN);
 	FreeSpaceStackBlock<512> * fblock=new FreeSpaceStackBlock<512>;
 	fblock->blockNumber=1;
 	fblock->inFile=0; //No esta en el archivo.
@@ -282,6 +288,68 @@ bool BPTreeVariableLeafTest::testSearch1(){
 		result=false;
 		delete found;
 	}catch(ThereIsNoGreaterRecordException e){
+	}
+	delete leaf;
+	return result;
+
+}
+bool BPTreeVariableLeafTest::testUpdate1(){
+	//Escribo el bloque de espacio libre 0
+	File file("VariableLeafTest5.bin",File::NEW|File::IO|File::BIN);
+	FreeSpaceStackBlock<512> * fblock=new FreeSpaceStackBlock<512>;
+	fblock->blockNumber=1;
+	fblock->inFile=0; //No esta en el archivo.
+	file.write(fblock,512);
+	delete fblock;
+	BPTreeVariableLeaf<StudentRecord,512>* leaf=new BPTreeVariableLeaf<StudentRecord,512>(file);
+
+	StudentRecord *stRec;
+	for(int i=0;i<35;i++){
+		//Record de tamaño 10.
+		stRec=new StudentRecord(1000+10*i,"1234567");
+		leaf->insert(*stRec);
+		delete stRec;
+	}
+	leaf->write();
+	delete leaf;
+	leaf=new BPTreeVariableLeaf<StudentRecord,512>(file,1);
+	stRec= new StudentRecord(1050,"Modific");
+	leaf->update(*stRec);
+	bool result=true;
+	StudentRecord * found=leaf->search(*stRec);
+	if(found->idNumber()!=1050 || found->name().compare("Modific")!=0)
+		result=false;
+	delete found;
+	delete stRec;
+	// record de 170 bytes -> diferencia de 160 bytes.
+	stRec=new StudentRecord(1060,"01_abcdef_02_abcdef_03_abcdef_04_abcdef_05_abcdef_06_abcdef_07_abcdef_08_abcdef_09_abcdef_10_abcdef_11_abcdef_12_abcdef_13_abcdef_14_abcdef_15_abcdef_16_abcdef_17_abcdef_");
+	try{
+		leaf->update(*stRec);
+		result=false;
+	}catch(LeafOverflowException){
+	}
+	delete stRec;
+
+	for(int i =7 ;i < 20 ; i++){
+		stRec=new StudentRecord(1000+10*i,""); //3 bytes -> dif= 7 * 13 =189 bytes
+		leaf->update(*stRec);
+		delete stRec;
+	}
+	try{
+		stRec=new StudentRecord(1200,"");
+		leaf->update(*stRec);
+		delete stRec;
+		result=false;
+	}catch(LeafUnderflowException){
+		delete stRec;
+	}
+	try{
+		stRec=new StudentRecord(100,"No existe");
+		leaf->update(*stRec);
+		delete stRec;
+		result=false;
+	}catch(LeafRecordNotFoundException){
+		delete stRec;
 	}
 	delete leaf;
 	return result;
