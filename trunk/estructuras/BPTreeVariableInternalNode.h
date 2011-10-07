@@ -130,7 +130,7 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::insert(TRecord & record)
 	typename TRecord::Key key = dynamic_cast<const typename TRecord::Key &>(record.getKey());
 	//Busco la clave en la lista
 	typename std::list<typename TRecord::Key>::iterator itKey =
-			BPTreeInternalNode<TRecord,blockSize>::search(key);
+			BPTreeInternalNode<TRecord,blockSize>::itSearch(key);
 	std::list<unsigned int>::iterator itChildren;
 
 	//Obtengo el hijo donde se debera insertar
@@ -274,7 +274,7 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::insertInNode(typename TRecor
 		   throw NodeOverflowException<typename TRecord::Key>(child,key);
 
 	typename std::list<typename TRecord::Key>::iterator itKey =
-			BPTreeInternalNode<TRecord,blockSize>::search(key);
+			BPTreeInternalNode<TRecord,blockSize>::itSearch(key);
 
 	typename std::list<unsigned int>::iterator itChildren ;
 
@@ -296,7 +296,7 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::remove(TRecord & record)
 	typename TRecord::Key key = dynamic_cast<const typename TRecord::Key &>(record.getKey());
 	//Busco la clave en la lista
 	typename std::list<typename TRecord::Key>::iterator itKey =
-			BPTreeInternalNode<TRecord,blockSize>::search(key);
+			BPTreeInternalNode<TRecord,blockSize>::itSearch(key);
 	std::list<unsigned int>::iterator itChildren;
 
 	//Obtengo el hijo donde voy a  borrar
@@ -552,7 +552,7 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::remove(TRecord & record)
 template<class TRecord,unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord,blockSize>::removeInNode(typename TRecord::Key & key){
 
-	typename std::list<typename TRecord::Key>::iterator itRemovePos=search(key);
+	typename std::list<typename TRecord::Key>::iterator itRemovePos=itSearch(key);
 	if( itRemovePos==BPTreeInternalNode<TRecord,blockSize>::keys_.end()
 	|| (*itRemovePos)!=key)
 		throw NodeKeyNotFoundException();

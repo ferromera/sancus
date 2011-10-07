@@ -35,7 +35,12 @@ void BPTreeVariableLeafTest::run(){
 		std::cout<<"testRemove1: ERROR"<<std::endl;
 		testOK=false;
 	}
-
+	if(testSearch1()){
+			std::cout<<"testSearch1: OK"<<std::endl;
+		}else{
+			std::cout<<"testSearch1: ERROR"<<std::endl;
+			testOK=false;
+		}
 
 	std::cout<<"End of test of BPTreeVariableLeaf , result: ";
 	if(testOK)
@@ -46,7 +51,7 @@ void BPTreeVariableLeafTest::run(){
 }
 
 bool BPTreeVariableLeafTest::testRead1(){
-	File file("testRead.bin",File::NEW|File::IO|File::BIN);
+	File file("VariableLeafTest1.bin",File::NEW|File::IO|File::BIN);
 	//Escribo el bloque de espacio libre 0
 	FreeSpaceStackBlock<512> * fblock=new FreeSpaceStackBlock<512>;
 	fblock->blockNumber=2;
@@ -109,7 +114,7 @@ bool BPTreeVariableLeafTest::testRead1(){
 
 bool BPTreeVariableLeafTest::testInsert1(){
 	//Escribo el bloque de espacio libre 0
-	File file("testInsert1.bin",File::NEW|File::IO|File::BIN);
+	File file("VariableLeafTest2.bin",File::NEW|File::IO|File::BIN);
 	FreeSpaceStackBlock<64> * fblock=new FreeSpaceStackBlock<64>;
 	fblock->blockNumber=1;
 	fblock->inFile=0; //No esta en el archivo.
@@ -164,7 +169,7 @@ bool BPTreeVariableLeafTest::testInsert1(){
 
 bool BPTreeVariableLeafTest::testRemove1(){
 	//Escribo el bloque de espacio libre 0
-	File file("testRemove1.bin",File::NEW|File::IO|File::BIN);
+	File file("VariableLeafTest3.bin",File::NEW|File::IO|File::BIN);
 	FreeSpaceStackBlock<512> * fblock=new FreeSpaceStackBlock<512>;
 	fblock->blockNumber=1;
 	fblock->inFile=0; //No esta en el archivo.
@@ -220,6 +225,46 @@ bool BPTreeVariableLeafTest::testRemove1(){
 	}
 	delete block;
 	delete readBlock;
+	return result;
+
+}
+bool BPTreeVariableLeafTest::testSearch1(){
+	//Escribo el bloque de espacio libre 0
+	File file("VariableLeafTest3.bin",File::NEW|File::IO|File::BIN);
+	FreeSpaceStackBlock<512> * fblock=new FreeSpaceStackBlock<512>;
+	fblock->blockNumber=1;
+	fblock->inFile=0; //No esta en el archivo.
+	file.write(fblock,512);
+	delete fblock;
+	BPTreeVariableLeaf<StudentRecord,512>* leaf=new BPTreeVariableLeaf<StudentRecord,512>(file);
+
+	StudentRecord *stRec;
+	for(int i=0;i<35;i++){
+		//Record de tamaño 10.
+		stRec=new StudentRecord(1000+10*i,"1234567");
+		leaf->insert(*stRec);
+		delete stRec;
+	}
+	leaf->write();
+	delete leaf;
+	leaf=new BPTreeVariableLeaf<StudentRecord,512>(file,1);
+	StudentRecord rec(1240,"A");
+	StudentRecord rec2(1135,"B");
+	StudentRecord rec3(2000,"C");
+	StudentRecord* found=leaf->search(rec);
+	bool result=true;
+	if(found->idNumber()!=1240 || found->name().compare("1234567")!=0)
+		result=false;
+	delete found;
+	found=leaf->search(rec2);
+	if(found->idNumber()!=1140 || found->name().compare("1234567")!=0)
+		result=false;
+	delete found;
+	found=leaf->search(rec3);
+	if(found->idNumber()!=1340 || found->name().compare("1234567")!=0)
+		result=false;
+	delete found;
+	delete leaf;
 	return result;
 
 }

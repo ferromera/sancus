@@ -16,7 +16,7 @@ class BPTreeLeaf: public BPTreeNode<TRecord,blockSize>{
 protected:
 	std::list<TRecord> records_;
 	uint32_t next_;
-	typename std::list<TRecord>::iterator search (const TRecord &);
+	typename std::list<TRecord>::iterator itSearch (const TRecord &);
 public:
 	BPTreeLeaf(File & file);
 	BPTreeLeaf(File & file,unsigned long blockNumber);
@@ -47,7 +47,7 @@ BPTreeNode<TRecord,blockSize>(file,blockNumber),next_(0){
 }
 
 template<class TRecord,unsigned int blockSize>
-typename std::list<TRecord>::iterator BPTreeLeaf<TRecord,blockSize>::search (const TRecord & rec){
+typename std::list<TRecord>::iterator BPTreeLeaf<TRecord,blockSize>::itSearch (const TRecord & rec){
 	typename std::list<TRecord>::iterator it;
 	for(it=records_.begin();it!=records_.end();it++){
        if(rec <= (*it))

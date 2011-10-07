@@ -29,6 +29,7 @@ public:
 	BPTreeLeaf<TRecord,blockSize> * nextLeaf();
 	void clear();
 	bool hasMinimumCapacity();
+	TRecord * search(const TRecord &);
 	~BPTreeVariableLeaf();
 
 };
@@ -122,7 +123,7 @@ void BPTreeVariableLeaf<TRecord,blockSize>::insert(TRecord & rec){
 	if(rec.size()>freeSpace)
 		throw LeafOverflowException();
 
-	typename std::list<TRecord>::iterator itInsertionPos=search(rec);
+	typename std::list<TRecord>::iterator itInsertionPos=itSearch(rec);
 	if( itInsertionPos!=BPTreeLeaf<TRecord,blockSize>::records_.end()
 			&& (*itInsertionPos)==rec)
 		throw LeafUnicityException();
@@ -141,7 +142,7 @@ const TRecord & BPTreeVariableLeaf<TRecord,blockSize>::getFirstRecord()const{
 template<class TRecord,unsigned int blockSize>
 void BPTreeVariableLeaf<TRecord,blockSize>::remove(TRecord & rec){
 
-	typename std::list<TRecord>::iterator itRemovePos=search(rec);
+	typename std::list<TRecord>::iterator itRemovePos=itSearch(rec);
 	if( itRemovePos==BPTreeLeaf<TRecord,blockSize>::records_.end()
 				|| (*itRemovePos)!=rec)
 			throw LeafRecordNotFoundException();
@@ -159,7 +160,8 @@ void BPTreeVariableLeaf<TRecord,blockSize>::remove(TRecord & rec){
 
 template<class TRecord,unsigned int blockSize>
 BPTreeLeaf<TRecord,blockSize>* BPTreeVariableLeaf<TRecord,blockSize>::nextLeaf( ){
-	// No Implementado
+	return new BPTreeVariableLeaf<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,
+											BPTreeLeaf<TRecord,blockSize>::next_);
 }
 
 template<class TRecord,unsigned int blockSize>
@@ -175,6 +177,16 @@ void BPTreeVariableLeaf<TRecord,blockSize>::clear(){
 	BPTreeLeaf<TRecord,blockSize>::clear();
 	freeSpace=blockSize-VARIABLE_LEAF_CONTROL_BYTES;
 }
+
+template<class TRecord,unsigned int blockSize>
+TRecord * BPTreeVariableLeaf<TRecord,blockSize>::search(const TRecord & rec){
+	typename std::list<TRecord>::iterator it=BPTreeLeaf<TRecord,blockSize>::itSearch(rec);
+	if(it==BPTreeLeaf<TRecord,blockSize>::records_.end())
+		it--;
+
+	return new TRecord(*it);
+}
+
 
 template<class TRecord,unsigned int blockSize>
 BPTreeVariableLeaf<TRecord,blockSize>::~BPTreeVariableLeaf(){
