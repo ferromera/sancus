@@ -39,6 +39,7 @@ public:
 	unsigned int usedSpace();
 	void free();
 	TRecord * search(const TRecord & rec);
+	void update(TRecord & );
 
 	virtual ~BPTreeVariableInternalNode(){}
 };
@@ -134,8 +135,7 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::insert(TRecord & record)
 {
 	typename TRecord::Key key = dynamic_cast<const typename TRecord::Key &>(record.getKey());
 	//Busco la clave en la lista
-	typename std::list<typename TRecord::Key>::iterator itKey =
-			BPTreeInternalNode<TRecord,blockSize>::itSearch(key);
+	typename std::list<typename TRecord::Key>::iterator itKey = BPTreeInternalNode<TRecord,blockSize>::itSearch(key);
 	std::list<unsigned int>::iterator itChildren;
 
 	//Obtengo el hijo donde se debera insertar
@@ -325,8 +325,6 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::remove(TRecord & record)
 	}
 	//itKey queda en el padre derecho del hijo por el que bajo.
 
-
-
 	if(BPTreeNode<TRecord,blockSize>::level_ == 1)
 	{
 		BPTreeVariableLeaf<TRecord,blockSize> *childLeaf = new BPTreeVariableLeaf<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
@@ -342,7 +340,6 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::remove(TRecord & record)
 		{
 			handleLeafUnderflow(childLeaf,itKey,itChildren);
 			return;
-
 		}
 	}else //level > 1
 	{
@@ -665,6 +662,68 @@ TRecord *  BPTreeVariableInternalNode<TRecord,blockSize>::search(const TRecord &
 			}
 	}
 }
+template<class TRecord,unsigned int blockSize>
+void  BPTreeVariableInternalNode<TRecord,blockSize>::update(TRecord & record){
+	typename TRecord::Key key = dynamic_cast<const typename TRecord::Key &>(record.getKey());
+	//Busco la clave en la lista
+	typename std::list<typename TRecord::Key>::iterator itKey =	BPTreeInternalNode<TRecord,blockSize>::itSearch(key);
+	std::list<unsigned int>::iterator itChildren;
 
+	//Obtengo el hijo donde voy a actualizar
+
+	if(itKey == BPTreeInternalNode<TRecord,blockSize>::keys_.end()){
+		itKey--;
+		itChildren = BPTreeInternalNode<TRecord,blockSize>::getRightChild(*itKey);
+		itKey++;
+	}
+	else if(*itKey==key){
+		itChildren = BPTreeInternalNode<TRecord,blockSize>::getRightChild(*itKey);
+		itKey++;
+	}
+	else{ // (*itKey)>key
+		itChildren = BPTreeInternalNode<TRecord,blockSize>::getLeftChild(*itKey);
+	}
+	//itKey queda en el padre derecho del hijo por el que bajo.
+	if(BPTreeNode<TRecord,blockSize>::level_ == 1)
+	{
+		BPTreeVariableLeaf<TRecord,blockSize> *childLeaf = new BPTreeVariableLeaf<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
+		try
+		{
+			childLeaf->update(record);
+			childLeaf->write();
+			delete childLeaf;
+			return;
+		}
+		catch(LeafUnderflowException ufException)
+		{
+			handleLeafUnderflow(childLeaf,itKey,itChildren);
+			return;
+		}
+		catch(LeafOverflowException ovException)
+		{
+			handleLeafOverflow(childLeaf,record);
+			return;
+		}
+	}else //level > 1
+	{
+		BPTreeVariableInternalNode<TRecord,blockSize>* childNode=new BPTreeVariableInternalNode<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
+		try
+		{
+			childNode->update(record);
+			childNode->write();
+			delete childNode;
+			return;
+		}
+		catch(NodeUnderflowException ufException)
+		{
+			handleNodeUnderflow(childNode,itKey,itChildren);
+		}
+		catch(NodeOverflowException<typename TRecord::Key> ovException)
+		{
+			handleNodeOverflow(childNode,itKey,itChildren);
+		}
+	}
+
+}
 
 #endif /* BPTREEVARIABLEINTERNALNODE_H_ */
