@@ -160,6 +160,9 @@ void BPTreeVariableLeaf<TRecord,blockSize>::remove(TRecord & rec){
 
 template<class TRecord,unsigned int blockSize>
 BPTreeLeaf<TRecord,blockSize>* BPTreeVariableLeaf<TRecord,blockSize>::nextLeaf( ){
+	if(BPTreeLeaf<TRecord,blockSize>::next_==0)
+		throw ThereIsNoNextLeafException();
+
 	return new BPTreeVariableLeaf<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,
 											BPTreeLeaf<TRecord,blockSize>::next_);
 }
@@ -180,11 +183,23 @@ void BPTreeVariableLeaf<TRecord,blockSize>::clear(){
 
 template<class TRecord,unsigned int blockSize>
 TRecord * BPTreeVariableLeaf<TRecord,blockSize>::search(const TRecord & rec){
+	TRecord * found;
 	typename std::list<TRecord>::iterator it=BPTreeLeaf<TRecord,blockSize>::itSearch(rec);
-	if(it==BPTreeLeaf<TRecord,blockSize>::records_.end())
-		it--;
+	if(it==BPTreeLeaf<TRecord,blockSize>::records_.end()){
+		BPTreeVariableLeaf<TRecord,blockSize> * myNextLeaf;
+		try{
+			myNextLeaf=(BPTreeVariableLeaf<TRecord,blockSize> *)nextLeaf();
+			it=myNextLeaf->records_.begin();
+			found=new TRecord(*it);
+			delete myNextLeaf;
+		}catch(ThereIsNoNextLeafException e){
+			throw ThereIsNoGreaterRecordException();
+		}
+	}else{
+		found=new TRecord(*it);
+	}
 
-	return new TRecord(*it);
+	return found;
 }
 
 
