@@ -38,7 +38,7 @@ public:
 	void clear();
 	unsigned int usedSpace();
 	void free();
-	TRecord * search(const TRecord & rec);
+	TRecord * search(const TRecord & rec,BPTreeVariableLeaf<TRecord,blockSize> **);
 	void update(TRecord & );
 
 	virtual ~BPTreeVariableInternalNode(){}
@@ -619,7 +619,7 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::clear(){
 
 }
 template<class TRecord,unsigned int blockSize>
-TRecord *  BPTreeVariableInternalNode<TRecord,blockSize>::search(const TRecord & rec){
+TRecord *  BPTreeVariableInternalNode<TRecord,blockSize>::search(const TRecord & rec,BPTreeVariableLeaf<TRecord,blockSize> ** searchLeaf){
 	typename TRecord::Key key = dynamic_cast<const typename TRecord::Key &>(rec.getKey());
 	//Busco la clave en la lista
 	typename std::list<typename TRecord::Key>::iterator itKey =
@@ -640,20 +640,34 @@ TRecord *  BPTreeVariableInternalNode<TRecord,blockSize>::search(const TRecord &
 	}
 
 	if(BPTreeNode<TRecord,blockSize>::level_ == 1)
-	{
+	{		TRecord * found;
 			BPTreeVariableLeaf<TRecord,blockSize> *childLeaf = new BPTreeVariableLeaf<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
 			try{
-				TRecord * found= childLeaf->search(rec);
-				delete childLeaf;
+				 found= childLeaf->search(rec);
+				if(*searchLeaf!=childLeaf){
+					delete(*searchLeaf);
+					*searchLeaf=childLeaf;
+				}
 				return found;
-			}catch(ThereIsNoGreaterRecordException e){
-				delete childLeaf;
-				throw;
+			}catch(LeafRecordNotFoundException e){
+				try{
+					BPTreeVariableLeaf<TRecord,blockSize> *nxtLeaf=(BPTreeVariableLeaf<TRecord,blockSize> *)childLeaf->nextLeaf();
+					if(*searchLeaf!=nxtLeaf){
+						delete(*searchLeaf);
+						*searchLeaf=nxtLeaf;
+					}
+					found= nxtLeaf->search(rec);
+					delete childLeaf;
+					return found;
+				}catch(ThereIsNoNextLeafException){
+					delete childLeaf;
+					throw ThereIsNoGreaterRecordException();
+				}
 			}
 	}else{
 		BPTreeVariableInternalNode<TRecord,blockSize> *childNode = new BPTreeVariableInternalNode<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
 			try{
-				TRecord * found= childNode->search(rec);
+				TRecord * found= childNode->search(rec,searchLeaf);
 				delete childNode;
 				return found;
 			}catch(ThereIsNoGreaterRecordException e){
