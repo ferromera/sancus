@@ -26,4 +26,6 @@ public:
 };
 class NodeUnderflowException:public BPlusTreeException{};
 class NodeKeyNotFoundException:public BPlusTreeException{};
+class ReadInAFreeNodeException:public BPlusTreeException{};
+class WriteInAFreeNodeException:public BPlusTreeException{};
 #endif // BPLUSTREEEXCEPTIONS_H_INCLUDED

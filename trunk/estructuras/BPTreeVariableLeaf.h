@@ -28,6 +28,7 @@ public:
 	const TRecord & getFirstRecord()const;
 	BPTreeLeaf<TRecord,blockSize> * nextLeaf();
 	void clear();
+	bool hasMinimumCapacity();
 	~BPTreeVariableLeaf();
 
 };
@@ -46,6 +47,10 @@ BPTreeLeaf<TRecord,blockSize>(file,blockNumber){
 
 template<class TRecord,unsigned int blockSize>
 void BPTreeVariableLeaf<TRecord,blockSize>::read(){
+
+	if(BPTreeNode<TRecord,blockSize>::isFree_)
+				throw ReadInAFreeNodeException();
+
 	BPTreeVariableLeafBlock<blockSize> * block= new BPTreeVariableLeafBlock<blockSize>;
 
 	File * file=BPTreeNode<TRecord,blockSize>::file_;
@@ -78,6 +83,10 @@ void BPTreeVariableLeaf<TRecord,blockSize>::readRecords(BPTreeVariableLeafBlock<
 
 template<class TRecord,unsigned int blockSize>
 void BPTreeVariableLeaf<TRecord,blockSize>::write(){
+
+	if(BPTreeNode<TRecord,blockSize>::isFree_)
+				throw WriteInAFreeNodeException();
+
 	BPTreeVariableLeafBlock<blockSize> * block= new BPTreeVariableLeafBlock<blockSize>;
 	File * file=BPTreeNode<TRecord,blockSize>::file_;
 	unsigned long & blockNumber=BPTreeNode<TRecord,blockSize>::blockNumber_;
@@ -137,11 +146,13 @@ void BPTreeVariableLeaf<TRecord,blockSize>::remove(TRecord & rec){
 				|| (*itRemovePos)!=rec)
 			throw LeafRecordNotFoundException();
 
-	if(freeSpace + rec.size() > (blockSize - VARIABLE_LEAF_CONTROL_BYTES)/2)
-				   throw LeafUnderflowException();
-
-
 	BPTreeLeaf<TRecord,blockSize>::records_.erase(itRemovePos);
+
+	if(freeSpace > (blockSize - VARIABLE_LEAF_CONTROL_BYTES)/2){
+		freeSpace+=rec.size();
+		throw LeafUnderflowException();
+	}
+
 	freeSpace+=rec.size();
 
 }
@@ -149,6 +160,14 @@ void BPTreeVariableLeaf<TRecord,blockSize>::remove(TRecord & rec){
 template<class TRecord,unsigned int blockSize>
 BPTreeLeaf<TRecord,blockSize>* BPTreeVariableLeaf<TRecord,blockSize>::nextLeaf( ){
 	// No Implementado
+}
+
+template<class TRecord,unsigned int blockSize>
+bool BPTreeVariableLeaf<TRecord,blockSize>::hasMinimumCapacity(){
+	if(freeSpace > (blockSize - VARIABLE_LEAF_CONTROL_BYTES)/2)
+		return true;
+	else
+		return false;
 }
 
 template<class TRecord,unsigned int blockSize>

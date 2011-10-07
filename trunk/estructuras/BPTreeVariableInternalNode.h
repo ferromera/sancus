@@ -33,6 +33,8 @@ public:
 	void insertInNode(typename TRecord::Key & , unsigned int);
 	void removeInNode(typename TRecord::Key & );
 	void clear();
+	unsigned int usedSpace();
+	void free();
 	virtual ~BPTreeVariableInternalNode(){}
 };
 
@@ -49,6 +51,9 @@ BPTreeInternalNode<TRecord,blockSize>(file,blockNumber){
 }
 template<class TRecord,unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord,blockSize>::read(){
+
+	if(BPTreeNode<TRecord,blockSize>::isFree_)
+			throw ReadInAFreeNodeException();
 
 	BPTreeVariableNodeBlock<blockSize> * block= new BPTreeVariableNodeBlock<blockSize>;
 
@@ -89,6 +94,8 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::readRecords(BPTreeVariableNo
 }
 template<class TRecord,unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord,blockSize>::write(){
+	if(BPTreeNode<TRecord,blockSize>::isFree_)
+		throw WriteInAFreeNodeException();
 	BPTreeVariableNodeBlock<blockSize> * block= new BPTreeVariableNodeBlock<blockSize>;
 	File * file=BPTreeNode<TRecord,blockSize>::file_;
 
@@ -208,7 +215,7 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::insert(TRecord & record)
 					*BPTreeNode<TRecord,blockSize>::file_);
 
 			typename std::list<typename TRecord::Key> childKeys=childNode->getKeys();
-			std::list <unsigned int> childChildren = childNode->getChildrens();
+			std::list <unsigned int> childChildren = childNode->getChildren();
 
 			//Busco donde voy a insertar la clave que subio y donde voy a insertar su hijo derecho.
 			typename std::list<typename TRecord::Key>::iterator itKey=childKeys.begin() ;
@@ -284,9 +291,263 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::insertInNode(typename TRecor
 }
 
 template<class TRecord,unsigned int blockSize>
-void BPTreeVariableInternalNode<TRecord,blockSize>::remove(TRecord &)
+void BPTreeVariableInternalNode<TRecord,blockSize>::remove(TRecord & record)
 {
+	typename TRecord::Key key = dynamic_cast<const typename TRecord::Key &>(record.getKey());
+	//Busco la clave en la lista
+	typename std::list<typename TRecord::Key>::iterator itKey =
+			BPTreeInternalNode<TRecord,blockSize>::search(key);
+	std::list<unsigned int>::iterator itChildren;
 
+	//Obtengo el hijo donde voy a  borrar
+
+	if(itKey == BPTreeInternalNode<TRecord,blockSize>::keys_.end()){
+		itKey--;
+		itChildren = BPTreeInternalNode<TRecord,blockSize>::getRightChild(*itKey);
+		itKey++;
+	}
+	else if(*itKey==key){
+		itChildren = BPTreeInternalNode<TRecord,blockSize>::getRightChild(*itKey);
+		itKey++;
+	}
+	else{ // (*itKey)>key
+		itChildren = BPTreeInternalNode<TRecord,blockSize>::getLeftChild(*itKey);
+	}
+	//itKey queda en el padre derecho del hijo por el que bajo.
+	std::list<unsigned int>::iterator itSibling=itChildren;
+	itSibling++;
+	bool rightSibling=true;
+	if(itSibling==BPTreeInternalNode<TRecord,blockSize>::children_.end()){
+		//No hay hermano derecho, tomo el izquierdo
+		itSibling--;
+		itSibling--;
+		//Hago que itKey apunte al padre izquierdo del hijo por el que bajo.
+		itKey--;
+		rightSibling=false;
+	}
+
+
+	if(BPTreeNode<TRecord,blockSize>::level_ == 1)
+	{
+		BPTreeVariableLeaf<TRecord,blockSize> *childLeaf = new BPTreeVariableLeaf<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
+
+		try
+		{
+			childLeaf->remove(record);
+			childLeaf->write();
+			delete childLeaf;
+			return;
+		}
+		catch(LeafUnderflowException ufException)
+		{
+			BPTreeVariableLeaf<TRecord,blockSize>* sibling;
+			sibling= new BPTreeVariableLeaf<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itSibling);
+			typename std::list<TRecord> mixedRecords=childLeaf->getRecords();
+			typename std::list<TRecord> siblingRecords=sibling->getRecords();
+
+			if(rightSibling){
+				//agrego al final los records del hermano.
+				mixedRecords.insert(mixedRecords.end(),siblingRecords.begin(),siblingRecords.end());
+			}
+			else{
+				//agrego al principio los records del hermano.
+				mixedRecords.insert(mixedRecords.begin(),siblingRecords.begin(),siblingRecords.end());
+			}
+
+			if(sibling->hasMinimumCapacity()){
+				//fusion
+				if(rightSibling){
+					childLeaf->next(sibling->next());
+					sibling->free();
+					childLeaf->clear();
+					typename std::list<TRecord>::iterator itMixedRecords=mixedRecords.begin();
+					for( ; itMixedRecords!=mixedRecords.end();itMixedRecords++)
+							childLeaf->insert(*itMixedRecords);
+					childLeaf->write();
+				}
+				else{
+					sibling->next(childLeaf->next());
+					childLeaf->free();
+					sibling->clear();
+					typename std::list<TRecord>::iterator itMixedRecords=mixedRecords.begin();
+					for( ; itMixedRecords!=mixedRecords.end();itMixedRecords++)
+						sibling->insert(*itMixedRecords);
+					sibling->write();
+				}
+
+				//remuevo la clave de la hoja que libere.
+				delete childLeaf;
+				delete sibling;
+				removeInNode(*itKey);
+				return;
+			}
+			else{
+				//balanceo
+				childLeaf->clear();
+				sibling->clear();
+				unsigned int childBytes=0 , siblingBytes=0;
+				typename std::list<TRecord>::iterator itFront=mixedRecords.begin();
+				typename std::list<TRecord>::iterator itBack=--mixedRecords.end();
+				while(itFront!=itBack){
+					if(childBytes<=siblingBytes){
+						if(rightSibling){
+							childLeaf->insert(*itFront);
+							childBytes+=itFront->size();
+							itFront++;
+						}else{
+							childLeaf->insert(*itBack);
+							childBytes+=itBack->size();
+							itBack--;
+						}
+					}
+					else{
+						if(rightSibling){
+							sibling->insert(*itBack);
+							siblingBytes+=itBack->size();
+							itBack--;
+						}
+						else{
+							sibling->insert(*itFront);
+							siblingBytes+=itFront->size();
+							itFront++;
+						}
+					}
+				}
+				if(childBytes<=siblingBytes)
+					childLeaf->insert(*itFront);
+				else
+					sibling->insert(*itFront);
+				childLeaf->write();
+				sibling->write();
+				if(rightSibling)
+					(*itKey)=dynamic_cast<const typename TRecord::Key &>(sibling->getFirstRecord().getKey());
+				else
+					(*itKey)=dynamic_cast<const typename TRecord::Key &>(childLeaf->getFirstRecord().getKey());
+				delete childLeaf;
+				delete sibling;
+				return;
+
+			}
+
+		}
+	}else //level > 1
+	{
+		BPTreeVariableInternalNode<TRecord,blockSize>* childNode=new BPTreeVariableInternalNode<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
+		try
+		{
+			childNode->remove(record);
+			childNode->write();
+			delete childNode;
+			return;
+		}
+		catch(NodeUnderflowException ufException)
+		{
+			BPTreeVariableInternalNode<TRecord,blockSize>* sibling;
+			sibling=new BPTreeVariableInternalNode<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itSibling);
+
+			typename std::list<typename TRecord::Key> mixedKeys=childNode->getKeys();
+			std::list<unsigned int> mixedChildren=childNode->getChildren();
+			typename std::list<typename TRecord::Key> siblingKeys=sibling->getKeys();
+			std::list<unsigned int> siblingChildren=sibling->getChildren();
+			mixedKeys.push_back(*itKey);
+
+			if(rightSibling){
+				//agrego al final las keys y los children del hermano.
+				mixedKeys.insert(mixedKeys.end(),siblingKeys.begin(),siblingKeys.end());
+				mixedChildren.insert(mixedChildren.end(),siblingChildren.begin(),siblingChildren.end());
+			}
+			else{
+				//agrego al principio las keys y los children del hermano.
+				mixedKeys.insert(mixedKeys.begin(),siblingKeys.begin(),siblingKeys.end());
+				mixedChildren.insert(mixedChildren.begin(),siblingChildren.begin(),siblingChildren.end());
+			}
+			if(childNode->usedSpace()+sibling->usedSpace()+itKey->size()+4<=blockSize-VARIABLE_NODE_CONTROL_BYTES){
+				//fusion
+				sibling->BPTreeNode<TRecord,blockSize>::free();
+				childNode->clear();
+
+				typename std::list<typename TRecord::Key>::iterator itMixedKeys=mixedKeys.begin();
+				std::list<unsigned int>::iterator itMixedChildren=mixedChildren.begin();
+
+				childNode->setFirstChild(*itMixedChildren);
+				itMixedChildren++;
+				for( ; itMixedKeys!=mixedKeys.end();itMixedKeys++,itMixedChildren++)
+					childNode->insertInNode(*itMixedKeys,*itMixedChildren);
+				childNode->write();
+
+				//remuevo la clave del hermano que libere.
+				if(itKey==BPTreeInternalNode<TRecord,blockSize>::keys_.begin())
+					setFirstChild(childNode->blockNumber());
+				else if(!rightSibling)
+					itKey--; //Posiciono al padre izquierdo del sibling.
+
+				delete childNode;
+				delete sibling;
+				removeInNode(*itKey);
+				return;
+			}
+			else{
+				//balanceo
+				childNode->clear();
+				sibling->clear();
+				unsigned int childBytes=0 , siblingBytes=0;
+				typename std::list<typename TRecord::Key>::iterator itFrontKeys=mixedKeys.begin();
+				typename std::list<typename TRecord::Key>::iterator itBackKeys=--mixedKeys.end();
+				std::list<unsigned int>::iterator itFrontChildren=mixedChildren.begin();
+				std::list<unsigned int>::iterator itBackChildren= -- mixedChildren.end();
+				if(rightSibling){
+					childNode->setFirstChild(*itFrontChildren);
+					itFrontChildren++;
+				}else{
+					sibling->setFirstChild(*itFrontChildren);
+					itFrontChildren++;
+				}
+				while(itFrontKeys!=itBackKeys){
+					if(childBytes<=siblingBytes){
+						if(rightSibling){
+							childNode->insertInNode(*itFrontKeys,*itFrontChildren);
+							childBytes+=itFrontKeys->size()+4;
+							itFrontKeys++;
+							itFrontChildren++;
+						}else{
+							childNode->insertInNode(*itBackKeys,*itBackChildren);
+							childBytes+=itBackKeys->size()+4;
+							itBackKeys++;
+							itBackChildren++;
+						}
+					}
+					else{
+						if(rightSibling){
+							sibling->insertInNode(*itBackKeys,*itBackChildren);
+							siblingBytes+=itBackKeys->size()+4;
+							itBackKeys++;
+							itBackChildren++;
+						}else{
+							sibling->insertInNode(*itFrontKeys,*itFrontChildren);
+							siblingBytes+=itFrontKeys->size()+4;
+							itFrontKeys++;
+							itFrontChildren++;
+						}
+					}
+				}
+
+				if(rightSibling)
+					sibling->setFirstChild(*itFrontChildren);
+				else
+					childNode->setFirstChild(*itFrontChildren);
+
+				childNode->write();
+				sibling->write();
+
+				//guardo la mediana.
+				(*itKey)=*itFrontKeys;
+
+				delete childNode;
+				delete sibling;
+				return;
+			}
+		}
+	}
 }
 template<class TRecord,unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord,blockSize>::removeInNode(typename TRecord::Key & key){
@@ -296,16 +557,25 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::removeInNode(typename TRecor
 	|| (*itRemovePos)!=key)
 		throw NodeKeyNotFoundException();
 
-	if(freeSpace + key.size() + 4 > (blockSize - VARIABLE_NODE_CONTROL_BYTES)/2)
-			throw NodeUnderflowException();
-
 	std::list<unsigned int>::iterator itRightChild=getRightChild(key);
+
+
+	if(freeSpace  > (blockSize - VARIABLE_NODE_CONTROL_BYTES)/2){
+		freeSpace+=  key.size() + 4 ;
+		BPTreeInternalNode<TRecord,blockSize>::children_.erase(itRightChild);
+		BPTreeInternalNode<TRecord,blockSize>::keys_.erase(itRemovePos);
+		throw NodeUnderflowException();
+	}
+
+	freeSpace+=  key.size() + 4 ;
 	BPTreeInternalNode<TRecord,blockSize>::children_.erase(itRightChild);
 	BPTreeInternalNode<TRecord,blockSize>::keys_.erase(itRemovePos);
-	freeSpace+=  key.size() + 4 ;
 
 }
-
+template<class TRecord,unsigned int blockSize>
+unsigned int BPTreeVariableInternalNode<TRecord,blockSize>::usedSpace(){
+	return blockSize-VARIABLE_NODE_CONTROL_BYTES-freeSpace;
+}
 template<class TRecord,unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord,blockSize>::clear(){
 	BPTreeInternalNode<TRecord,blockSize>::clear();
