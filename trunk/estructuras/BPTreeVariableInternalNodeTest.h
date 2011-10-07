@@ -15,9 +15,11 @@ class BPTreeVariableInternalNodeTest {
 public:
 	BPTreeVariableInternalNodeTest();
 	void run();
+	void arrenge1(File & filePath);
 	bool testReadWrite1();
 	bool testInsert1();
 	bool testRemove1();
+	bool testSearch1();
 	virtual ~BPTreeVariableInternalNodeTest();
 };
 

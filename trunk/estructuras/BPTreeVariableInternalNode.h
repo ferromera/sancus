@@ -35,6 +35,7 @@ public:
 	void clear();
 	unsigned int usedSpace();
 	void free();
+	TRecord * search(const TRecord & rec);
 	virtual ~BPTreeVariableInternalNode(){}
 };
 
@@ -581,6 +582,50 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::clear(){
 	BPTreeInternalNode<TRecord,blockSize>::clear();
 	freeSpace=blockSize-VARIABLE_NODE_CONTROL_BYTES;
 
+}
+template<class TRecord,unsigned int blockSize>
+TRecord *  BPTreeVariableInternalNode<TRecord,blockSize>::search(const TRecord & rec){
+	typename TRecord::Key key = dynamic_cast<const typename TRecord::Key &>(rec.getKey());
+	//Busco la clave en la lista
+	typename std::list<typename TRecord::Key>::iterator itKey =
+			BPTreeInternalNode<TRecord,blockSize>::itSearch(key);
+	std::list<unsigned int>::iterator itChildren;
+
+	//Obtengo el hijo donde voy a  buscar
+
+	if(itKey == BPTreeInternalNode<TRecord,blockSize>::keys_.end()){
+		itKey--;
+		itChildren = BPTreeInternalNode<TRecord,blockSize>::getRightChild(*itKey);
+	}
+	else if(*itKey==key){
+		itChildren = BPTreeInternalNode<TRecord,blockSize>::getRightChild(*itKey);
+	}
+	else{ // (*itKey)>key
+		itChildren = BPTreeInternalNode<TRecord,blockSize>::getLeftChild(*itKey);
+	}
+
+	if(BPTreeNode<TRecord,blockSize>::level_ == 1)
+	{
+			BPTreeVariableLeaf<TRecord,blockSize> *childLeaf = new BPTreeVariableLeaf<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
+			try{
+				TRecord * found= childLeaf->search(rec);
+				delete childLeaf;
+				return found;
+			}catch(ThereIsNoGreaterRecordException e){
+				delete childLeaf;
+				throw;
+			}
+	}else{
+		BPTreeVariableInternalNode<TRecord,blockSize> *childNode = new BPTreeVariableInternalNode<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
+			try{
+				TRecord * found= childNode->search(rec);
+				delete childNode;
+				return found;
+			}catch(ThereIsNoGreaterRecordException e){
+				delete childNode;
+				throw;
+			}
+	}
 }
 
 
