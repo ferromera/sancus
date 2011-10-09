@@ -11,15 +11,16 @@
 #define HASHTABLE_H_
 
 #include <iostream>
+#include "MathUtils.h"
 #include "File.h"
 #include "Bucket.h"
 #include <list>
+#include "Uint16Key.h"
 #include "Record.h"
 #include "HashTableExceptions.h"
 
 #define PACKAGE_DENSITY 0.7
 #define BUCKET_LOAD_FACTOR 0.75
-#define MAX_NUMBER_OF_REHASHES 5
 
 template<class T, unsigned int bucketSize>
 class HashTable {
@@ -30,9 +31,7 @@ private:
 	/* El numero de filas de la tabla*/
 	unsigned int size;
 	unsigned int maxNumberOfRecords;
-	unsigned int offset_to_file_data;
-
-	int table[];
+	unsigned int maxNumberOfRehashes;
 
 	int insertRecord(T record,int* (*hashFunction)(Record::Key * key), int jump);
 	int hash(Record::Key * key);
