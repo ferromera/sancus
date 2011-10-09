@@ -9,7 +9,7 @@ HashTable<T, bucketSize>::HashTable(File & file,
 	this->maxNumberOfRecords = maxNumberOfRecords;
 	this->size = maxNumberOfRecords / (PACKAGE_DENSITY * recordsPerBucket);
 
-	if(!MathUtils::isPrime(size)){
+	if (!MathUtils::isPrime(size)) {
 		this->size = MathUtils::nextPrime(size);
 	}
 
@@ -21,17 +21,26 @@ HashTable<T, bucketSize>::HashTable(File & file,
 	bucket->count = 0;
 	bucket->overflow = false;
 
-	//Cambiar esto para que escriba todo de una sola vez
-	for(int i=0; i<size; i++ ){
-		file.write(bucket, sizeof(bucket));
+	Bucket<bucketSize> * buckets = new Bucket<bucketSize>[size];
+
+	for (int i = 0; i < size; i++) {
+		buckets[i] = *bucket;
 	}
 
-	delete(bucket);
+	file.write(bucket, sizeof(bucket));
+	file.flush();
+
+	delete (bucket);
+	delete [] buckets;
+}
+
+template<class T, unsigned int bucketSize>
+void HashTable<T, bucketSize>::load(File & file) {
+
 }
 
 template<class T, unsigned int bucketSize>
 void HashTable<T, bucketSize>::insert(T & record) {
-
 	unsigned int rehashingCount = 0;
 
 	int jump = insertRecord(record, hash, 0);
@@ -44,12 +53,11 @@ void HashTable<T, bucketSize>::insert(T & record) {
 			throw new RehashCountException();
 		}
 	}
-
 }
 
 template<class T, unsigned int bucketSize>
 int HashTable<T, bucketSize>::insertRecord(T record,
-		int* (*hashFunction)(Record::Key * key), int jump) {
+		unsigned int * (*hashFunction)(Record::Key * key), unsigned int jump) {
 	Bucket<bucketSize> * bucket;
 	unsigned int position = hashFunction(record.getKey()) + jump;
 	unsigned int insertOffset = (position * bucketSize);
@@ -72,7 +80,7 @@ int HashTable<T, bucketSize>::insertRecord(T record,
 			bufferedRecords.push_back(*recordFromBucket);
 			delete (recordFromBucket);
 
-			if (recordFromBucket > record)  //NO ESTA! Porque los registros estan almacenados en orden
+			if (recordFromBucket > record) //NO ESTA! Porque los registros estan almacenados en orden
 				break;
 
 			if (recordFromBucket == record)
@@ -82,12 +90,16 @@ int HashTable<T, bucketSize>::insertRecord(T record,
 		//VERIFICAR EL FACTOR DE CARGA DEL BUCKET
 		unsigned int effectiveSizeForRecords = bucketSize - 5;
 
-		if ((bucket->freeSpace - record.size()) > effectiveSizeForRecords * BUCKET_LOAD_FACTOR) {
+		if ((bucket->freeSpace - record.size())
+				> effectiveSizeForRecords * BUCKET_LOAD_FACTOR) {
 			//No existe en el bucket debemos insertar (respetando el orden);
 			bufferedRecords.push_front(record);
 
-			//ORDENAR LA LISTA!
+			//Los records tienen los operadores sobrecargados deberia andar bien el sort nativo
+			bufferedRecords.sort();
 			typename std::list<T>::iterator recordsIterator;
+
+			delete [] buffer; //REVISAR ESTO, TENGO Q VACIAR ANTES DE VOLVER A ESCRIBIR ?
 
 			while (recordsIterator != bufferedRecords.end()) {
 				bucket->freeSpace -= record->size();
@@ -97,32 +109,129 @@ int HashTable<T, bucketSize>::insertRecord(T record,
 
 			file.seek(insertOffset, File::BEG);
 			file.write(bucket, sizeof(bucket));
+			file.flush();
 
-			delete(bucket);
+			delete (bucket);
 
 			return 0;
 		}
 
-	}else{ //hubo overflow, retornara con el ultimo resultado de la funcion de hash
-		delete(bucket);
+	} else { //hubo overflow, retornara con el ultimo resultado de la funcion de hash
+		delete (bucket);
 		return position;
 	}
 }
 
 template<class T, unsigned int bucketSize>
-void HashTable<T, bucketSize>::load(File & file) {
+T HashTable<T, bucketSize>::get(Record::Key * key) {
+	Bucket<bucketSize> * bucket;
+	unsigned int offset;
+	unsigned int rehashingCount = 0;
+	unsigned int position = hash(key);
+	char * buffer;
+
+	while (rehashingCount < maxNumberOfRehashes) {
+		if (rehashingCount > 0) {
+			position = rehash(key);
+		}
+
+		offset = (position * bucketSize);
+
+		file.seek(offset, File::BEG);
+		file.read(bucket, bucketSize);
+		buffer = bucket->bytes;
+
+		//Salto los bytes de control
+		file.seek(5, File::CUR);
+
+		for (int i = 0; i < bucket->count; i++) {
+			T * recordFromBucket = new T(&buffer);
+
+			if (recordFromBucket->getKey() > key) {
+				if (!bucket->overflow) {
+					throw new RecordNotFoundException();
+				} else {
+					rehashingCount++;
+					break;
+				}
+			}
+
+			if (recordFromBucket->getKey() == key)
+				return recordFromBucket;
+		}
+
+		delete (bucket);
+		delete (buffer);
+	}
 }
 
 template<class T, unsigned int bucketSize>
-int HashTable<T, bucketSize>::hash(Record::Key * key) {
-	Uint16Key * integerKey = dynamic_cast<Uint16Key *> (&key);
+void HashTable<T, bucketSize>::remove(T & record) {
+	Bucket<bucketSize> * bucket;
+	unsigned int offset;
+	unsigned int rehashingCount = 0;
+	unsigned int position = hash(record.getKey());
+	char * buffer;
+	typename std::list<T> bufferedRecords;
+
+	while (rehashingCount < maxNumberOfRehashes) {
+		if (rehashingCount > 0) {
+			position = rehash(record.getKey());
+		}
+
+		offset = (position * bucketSize);
+
+		file.seek(offset, File::BEG);
+		file.read(bucket, bucketSize);
+		buffer = bucket->bytes;
+
+		//Salto los bytes de control
+		file.seek(5, File::CUR);
+
+		for (int i = 0; i < bucket->count; i++) {
+			T * recordFromBucket = new T(&buffer);
+
+			if (recordFromBucket->getKey() > record.getKey()) {
+				if (!bucket->overflow) {
+					throw new RecordNotFoundException();
+				} else {
+					rehashingCount++;
+					break;
+				}
+			}
+
+			if (recordFromBucket->getKey() != record.getKey())
+				bufferedRecords.push_front(record);
+		}
+
+		bucket->freeSpace += record->size();
+		bucket->count--;
+
+		delete [] buffer;//REVISAR ESTO, TENGO Q VACIAR ANTES DE VOLVER A ESCRIBIR ?
+
+		typename std::list<T>::iterator recordsIterator;
+
+		while (recordsIterator != bufferedRecords.end()) {
+			record.write(&buffer);
+		}
+
+		file.seek(offset, File::BEG);
+		file.write(bucket, sizeof(bucket));
+		file.flush();
+
+		delete (bucket);
+		delete (buffer);
+	}
+}
+
+template<class T, unsigned int bucketSize>
+unsigned int HashTable<T, bucketSize>::hash(Record::Key * key) {
+	Uint16Key * integerKey = dynamic_cast<Uint16Key *>(&key);
 	return integerKey->getKey() % size;
 }
 
 template<class T, unsigned int bucketSize>
-int HashTable<T, bucketSize>::rehash(Record::Key * key) {
-	Uint16Key * integerKey = dynamic_cast<Uint16Key *> (&key);
+unsigned int HashTable<T, bucketSize>::rehash(Record::Key * key) {
+	Uint16Key * integerKey = dynamic_cast<Uint16Key *>(&key);
 	return (integerKey->getKey() + 1) % size;;
 }
-
-

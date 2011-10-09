@@ -33,9 +33,9 @@ private:
 	unsigned int maxNumberOfRecords;
 	unsigned int maxNumberOfRehashes;
 
-	int insertRecord(T record,int* (*hashFunction)(Record::Key * key), int jump);
-	int hash(Record::Key * key);
-	int rehash(Record::Key * key);
+	int insertRecord(T record,unsigned int* (*hashFunction)(Record::Key * key), unsigned int jump);
+	unsigned int hash(Record::Key * key);
+	unsigned int rehash(Record::Key * key);
 
 public:
 
@@ -54,6 +54,10 @@ public:
 	void load(File & file);
 
 	void insert(T & record);
+
+	T get(Record::Key * key);
+
+	void remove(T & record);
 
 };
 
