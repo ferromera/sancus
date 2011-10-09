@@ -12,5 +12,6 @@
 
 class UniqueViolationException: public std::exception{};
 class RehashCountException : public std::exception{};
+class RecordNotFoundException : public std::exception{};
 
 #endif /* HASHTABLEEXCEPTION_H_ */
