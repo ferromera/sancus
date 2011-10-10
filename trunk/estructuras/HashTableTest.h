@@ -12,7 +12,7 @@
 #include "HashTable.h"
 #include "StudentRecord.h"
 
-class HashTableTest : BaseTestCase {
+class HashTableTest : public BaseTestCase {
 
 private:
 	HashTable<StudentRecord,512> * table;
