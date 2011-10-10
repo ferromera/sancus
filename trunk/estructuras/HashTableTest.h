@@ -8,13 +8,11 @@
 #ifndef HASHTABLETEST_H_
 #define HASHTABLETEST_H_
 
-#include <iostream>
+#include "BaseTestCase.h"
 #include "HashTable.h"
 #include "StudentRecord.h"
 
-using namespace std;
-
-class HashTableTest {
+class HashTableTest : BaseTestCase {
 
 private:
 	HashTable<StudentRecord,512> * table;
@@ -22,21 +20,16 @@ private:
 public:
 	void run() {
 		testCreate();
-		testInsertOk();
 	}
 
 	void testCreate() {
 		File file("hashTableTest.bin", File::NEW | File::IO | File::BIN);
 
-		//this->table = new HashTable<StudentRecord,512>(file,10,100);
+		table = new HashTable<StudentRecord,512>(file,10,100);
+
+		assertTrue(MathUtils::isPrime(table->getSize()), "El tamaño de la tabla debe ser primo");
 	}
 
-	//Inserta con tabla vacia
-	void testInsertOk(){
-		StudentRecord * student1 = new StudentRecord(256, "Alfredo");
-
-		//table->insert(student1);
-	}
 };
 
 #endif /* HASHTABLETEST_H_ */
