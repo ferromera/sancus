@@ -8,26 +8,38 @@
 #ifndef HASHTABLETEST_H_
 #define HASHTABLETEST_H_
 
-#include "BaseTestCase.h"
 #include "HashTable.h"
 #include "StudentRecord.h"
 
-class HashTableTest : public BaseTestCase {
+using namespace std;
+
+class HashTableTest {
 
 private:
-	HashTable<StudentRecord,512> * table;
+	HashTable<StudentRecord, 512> * table;
 
 public:
 	void run() {
 		testCreate();
 	}
 
+	void assertTrue(bool condition, string message) {
+		if (!condition) {
+			cout << message << endl;
+			throw new exception();
+		}
+	}
+
+	void assertFalse(bool condition, string message) {
+		assertTrue(!condition, message);
+	}
+
 	void testCreate() {
 		File file("hashTableTest.bin", File::NEW | File::IO | File::BIN);
 
-		table = new HashTable<StudentRecord,512>(file,10,100);
+		table = new HashTable<StudentRecord, 512>(file, 10, 100);
 
-		assertTrue(MathUtils::isPrime(table->getSize()), "El tamaÒo de la tabla debe ser primo");
+		assertTrue(MathUtils::isPrime(table->getSize()), "El tama√±o de la tabla debe ser primo");
 	}
 
 };
