@@ -21,6 +21,7 @@ private:
 public:
 	void run() {
 		testCreate();
+		testInsert();
 	}
 
 	void assertTrue(bool condition, string message) {
@@ -40,6 +41,13 @@ public:
 		table = new HashTable<StudentRecord, 512>(file, 10, 100);
 
 		assertTrue(MathUtils::isPrime(table->getSize()), "El tamaño de la tabla debe ser primo");
+
+	}
+
+	void testInsert() {
+		StudentRecord * record =  new StudentRecord(12, "alfredo");
+
+		table->insert(*record);
 	}
 
 };

@@ -27,8 +27,8 @@ protected:
 public:
     Record(){}
     Record(Key * kp):key_(kp){}
-    virtual const Key & getKey()const=0;
-    virtual void setKey(const Key & k)=0;
+    //virtual const Key & getKey()const=0;
+    //virtual void setKey(const Key & k)=0;
     virtual void read(char ** input)=0;
     virtual void write(char ** output)=0;
     virtual unsigned int size()const=0;
