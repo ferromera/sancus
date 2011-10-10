@@ -86,17 +86,14 @@ HashTable<T, bucketSize>::HashTable(File & file,
 	bucket->count = 0;
 	bucket->overflow = false;
 
-	Bucket<bucketSize> * buckets = new Bucket<bucketSize> [size];
-
 	for (unsigned int i = 0; i < size; i++) {
-		buckets[i] = *bucket;
+		file.write(bucket, bucketSize);
 	}
 
-	file.write(buckets, sizeof(buckets));
 	file.flush();
 
 	delete (bucket);
-	delete[] buckets;
+	//delete[] buckets;
 }
 
 template<class T, unsigned int bucketSize>
