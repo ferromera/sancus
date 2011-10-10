@@ -38,7 +38,7 @@ public:
     void write(char ** output);
 	unsigned int size()const;
 	VoterRecord();
-	VoterRecord(std::string name, Uint16Key dni, std::string address, std::string voterKey, DistrictRecord* voterDistrict);
+	VoterRecord(std::string name, Uint16Key dni, std::string address, std::string voterKey, DistrictRecord* voterDistrict, std::list<ElectionRecord*>* list);
 	void setVoterName(std::string name);
 	void setDni(Uint16Key dni);
 	void setAddress(std::string address);
