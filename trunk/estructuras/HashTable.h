@@ -33,13 +33,13 @@ private:
 	unsigned int maxNumberOfRecords;
 	unsigned int maxNumberOfRehashes;
 
-	int insertRecord(T record,
-					unsigned int* (*hashFunction)(typename T::Key * key),
-					unsigned int jump);
+	unsigned int insertRecord(T & record,
+			unsigned int(*hashFunction)(const typename T::Key & key),
+			unsigned int jump);
 
-	unsigned int hash(typename T::Key * key);
+	unsigned int hash(const typename T::Key & key);
 
-	unsigned int rehash(typename T::Key * key);
+	unsigned int rehash(const typename T::Key & key);
 
 public:
 
@@ -51,7 +51,8 @@ public:
 	 * @maxNumberOfRecords numero maximo de registros en el archivo (cuando se llegue a este numero se debera
 	 * enfrentar una reorganización de la tabla).
 	 */
-	HashTable(File & file, const unsigned int recordsPerBucket,const unsigned int maxNumberOfRecords);
+	HashTable(File & file, const unsigned int recordsPerBucket,
+			const unsigned int maxNumberOfRecords);
 
 	void load(File & file);
 
@@ -87,7 +88,7 @@ HashTable<T, bucketSize>::HashTable(File & file,
 	bucket->overflow = false;
 
 	for (unsigned int i = 0; i < size; i++) {
-		file.write(bucket, bucketSize);
+		file.write((char *) bucket, bucketSize);
 	}
 
 	file.flush();
@@ -102,10 +103,20 @@ void HashTable<T, bucketSize>::load(File & file) {
 }
 
 template<class T, unsigned int bucketSize>
+unsigned int HashTable<T, bucketSize>::hash(const typename T::Key & key) {
+	return key.getKey() % size;
+}
+
+template<class T, unsigned int bucketSize>
+unsigned int HashTable<T, bucketSize>::rehash(const typename T::Key & key) {
+	return (key.getKey() + 1) % size;;
+}
+
+template<class T, unsigned int bucketSize>
 void HashTable<T, bucketSize>::insert(T & record) {
 	unsigned int rehashingCount = 0;
 
-	int jump = insertRecord(record, hash, 0);
+	unsigned int jump = insertRecord(record, hash, 0);
 
 	if (jump != 0) {
 		if (rehashingCount < maxNumberOfRehashes) {
@@ -118,8 +129,9 @@ void HashTable<T, bucketSize>::insert(T & record) {
 }
 
 template<class T, unsigned int bucketSize>
-int HashTable<T, bucketSize>::insertRecord(T record,
-		unsigned int * (*hashFunction)(typename T::Key * key), unsigned int jump) {
+unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
+		unsigned int(*hashFunction)(const typename T::Key & key),
+		unsigned int jump) {
 	Bucket<bucketSize> * bucket;
 	unsigned int position = hashFunction(record.getKey()) + jump;
 	unsigned int insertOffset = (position * bucketSize);
@@ -142,18 +154,18 @@ int HashTable<T, bucketSize>::insertRecord(T record,
 			bufferedRecords.push_back(*recordFromBucket);
 			delete (recordFromBucket);
 
-			if (recordFromBucket > record) //NO ESTA! Porque los registros estan almacenados en orden
+			if (recordFromBucket->getKey() > record.getKey()) //NO ESTA! Porque los registros estan almacenados en orden
 				break;
 
-			if (recordFromBucket == record)
+			if (recordFromBucket->getKey() == record.getKey())
 				throw new UniqueViolationException();
 		}
 
 		//VERIFICAR EL FACTOR DE CARGA DEL BUCKET
 		unsigned int effectiveSizeForRecords = bucketSize - 5;
 
-		if ((bucket->freeSpace - record.size()) > effectiveSizeForRecords
-				* BUCKET_LOAD_FACTOR) {
+		if ((bucket->freeSpace - record.size())
+				> effectiveSizeForRecords * BUCKET_LOAD_FACTOR) {
 			//No existe en el bucket debemos insertar (respetando el orden);
 			bufferedRecords.push_front(record);
 
@@ -164,13 +176,13 @@ int HashTable<T, bucketSize>::insertRecord(T record,
 			delete[] buffer; //REVISAR ESTO, TENGO Q VACIAR ANTES DE VOLVER A ESCRIBIR ?
 
 			while (recordsIterator != bufferedRecords.end()) {
-				bucket->freeSpace -= record->size();
+				bucket->freeSpace -= record.size();
 				bucket->count++;
 				record.write(&buffer);
 			}
 
 			file->seek(insertOffset, File::BEG);
-			file->write(bucket, sizeof(bucket));
+			file->write((char *) bucket, sizeof(bucket));
 			file->flush();
 
 			delete (bucket);
@@ -269,7 +281,7 @@ void HashTable<T, bucketSize>::remove(T & record) {
 		bucket->freeSpace += record->size();
 		bucket->count--;
 
-		delete[] buffer;//REVISAR ESTO, TENGO Q VACIAR ANTES DE VOLVER A ESCRIBIR ?
+		delete[] buffer; //REVISAR ESTO, TENGO Q VACIAR ANTES DE VOLVER A ESCRIBIR ?
 
 		typename std::list<T>::iterator recordsIterator;
 
@@ -278,24 +290,12 @@ void HashTable<T, bucketSize>::remove(T & record) {
 		}
 
 		file->seek(offset, File::BEG);
-		file->write(bucket, sizeof(bucket));
+		file->write((char *) bucket, sizeof(bucket));
 		file->flush();
 
 		delete (bucket);
 		delete (buffer);
 	}
-}
-
-template<class T, unsigned int bucketSize>
-unsigned int HashTable<T, bucketSize>::hash(typename T::Key * key) {
-	Uint16Key * integerKey = dynamic_cast<Uint16Key *> (&key);
-	return integerKey->getKey() % size;
-}
-
-template<class T, unsigned int bucketSize>
-unsigned int HashTable<T, bucketSize>::rehash(typename T::Key * key) {
-	Uint16Key * integerKey = dynamic_cast<Uint16Key *> (&key);
-	return (integerKey->getKey() + 1) % size;;
 }
 
 template<class T, unsigned int bucketSize>

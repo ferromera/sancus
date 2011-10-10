@@ -26,15 +26,16 @@ StudentRecord::StudentRecord(uint16_t idNumber,const string & name)
     buffer= new char[260];
 }
 
-const Record::Key & StudentRecord::getKey()const{
-    Key * k= dynamic_cast<Key *>(key_);
-    return (*k);
+const StudentRecord::Key & StudentRecord::getKey()const{
+    //Key * k= dynamic_cast<Key *>(key_);
+    //return (*k);
+	return * ( (StudentRecord::Key *) key_ );
 }
-void StudentRecord::setKey(const Record::Key & k){
-    const Key & ak=dynamic_cast<const Key &>(k);
+void StudentRecord::setKey(const StudentRecord::Key & k){
+    //const Key & ak=dynamic_cast<const Key &>(k);
     delete key_;
-    key_=new Key(ak);
-    idNumber_=ak.getKey();
+    key_=new Key(k);
+    idNumber_=k.getKey();
 }
 void StudentRecord::setKey(int16_t k){
     delete key_;

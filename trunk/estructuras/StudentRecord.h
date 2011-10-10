@@ -29,8 +29,10 @@ public:
     StudentRecord(const StudentRecord & );
     StudentRecord(char ** input);
     StudentRecord(uint16_t idNumber, const std::string & name);
-    const Record::Key & getKey()const;
-    void setKey(const Record::Key & k);
+
+    const StudentRecord::Key & getKey()const;
+    void setKey(const StudentRecord::Key & k);
+
     void setKey(int16_t k);
 
     void read(char ** input);
