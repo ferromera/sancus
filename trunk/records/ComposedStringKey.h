@@ -10,9 +10,12 @@
 
 #define SEPARATOR_SYMBOL "|"
 
-#include "../estructuras/Record.h"
 #include <string>
 #include <list>
+#include "StringKey.h"
+#include "../estructuras/Record.h"
+
+
 
 class ComposedStringKey: public StringKey {
 	std::list<std::string> stringList;
