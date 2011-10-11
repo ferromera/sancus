@@ -737,7 +737,6 @@ void  BPTreeVariableInternalNode<TRecord,blockSize>::update(const TRecord & reco
 		try
 		{
 			childNode->update(record);
-			childNode->write();
 			delete childNode;
 			return;
 		}

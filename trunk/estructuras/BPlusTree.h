@@ -346,6 +346,27 @@ void BPlusTree<TRecord,blockSize>::preOrderReport(){
 
 	root->preOrderReport(reportFile,root->level());
 }
+template<class TRecord,unsigned int blockSize>
+void BPlusTree<TRecord,blockSize>::update(const TRecord & rec){
+	delete lastLeaf;
+	lastLeaf=NULL;
+	try{
+		root->update(rec);
+	}catch(LeafOverflowException e){
+		handleLeafOverflow(rec);
+	}
+	catch(NodeOverflowException<typename TRecord::Key> e){
+		handleNodeOverflow(rec,e);
+	}
+	catch(LeafUnderflowException e){
+			root->write();
+	}
+	catch(NodeUnderflowException e){
+		if(((BPTreeVariableInternalNode<TRecord,blockSize>*)root)->usedSpace()==0)
+			handleNodeUnderflow();
+		else
+			root->write();
+}
 
-
+}
 #endif //BPLUSTREE_H_INCLUDED
