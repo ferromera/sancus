@@ -5,8 +5,49 @@
  *      Author: fernando
  */
 #include "FileTest.h"
+#include <iostream>
 
 using namespace std;
+
+void FileTest::run(){
+	std::cout<<"Testing File ..."<<std::endl;
+	bool testOK=true;
+	if(constructorTest())
+		std::cout<<"constructorTest: OK"<<std::endl;
+	else{
+		std::cout<<"constructorTest: FAILED"<<std::endl;
+		testOK=false;
+	}
+	if(writeTest1())
+		std::cout<<"writeTest1: OK"<<std::endl;
+	else{
+		std::cout<<"writeTest1: FAIL"<<std::endl;
+		testOK=false;
+	}
+	if(ioTest1())
+		std::cout<<"ioTest1: OK"<<std::endl;
+	else{
+		std::cout<<"ioTest1: FAIL"<<std::endl;
+		testOK=false;
+	}
+	if(ioTest2())
+		std::cout<<"ioTest2: OK"<<std::endl;
+	else{
+		std::cout<<"ioTest2: FAIL"<<std::endl;
+		testOK=false;
+	}
+	if(truncTest())
+		std::cout<<"truncTest: OK"<<std::endl;
+	else{
+		std::cout<<"truncTest: FAIL"<<std::endl;
+		testOK=false;
+	}
+	std::cout<<"End of test of File , result: ";
+	if(testOK)
+		std::cout<<"ALL OK!"<<std::endl;
+	else
+		std::cout<<"FAILED"<<std::endl;
+}
 
 bool FileTest::constructorTest(){
 	File f1("TestFile.txt",File::NEW|File::IO);

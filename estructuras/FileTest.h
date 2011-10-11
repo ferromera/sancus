@@ -12,6 +12,7 @@
 class FileTest{
 
 public:
+	void run();
 	bool constructorTest();
 	bool writeTest1();
 	bool ioTest1();

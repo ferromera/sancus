@@ -24,14 +24,15 @@ public:
 
 	void read();
 	void write();
-	void insert(TRecord &);
-	void remove(TRecord &);
+	void insert(const TRecord &);
+	void remove(const TRecord &);
 	const TRecord & getFirstRecord()const;
 	BPTreeLeaf<TRecord,blockSize> * nextLeaf();
 	void clear();
 	bool hasMinimumCapacity();
 	TRecord * search(const TRecord &);
-	void update( TRecord & rec);
+	void update(const TRecord & rec);
+	void preOrderReport(File & , unsigned int);
 	~BPTreeVariableLeaf();
 
 };
@@ -118,7 +119,7 @@ void BPTreeVariableLeaf<TRecord,blockSize>::writeRecords(BPTreeVariableLeafBlock
 }
 
 template<class TRecord,unsigned int blockSize>
-void BPTreeVariableLeaf<TRecord,blockSize>::insert(TRecord & rec){
+void BPTreeVariableLeaf<TRecord,blockSize>::insert(const TRecord & rec){
 
 	if(rec.size()>blockSize - VARIABLE_LEAF_CONTROL_BYTES)
 		throw BPTreeRecordSizeException();
@@ -142,7 +143,7 @@ const TRecord & BPTreeVariableLeaf<TRecord,blockSize>::getFirstRecord()const{
 }
 
 template<class TRecord,unsigned int blockSize>
-void BPTreeVariableLeaf<TRecord,blockSize>::remove(TRecord & rec){
+void BPTreeVariableLeaf<TRecord,blockSize>::remove(const TRecord & rec){
 
 	typename std::list<TRecord>::iterator itRemovePos=itSearch(rec);
 	if( itRemovePos==BPTreeLeaf<TRecord,blockSize>::records_.end()
@@ -197,7 +198,7 @@ TRecord * BPTreeVariableLeaf<TRecord,blockSize>::search(const TRecord & rec){
 	return found;
 }
 template<class TRecord,unsigned int blockSize>
-void BPTreeVariableLeaf<TRecord,blockSize>::update(TRecord & rec){
+void BPTreeVariableLeaf<TRecord,blockSize>::update(const TRecord & rec){
 	unsigned int oldFreeSpace=freeSpace;
 	try{
 		remove(rec);
@@ -207,11 +208,24 @@ void BPTreeVariableLeaf<TRecord,blockSize>::update(TRecord & rec){
 	if(oldFreeSpace >(blockSize - VARIABLE_LEAF_CONTROL_BYTES)/2
 		&& oldFreeSpace<freeSpace){
 		throw LeafUnderflowException();
+	}
 }
 
+template<class TRecord,unsigned int blockSize>
+void  BPTreeVariableLeaf<TRecord,blockSize>::preOrderReport(File & reportFile,unsigned int treeLevel){
+	for(unsigned int i=0; i<treeLevel ;i++)
+		reportFile<<"|\t";
+	reportFile<<"Node "<<BPTreeNode<TRecord,blockSize>::blockNumber_<<" : ";
+	reportFile<<"("<<0<<")("<<freeSpace<<")("<<BPTreeLeaf<TRecord,blockSize>::next_<<") -- ";
 
-
+	typename std::list<TRecord>::iterator itRecords=BPTreeLeaf<TRecord,blockSize>::records_.begin();
+	reportFile<<"|";
+	for(;itRecords!=BPTreeLeaf<TRecord,blockSize>::records_.end();itRecords++){
+		reportFile<<itRecords->getKey().getKey()<<"|";
+	}
+	reportFile<<"\n";
 }
+
 template<class TRecord,unsigned int blockSize>
 BPTreeVariableLeaf<TRecord,blockSize>::~BPTreeVariableLeaf(){
 }

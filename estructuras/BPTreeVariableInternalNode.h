@@ -21,28 +21,36 @@ class BPTreeVariableInternalNode : public BPTreeInternalNode<TRecord,blockSize>{
 
 	void readRecords( BPTreeVariableNodeBlock<blockSize> *);
 	void writeRecords( BPTreeVariableNodeBlock<blockSize> *);
-	void handleLeafOverflow(BPTreeVariableLeaf<TRecord,blockSize> *, TRecord & );
+	void handleLeafOverflow(BPTreeVariableLeaf<TRecord,blockSize> *, const TRecord & );
 	void handleNodeOverflow(BPTreeVariableInternalNode<TRecord,blockSize>*,NodeOverflowException<typename TRecord::Key>);
 	void handleLeafUnderflow(BPTreeVariableLeaf<TRecord,blockSize>* ,typename std::list<typename TRecord::Key>::iterator,std::list<unsigned int>::iterator );
 	void handleNodeUnderflow(BPTreeVariableInternalNode<TRecord,blockSize>* ,typename std::list<typename TRecord::Key>::iterator,std::list<unsigned int>::iterator );
 public:
+	BPTreeVariableInternalNode();
 	BPTreeVariableInternalNode(unsigned int level,File & file);
 	BPTreeVariableInternalNode(File & file,unsigned long blockNumber);
 
 	void read();
 	void write();
-	void insert(TRecord &);
-	void remove(TRecord &);
+	void insert(const TRecord &);
+	void remove(const TRecord &);
 	void insertInNode(typename TRecord::Key & , unsigned int);
 	void removeInNode(typename TRecord::Key & );
 	void clear();
 	unsigned int usedSpace();
 	void free();
 	TRecord * search(const TRecord & rec,BPTreeVariableLeaf<TRecord,blockSize> **);
-	void update(TRecord & );
+	void update(const TRecord & );
+	void preOrderReport(File & reportFile,unsigned int);
 
 	virtual ~BPTreeVariableInternalNode(){}
 };
+
+template<class TRecord,unsigned int blockSize>
+BPTreeVariableInternalNode<TRecord,blockSize>::BPTreeVariableInternalNode():
+BPTreeInternalNode<TRecord,blockSize>(){
+	freeSpace=blockSize-VARIABLE_NODE_CONTROL_BYTES;
+}
 
 template<class TRecord,unsigned int blockSize>
 BPTreeVariableInternalNode<TRecord,blockSize>::BPTreeVariableInternalNode(unsigned int level,File & file):
@@ -131,9 +139,9 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::writeRecords(BPTreeVariableN
 	}
 }
 template<class TRecord,unsigned int blockSize>
-void BPTreeVariableInternalNode<TRecord,blockSize>::insert(TRecord & record)
+void BPTreeVariableInternalNode<TRecord,blockSize>::insert(const TRecord & record)
 {
-	typename TRecord::Key key = dynamic_cast<const typename TRecord::Key &>(record.getKey());
+	typename TRecord::Key key = record.getKey();
 	//Busco la clave en la lista
 	typename std::list<typename TRecord::Key>::iterator itKey = BPTreeInternalNode<TRecord,blockSize>::itSearch(key);
 	std::list<unsigned int>::iterator itChildren;
@@ -177,7 +185,6 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::insert(TRecord & record)
 		try
 		{
 			childNode->insert(record);
-			childNode->write();
 			delete childNode;
 		}
 		catch(NodeOverflowException<typename TRecord::Key> ovException)
@@ -195,7 +202,7 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::insert(TRecord & record)
 
 }
 template<class TRecord,unsigned int blockSize>
-void BPTreeVariableInternalNode<TRecord,blockSize>::handleLeafOverflow(BPTreeVariableLeaf<TRecord,blockSize> * childLeaf,TRecord & record){
+void BPTreeVariableInternalNode<TRecord,blockSize>::handleLeafOverflow(BPTreeVariableLeaf<TRecord,blockSize> * childLeaf,const TRecord & record){
 	typename std::list<TRecord> recordList = childLeaf->getRecords();
 	typename std::list<TRecord>::iterator recordIt = recordList.begin();
 
@@ -224,12 +231,13 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::handleLeafOverflow(BPTreeVar
 	newLeaf->write();
 
 	TRecord firstRecord = newLeaf->getFirstRecord();
-	typename TRecord::Key newKey = dynamic_cast<const typename TRecord::Key &>(firstRecord.getKey());
+	typename TRecord::Key newKey =firstRecord.getKey();
 	unsigned int newBlockNumber=newLeaf->blockNumber();
 	delete newLeaf;
 	delete childLeaf;
 
 	insertInNode(newKey,newBlockNumber);
+	write();
 }
 template<class TRecord,unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord,blockSize>::
@@ -275,6 +283,7 @@ handleNodeOverflow(BPTreeVariableInternalNode<TRecord,blockSize>*childNode,NodeO
 	delete childNode;
 
 	insertInNode(middleKey,newBlockNumber);
+	write();
 
 }
 template<class TRecord,unsigned int blockSize>
@@ -301,9 +310,9 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::insertInNode(typename TRecor
 }
 
 template<class TRecord,unsigned int blockSize>
-void BPTreeVariableInternalNode<TRecord,blockSize>::remove(TRecord & record)
+void BPTreeVariableInternalNode<TRecord,blockSize>::remove(const TRecord & record)
 {
-	typename TRecord::Key key = dynamic_cast<const typename TRecord::Key &>(record.getKey());
+	typename TRecord::Key key = record.getKey();
 	//Busco la clave en la lista
 	typename std::list<typename TRecord::Key>::iterator itKey =
 			BPTreeInternalNode<TRecord,blockSize>::itSearch(key);
@@ -413,6 +422,7 @@ handleLeafUnderflow(BPTreeVariableLeaf<TRecord,blockSize>* childLeaf,
 		delete childLeaf;
 		delete sibling;
 		removeInNode(*itKey);
+		write();
 		return;
 	}
 	else{
@@ -454,11 +464,12 @@ handleLeafUnderflow(BPTreeVariableLeaf<TRecord,blockSize>* childLeaf,
 		childLeaf->write();
 		sibling->write();
 		if(rightSibling)
-			(*itKey)=dynamic_cast<const typename TRecord::Key &>(sibling->getFirstRecord().getKey());
+			(*itKey)=sibling->getFirstRecord().getKey();
 		else
-			(*itKey)=dynamic_cast<const typename TRecord::Key &>(childLeaf->getFirstRecord().getKey());
+			(*itKey)=childLeaf->getFirstRecord().getKey();
 		delete childLeaf;
 		delete sibling;
+		write();
 		return;
 
 	}
@@ -522,6 +533,7 @@ handleNodeUnderflow(BPTreeVariableInternalNode<TRecord,blockSize>* childNode,
 		delete childNode;
 		delete sibling;
 		removeInNode(*itKey);
+		write();
 		return;
 	}
 	else{
@@ -582,6 +594,7 @@ handleNodeUnderflow(BPTreeVariableInternalNode<TRecord,blockSize>* childNode,
 
 		delete childNode;
 		delete sibling;
+		write();
 
 	}
 }
@@ -620,7 +633,7 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::clear(){
 }
 template<class TRecord,unsigned int blockSize>
 TRecord *  BPTreeVariableInternalNode<TRecord,blockSize>::search(const TRecord & rec,BPTreeVariableLeaf<TRecord,blockSize> ** searchLeaf){
-	typename TRecord::Key key = dynamic_cast<const typename TRecord::Key &>(rec.getKey());
+	typename TRecord::Key key = rec.getKey();
 	//Busco la clave en la lista
 	typename std::list<typename TRecord::Key>::iterator itKey =
 			BPTreeInternalNode<TRecord,blockSize>::itSearch(key);
@@ -677,8 +690,8 @@ TRecord *  BPTreeVariableInternalNode<TRecord,blockSize>::search(const TRecord &
 	}
 }
 template<class TRecord,unsigned int blockSize>
-void  BPTreeVariableInternalNode<TRecord,blockSize>::update(TRecord & record){
-	typename TRecord::Key key = dynamic_cast<const typename TRecord::Key &>(record.getKey());
+void  BPTreeVariableInternalNode<TRecord,blockSize>::update(const TRecord & record){
+	typename TRecord::Key key = record.getKey();
 	//Busco la clave en la lista
 	typename std::list<typename TRecord::Key>::iterator itKey =	BPTreeInternalNode<TRecord,blockSize>::itSearch(key);
 	std::list<unsigned int>::iterator itChildren;
@@ -734,10 +747,41 @@ void  BPTreeVariableInternalNode<TRecord,blockSize>::update(TRecord & record){
 		}
 		catch(NodeOverflowException<typename TRecord::Key> ovException)
 		{
-			handleNodeOverflow(childNode,itKey,itChildren);
+			handleNodeOverflow(childNode,ovException);
 		}
 	}
 
+}
+template<class TRecord,unsigned int blockSize>
+void  BPTreeVariableInternalNode<TRecord,blockSize>::preOrderReport(File & reportFile,unsigned int treeLevel){
+	for(unsigned int i=BPTreeNode<TRecord,blockSize>::level_ ; i<treeLevel ;i++)
+		reportFile<<"|\t";
+	reportFile<<"Node "<<BPTreeNode<TRecord,blockSize>::blockNumber_<<" : ";
+	reportFile<<"("<<BPTreeNode<TRecord,blockSize>::level_<<")("<<freeSpace<<") -- ";
+	std::list<unsigned int>::iterator itChildren=BPTreeInternalNode<TRecord,blockSize>::children_.begin();
+	typename std::list<typename TRecord::Key>::iterator itKeys=BPTreeInternalNode<TRecord,blockSize>::keys_.begin();
+	reportFile<<"("<<*itChildren<<")";
+	for(itChildren++;itChildren!=BPTreeInternalNode<TRecord,blockSize>::children_.end();itChildren++,itKeys++){
+		reportFile<<itKeys->getKey()<<"("<<*itChildren<<")";
+	}
+	reportFile<<"\n";
+	if(BPTreeNode<TRecord,blockSize>::level_==1){
+		BPTreeVariableLeaf<TRecord,blockSize> * leaf;
+		itChildren=BPTreeInternalNode<TRecord,blockSize>::children_.begin();
+		for( ;itChildren!=BPTreeInternalNode<TRecord,blockSize>::children_.end();itChildren++){
+			leaf=new BPTreeVariableLeaf<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
+			leaf->preOrderReport(reportFile,treeLevel);
+			delete leaf;
+		}
+	}else{
+		BPTreeVariableInternalNode<TRecord,blockSize> * internal;
+		itChildren=BPTreeInternalNode<TRecord,blockSize>::children_.begin();
+		for( ;itChildren!=BPTreeInternalNode<TRecord,blockSize>::children_.end();itChildren++){
+			internal=new BPTreeVariableInternalNode<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
+			internal->preOrderReport(reportFile,treeLevel);
+			delete internal;
+		}
+	}
 }
 
 #endif /* BPTREEVARIABLEINTERNALNODE_H_ */

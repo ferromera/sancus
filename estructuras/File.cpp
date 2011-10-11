@@ -10,6 +10,9 @@
 using namespace std;
 
 
+File::File():filep(NULL){
+}
+
 File::File(const std::string & path,char openMode):path_(path),filep(NULL){
 	open(path,openMode);
 }
@@ -108,6 +111,27 @@ void File::trunc(off_t length){
 		throw FileNotOpenedException();
 	if(truncate(path_.c_str(),length))
 		throw TruncateFileException();
+}
+bool File::reachEnd(){
+	if(!isOpen())
+		throw FileNotOpenedException();
+	if(feof(filep))
+		return true;
+	return false;
+}
+File & File::operator<<(const std::string & str){
+	if(!isOpen())
+		throw FileNotOpenedException();
+	if(fputs(str.c_str(),filep)==EOF)
+		throw FailedInWritingStringToFileException();
+	return *this;
+}
+File & File::operator<<(unsigned int number){
+	if(!isOpen())
+		throw FileNotOpenedException();
+	if(fprintf(filep,"%u",number)< 0)
+		throw FailedInWritingUIntToFileException();
+	return *this;
 }
 File::~File(){
 	if(isOpen())
