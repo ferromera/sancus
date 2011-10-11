@@ -22,17 +22,25 @@ protected:
 	std::list<unsigned int>::iterator getLeftChild(const typename TRecord::Key &);
 	std::list<unsigned int>::iterator getRightChild(const typename TRecord::Key &);
 public:
+	BPTreeInternalNode();
 	BPTreeInternalNode(unsigned int level,File & file);
 	BPTreeInternalNode(File & file,unsigned long blockNumber);
 
 	const typename std::list<typename TRecord::Key>& getKeys()const;
 	const std::list<unsigned int>& getChildren()const;
 	void setFirstChild(unsigned int);
+	unsigned int getFirstChild();
 	virtual void clear();
 
 	bool isLeaf()const;
 	~BPTreeInternalNode();
 };
+
+template<class TRecord,unsigned int blockSize>
+BPTreeInternalNode<TRecord,blockSize>::BPTreeInternalNode():BPTreeNode<TRecord,blockSize>()
+{
+	BPTreeNode<TRecord,blockSize>::level_ = 1;
+}
 
 template<class TRecord,unsigned int blockSize>
 BPTreeInternalNode<TRecord,blockSize>::BPTreeInternalNode(unsigned int level,File & file):BPTreeNode<TRecord,blockSize>(file)
@@ -100,6 +108,11 @@ void BPTreeInternalNode<TRecord,blockSize>::setFirstChild(unsigned int child){
 	if(!children_.empty())
 		children_.pop_front();
 	children_.push_front(child);
+}
+
+template<class TRecord,unsigned int blockSize>
+unsigned int BPTreeInternalNode<TRecord,blockSize>::getFirstChild(){
+	return children_.front();
 }
 
 template<class TRecord,unsigned int blockSize>

@@ -21,7 +21,9 @@ class	CloseFileException: public FileException{};
 class	OpenFileException: public  FileException{};
 class	FlushFileException: public FileException{};
 class	TruncateFileException: public FileException{};
-class  OpenModeException:public FileException{};
+class   OpenModeException:public FileException{};
+class   FailedInWritingStringToFileException:public FileException{};
+class   FailedInWritingUIntToFileException:public FileException{};
 
 
 #endif /* FILEEXCEPTION_H_ */

@@ -13,10 +13,11 @@ protected:
             unsigned int level_;
             bool isFree_;
 
-            BPTreeNode(){}
+
             unsigned int getFreeBlock();
 
 public:
+            BPTreeNode();
             BPTreeNode(File & file);
             BPTreeNode(File & file,unsigned long pos);
 
@@ -25,17 +26,24 @@ public:
             void level(unsigned int);
             void file(File &);
             void free();
+            void becomeRoot();
 
             virtual void read()=0;
             virtual void write()=0;
-            virtual void insert(TRecord &)=0;
-            virtual void remove(TRecord &)=0;
+            virtual void insert(const TRecord &)=0;
+            virtual void remove(const TRecord &)=0;
             virtual bool isLeaf()const=0;
+            virtual void update(const TRecord &)=0;
+            virtual void preOrderReport(File & ,unsigned int)=0;
 
             virtual ~BPTreeNode();
 
 };
-
+template<class TRecord,unsigned int blockSize>
+BPTreeNode<TRecord,blockSize>::BPTreeNode():
+file_(NULL),isFree_(false){
+	blockNumber_=1;
+}
 template<class TRecord,unsigned int blockSize>
 BPTreeNode<TRecord,blockSize>::BPTreeNode(File & file,unsigned long blockNum):
 file_(&file),blockNumber_(blockNum),isFree_(false){
@@ -94,6 +102,7 @@ unsigned int BPTreeNode<TRecord,blockSize>::level()const{
 
 template<class TRecord,unsigned int blockSize>
 unsigned long BPTreeNode<TRecord,blockSize>::blockNumber()const{
+
    return blockNumber_;
 }
 
@@ -107,7 +116,12 @@ template<class TRecord,unsigned int blockSize>
 void BPTreeNode<TRecord,blockSize>::file(File & f){
     file_=&f;
 }
-
+template<class TRecord,unsigned int blockSize>
+void BPTreeNode<TRecord,blockSize>::becomeRoot(){
+	free();
+	isFree_=false;
+	blockNumber_=1;
+}
 
 template<class TRecord,unsigned int blockSize>
 BPTreeNode<TRecord,blockSize>::~BPTreeNode(){

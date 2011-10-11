@@ -19,7 +19,7 @@
 class File{
 	std::string path_;
 	FILE * filep;
-	File(){}
+
 public:
 	static const char BIN = 1;
 	static const char NEW = 2;
@@ -29,7 +29,7 @@ public:
 	static const char CUR = 1;
 	static const char END = 2;
 
-
+	File();
 	File(const std::string &,char openMode);
 	bool isOpen();
 	void seek(long offset,char origin=BEG);
@@ -39,8 +39,11 @@ public:
 	void close();
 	void open(const std::string &,char openMode);
 	void flush();
+	bool reachEnd();
 	void trunc(off_t length);
 	const std::string & path()const;
+	File & operator<<(const std::string &);
+	File & operator<<(unsigned int);
 	~File();
 
 };
