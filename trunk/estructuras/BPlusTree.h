@@ -18,11 +18,12 @@ public:
 
 private:
     BPTreeNode<TRecord,blockSize> * root;
-    BPTreeVariableLeaf<TRecord,blockSize> * lastLeaf;
+    BPTreeVariableLeaf<TRecord,blockSize> * searchLeaf;
     File *file_;
     std::string dataPath;
     std::string reportPath;
-   // BPlusTree(){}
+    TRecord * found;
+    BPlusTree(){}
     void create();
     void load();
     void loadFromSecuential(const std::string & );
@@ -49,7 +50,7 @@ public:
 
 template <class TRecord,unsigned int blockSize>
 BPlusTree<TRecord,blockSize>::BPlusTree(const std::string & path, char creationMode):
-root(NULL),lastLeaf(NULL),file_(NULL),dataPath(path){
+root(NULL),searchLeaf(NULL),file_(NULL),dataPath(path){
 	reportPath=dataPath;
 	std::string::iterator it=reportPath.end();
 	for(;(*it)!='.'&&(*it)!='/';it--);
@@ -68,7 +69,7 @@ root(NULL),lastLeaf(NULL),file_(NULL),dataPath(path){
 }
 template<class TRecord,unsigned int blockSize>
 BPlusTree<TRecord,blockSize>::BPlusTree(const std::string & treePath,const std::string & secuentialPath):
-root(NULL),lastLeaf(NULL),file_(NULL),dataPath(treePath){
+root(NULL),searchLeaf(NULL),file_(NULL),dataPath(treePath){
 	reportPath=dataPath;
 	std::string::iterator it=reportPath.end;
 	for(;(*it)!='.'&&(*it)!='/';it--);
@@ -84,7 +85,7 @@ template<class TRecord,unsigned int blockSize>
 void BPlusTree<TRecord,blockSize>::create(){
 	delete file_;
 	delete root;
-	delete lastLeaf;
+	delete searchLeaf;
 	file_=new File(dataPath,File::NEW|File::BIN|File::IO);
 	FreeSpaceStackBlock<blockSize> * fblock=new FreeSpaceStackBlock<blockSize>;
 	fblock->blockNumber=1;
@@ -94,25 +95,25 @@ void BPlusTree<TRecord,blockSize>::create(){
 
 	root=new BPTreeVariableLeaf<TRecord,blockSize>(*file_);
 	root->write();
-	lastLeaf=new BPTreeVariableLeaf<TRecord,blockSize>(*file_,1);
+	searchLeaf=new BPTreeVariableLeaf<TRecord,blockSize>(*file_,1);
 
 }
 template<class TRecord,unsigned int blockSize>
 void BPlusTree<TRecord,blockSize>::load(){
 	delete file_;
 	delete root;
-	delete lastLeaf;
+	delete searchLeaf;
 	file_=new File(dataPath,File::BIN|File::IO);
 
 	root=new BPTreeVariableLeaf<TRecord,blockSize>(*file_,1);
 
-	lastLeaf= getFristLeaf();
+	searchLeaf= getFristLeaf();
 }
 template<class TRecord,unsigned int blockSize>
 void BPlusTree<TRecord,blockSize>::loadFromSecuential(const std::string & secuentialPath){/*
 	delete file_;
 	delete root;
-	delete lastLeaf;
+	delete searchLeaf;
 	file_=new File(dataPath,File::BIN|File::IO);
 	File secuentialFile(secuentialPath,File::BIN|File::IO);
 
@@ -186,8 +187,8 @@ unsigned int BPlusTree<TRecord,blockSize>::getFreeBlock(){
 }
 template<class TRecord,unsigned int blockSize>
 void BPlusTree<TRecord,blockSize>::insert(const TRecord & rec){
-	delete lastLeaf;
-	lastLeaf=NULL;
+	delete searchLeaf;
+	searchLeaf=NULL;
 	try{
 		root->insert(rec);
 	}catch(LeafOverflowException e){
@@ -199,8 +200,8 @@ void BPlusTree<TRecord,blockSize>::insert(const TRecord & rec){
 }
 template<class TRecord,unsigned int blockSize>
 void BPlusTree<TRecord,blockSize>::remove(const TRecord & rec){
-	delete lastLeaf;
-	lastLeaf=NULL;
+	delete searchLeaf;
+	searchLeaf=NULL;
 	try{
 		root->remove(rec);
 	}catch(LeafUnderflowException e){
@@ -348,8 +349,8 @@ void BPlusTree<TRecord,blockSize>::preOrderReport(){
 }
 template<class TRecord,unsigned int blockSize>
 void BPlusTree<TRecord,blockSize>::update(const TRecord & rec){
-	delete lastLeaf;
-	lastLeaf=NULL;
+	delete searchLeaf;
+	searchLeaf=NULL;
 	try{
 		root->update(rec);
 	}catch(LeafOverflowException e){
@@ -366,7 +367,29 @@ void BPlusTree<TRecord,blockSize>::update(const TRecord & rec){
 			handleNodeUnderflow();
 		else
 			root->write();
-}
+	}
 
 }
+
+template<class TRecord,unsigned int blockSize>
+const TRecord & BPlusTree<TRecord,blockSize>::search(const TRecord & rec){
+	delete found;
+	if(root->level() == 0)
+	{	BPTreeVariableLeaf<TRecord,blockSize> * rootAsLeaf=(BPTreeVariableLeaf<TRecord,blockSize>*)root;
+		try{
+		found= rootAsLeaf ->search(rec);
+		delete searchLeaf;
+		searchLeaf= new BPTreeVariableLeaf<TRecord,blockSize>(*rootAsLeaf);
+		return *found;
+		}catch(LeafRecordNotFoundException e){
+			throw ThereIsNoGreaterRecordException();
+		}catch(ThereIsNoNextLeafException){
+			throw ThereIsNoGreaterRecordException();
+		}
+	}else{
+		found= ((BPTreeVariableInternalNode<TRecord,blockSize>*)root)->search(rec,&searchLeaf);
+		return *found;
+	}
+}
+
 #endif //BPLUSTREE_H_INCLUDED

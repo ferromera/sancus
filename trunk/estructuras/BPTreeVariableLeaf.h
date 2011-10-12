@@ -21,6 +21,7 @@ class BPTreeVariableLeaf: public BPTreeLeaf<TRecord,blockSize>{
 public:
 	BPTreeVariableLeaf(File & file);
 	BPTreeVariableLeaf(File & file,unsigned long pos);
+	BPTreeVariableLeaf(const BPTreeVariableLeaf<TRecord,blockSize> & leaf);
 
 	void read();
 	void write();
@@ -47,6 +48,11 @@ template<class TRecord,unsigned int blockSize>
 BPTreeVariableLeaf<TRecord,blockSize>::BPTreeVariableLeaf(File & file,unsigned long blockNumber):
 BPTreeLeaf<TRecord,blockSize>(file,blockNumber),searchIndex_(0){
 	read();
+}
+
+template<class TRecord,unsigned int blockSize>
+BPTreeVariableLeaf<TRecord,blockSize>::BPTreeVariableLeaf(const BPTreeVariableLeaf<TRecord,blockSize> & leaf):
+BPTreeLeaf<TRecord,blockSize>(leaf),freeSpace(leaf.freeSpace),searchIndex_(leaf.searchIndex_){
 }
 
 template<class TRecord,unsigned int blockSize>

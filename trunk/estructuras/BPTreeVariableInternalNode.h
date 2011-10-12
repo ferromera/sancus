@@ -656,21 +656,19 @@ TRecord *  BPTreeVariableInternalNode<TRecord,blockSize>::search(const TRecord &
 	{		TRecord * found;
 			BPTreeVariableLeaf<TRecord,blockSize> *childLeaf = new BPTreeVariableLeaf<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
 			try{
-				 found= childLeaf->search(rec);
-				if(*searchLeaf!=childLeaf){
-					delete(*searchLeaf);
-					*searchLeaf=childLeaf;
-				}
+				found= childLeaf->search(rec);
+				delete(*searchLeaf);
+				*searchLeaf= new BPTreeVariableLeaf<TRecord,blockSize>(*childLeaf);
+				delete childLeaf;
 				return found;
 			}catch(LeafRecordNotFoundException e){
 				try{
 					BPTreeVariableLeaf<TRecord,blockSize> *nxtLeaf=(BPTreeVariableLeaf<TRecord,blockSize> *)childLeaf->nextLeaf();
-					if(*searchLeaf!=nxtLeaf){
-						delete(*searchLeaf);
-						*searchLeaf=nxtLeaf;
-					}
 					found= nxtLeaf->search(rec);
+					delete(*searchLeaf);
+					*searchLeaf=new BPTreeVariableLeaf<TRecord,blockSize>(*nxtLeaf);
 					delete childLeaf;
+					delete nxtLeaf;
 					return found;
 				}catch(ThereIsNoNextLeafException){
 					delete childLeaf;
