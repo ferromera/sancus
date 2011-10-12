@@ -58,7 +58,7 @@ public:
 
 	void insert(T & record);
 
-	T get(typename T::Key * key);
+	T * get(const typename T::Key & key);
 
 	void remove(T & record);
 
@@ -100,16 +100,6 @@ HashTable<T, bucketSize>::HashTable(File & file,
 template<class T, unsigned int bucketSize>
 void HashTable<T, bucketSize>::load(File & file) {
 
-}
-
-template<class T, unsigned int bucketSize>
-unsigned int HashTable<T, bucketSize>::hash(const typename T::Key & key) {
-	return key.getKey() % size;
-}
-
-template<class T, unsigned int bucketSize>
-unsigned int HashTable<T, bucketSize>::rehash(const typename T::Key & key) {
-	return (key.getKey() + 1) % size;;
 }
 
 template<class T, unsigned int bucketSize>
@@ -197,7 +187,7 @@ unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 }
 
 template<class T, unsigned int bucketSize>
-T HashTable<T, bucketSize>::get(typename T::Key * key) {
+T * HashTable<T, bucketSize>::get(const typename T::Key & key) {
 	Bucket<bucketSize> * bucket;
 	unsigned int offset;
 	unsigned int rehashingCount = 0;
@@ -296,6 +286,16 @@ void HashTable<T, bucketSize>::remove(T & record) {
 		delete (bucket);
 		delete (buffer);
 	}
+}
+
+template<class T, unsigned int bucketSize>
+unsigned int HashTable<T, bucketSize>::hash(const typename T::Key & key) {
+	return key.getKey() % size;
+}
+
+template<class T, unsigned int bucketSize>
+unsigned int HashTable<T, bucketSize>::rehash(const typename T::Key & key) {
+	return (key.getKey() + 1) % size;;
 }
 
 template<class T, unsigned int bucketSize>

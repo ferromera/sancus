@@ -19,10 +19,6 @@ private:
 	HashTable<StudentRecord, 512> * table;
 
 public:
-	void run() {
-		testCreate();
-		testInsert();
-	}
 
 	void assertTrue(bool condition, string message) {
 		if (!condition) {
@@ -40,14 +36,39 @@ public:
 
 		table = new HashTable<StudentRecord, 512>(file, 10, 100);
 
-		assertTrue(MathUtils::isPrime(table->getSize()), "El tamaño de la tabla debe ser primo");
+		assertTrue(MathUtils::isPrime(table->getSize()),
+				"El tamaño de la tabla debe ser primo");
 
 	}
 
-	void testInsert() {
-		StudentRecord * record =  new StudentRecord(12, "alfredo");
+	void testInsertAndGet() {
+		testCreate();
+
+		StudentRecord * record = new StudentRecord(12, "alfredo");
 
 		table->insert(*record);
+
+		StudentRecord * record2 = table->get(record->getKey());
+
+		assertTrue(record->getKey() == record2->getKey(),
+				"Los records no son iguales");
+	}
+
+	void testUniquenessValidation() {
+		testCreate();
+
+		StudentRecord * record1 = new StudentRecord(12, "alfredo");
+
+		table->insert(*record1);
+		table->insert(*record1);
+	}
+
+	void testGetRecordWhichIsNotPresent(){
+		testCreate();
+
+		StudentRecord::Key * key = new StudentRecord::Key(10);
+
+		table->get(*key);
 	}
 
 };
