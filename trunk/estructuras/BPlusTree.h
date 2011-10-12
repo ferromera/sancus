@@ -8,6 +8,7 @@
 #include "File.h"
 #include <list>
 #include <string>
+#include <iostream>
 
 
 template<class TRecord,unsigned int blockSize>
@@ -50,7 +51,7 @@ public:
 
 template <class TRecord,unsigned int blockSize>
 BPlusTree<TRecord,blockSize>::BPlusTree(const std::string & path, char creationMode):
-root(NULL),searchLeaf(NULL),file_(NULL),dataPath(path){
+root(NULL),searchLeaf(NULL),file_(NULL),dataPath(path),found(NULL){
 	reportPath=dataPath;
 	std::string::iterator it=reportPath.end();
 	for(;(*it)!='.'&&(*it)!='/';it--);
@@ -69,7 +70,7 @@ root(NULL),searchLeaf(NULL),file_(NULL),dataPath(path){
 }
 template<class TRecord,unsigned int blockSize>
 BPlusTree<TRecord,blockSize>::BPlusTree(const std::string & treePath,const std::string & secuentialPath):
-root(NULL),searchLeaf(NULL),file_(NULL),dataPath(treePath){
+root(NULL),searchLeaf(NULL),file_(NULL),dataPath(treePath),found(NULL){
 	reportPath=dataPath;
 	std::string::iterator it=reportPath.end;
 	for(;(*it)!='.'&&(*it)!='/';it--);
@@ -388,6 +389,24 @@ const TRecord & BPlusTree<TRecord,blockSize>::search(const TRecord & rec){
 		}
 	}else{
 		found= ((BPTreeVariableInternalNode<TRecord,blockSize>*)root)->search(rec,&searchLeaf);
+		return *found;
+	}
+}
+
+template<class TRecord,unsigned int blockSize>
+const TRecord & BPlusTree<TRecord,blockSize>::next(){
+	delete found;
+	if(searchLeaf==NULL)
+		throw BPlusTreeNextMustNotBeCalledAfterAModifyingMethodException();
+	try{
+		found=searchLeaf->nextRecord();
+		return *found;
+	}catch(LeafRecordNotFoundException e){
+		BPTreeVariableLeaf<TRecord,blockSize> * oldSearchLeaf=searchLeaf;
+		searchLeaf=(BPTreeVariableLeaf<TRecord,blockSize> *)searchLeaf->nextLeaf();
+		delete oldSearchLeaf;
+		found = new TRecord(searchLeaf->getFirstRecord());
+
 		return *found;
 	}
 }
