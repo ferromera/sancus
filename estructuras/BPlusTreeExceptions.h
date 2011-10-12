@@ -31,4 +31,5 @@ class WriteInAFreeNodeException:public BPlusTreeException{};
 class ThereIsNoNextLeafException:public BPlusTreeException{};
 class ThereIsNoGreaterRecordException:public BPlusTreeException{};
 class BPTreeInvalidCreationModeException:public BPlusTreeException{};
+class BPlusTreeNextMustNotBeCalledAfterAModifyingMethodException :public BPlusTreeException{};
 #endif // BPLUSTREEEXCEPTIONS_H_INCLUDED

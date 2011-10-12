@@ -13,7 +13,6 @@
 template<class TRecord,unsigned int blockSize>
 class BPTreeVariableLeaf: public BPTreeLeaf<TRecord,blockSize>{
 	unsigned int freeSpace;
-	unsigned int searchIndex_;
 
 	void readRecords(BPTreeVariableLeafBlock<blockSize> *);
 	void writeRecords(BPTreeVariableLeafBlock<blockSize> *);
@@ -31,7 +30,6 @@ public:
 	BPTreeLeaf<TRecord,blockSize> * nextLeaf();
 	void clear();
 	bool hasMinimumCapacity();
-	TRecord * search(const TRecord &);
 	void update(const TRecord & rec);
 	void preOrderReport(File & , unsigned int);
 	~BPTreeVariableLeaf();
@@ -40,19 +38,20 @@ public:
 
 template<class TRecord,unsigned int blockSize>
 BPTreeVariableLeaf<TRecord,blockSize>::BPTreeVariableLeaf(File & file):
-BPTreeLeaf<TRecord,blockSize>(file),searchIndex_(0){
+BPTreeLeaf<TRecord,blockSize>(file){
 	freeSpace=blockSize - VARIABLE_LEAF_CONTROL_BYTES;
 }
 
 template<class TRecord,unsigned int blockSize>
 BPTreeVariableLeaf<TRecord,blockSize>::BPTreeVariableLeaf(File & file,unsigned long blockNumber):
-BPTreeLeaf<TRecord,blockSize>(file,blockNumber),searchIndex_(0){
+BPTreeLeaf<TRecord,blockSize>(file,blockNumber){
 	read();
+	BPTreeLeaf<TRecord,blockSize>::searchIterator=BPTreeLeaf<TRecord,blockSize>::records_.begin();
 }
 
 template<class TRecord,unsigned int blockSize>
 BPTreeVariableLeaf<TRecord,blockSize>::BPTreeVariableLeaf(const BPTreeVariableLeaf<TRecord,blockSize> & leaf):
-BPTreeLeaf<TRecord,blockSize>(leaf),freeSpace(leaf.freeSpace),searchIndex_(leaf.searchIndex_){
+BPTreeLeaf<TRecord,blockSize>(leaf),freeSpace(leaf.freeSpace){
 }
 
 template<class TRecord,unsigned int blockSize>
@@ -191,7 +190,7 @@ void BPTreeVariableLeaf<TRecord,blockSize>::clear(){
 	BPTreeLeaf<TRecord,blockSize>::clear();
 	freeSpace=blockSize-VARIABLE_LEAF_CONTROL_BYTES;
 }
-
+/*
 template<class TRecord,unsigned int blockSize>
 TRecord * BPTreeVariableLeaf<TRecord,blockSize>::search(const TRecord & rec){
 	typename std::list<TRecord>::iterator it=BPTreeLeaf<TRecord,blockSize>::itSearch(rec);
@@ -202,7 +201,7 @@ TRecord * BPTreeVariableLeaf<TRecord,blockSize>::search(const TRecord & rec){
 		throw LeafRecordNotFoundException();
 	TRecord * found=new TRecord(*it);
 	return found;
-}
+}*/
 template<class TRecord,unsigned int blockSize>
 void BPTreeVariableLeaf<TRecord,blockSize>::update(const TRecord & rec){
 	unsigned int oldFreeSpace=freeSpace;

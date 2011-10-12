@@ -8,7 +8,7 @@
 #include "BPTreeNode.h"
 #include "stdint.h"
 #include <list>
-
+#include <iostream>
 
 
 template<class TRecord,unsigned int blockSize>
@@ -16,6 +16,7 @@ class BPTreeLeaf: public BPTreeNode<TRecord,blockSize>{
 protected:
 	std::list<TRecord> records_;
 	uint32_t next_;
+	typename std::list<TRecord>::iterator  searchIterator;
 	typename std::list<TRecord>::iterator itSearch (const TRecord &);
 public:
 	BPTreeLeaf(File & file);
@@ -29,6 +30,8 @@ public:
 	virtual BPTreeLeaf<TRecord,blockSize> * nextLeaf()=0;
 	bool isLeaf()const;
 	virtual void clear();
+	TRecord * search(const TRecord & rec);
+	TRecord * nextRecord();
 	~BPTreeLeaf();
 
 };
@@ -39,17 +42,22 @@ template<class TRecord,unsigned int blockSize>
 BPTreeLeaf<TRecord,blockSize>::BPTreeLeaf(File & file):
 BPTreeNode<TRecord,blockSize>(file),next_(0){
 	BPTreeNode<TRecord,blockSize>::level_=0;
+	searchIterator=records_.begin();
 }
 
 template<class TRecord,unsigned int blockSize>
 BPTreeLeaf<TRecord,blockSize>::BPTreeLeaf(File & file,unsigned long blockNumber):
 BPTreeNode<TRecord,blockSize>(file,blockNumber),next_(0){
 	BPTreeNode<TRecord,blockSize>::level_=0;
+	searchIterator=records_.begin();
 }
 
 template<class TRecord,unsigned int blockSize>
 BPTreeLeaf<TRecord,blockSize>::BPTreeLeaf(const BPTreeLeaf<TRecord,blockSize> &leaf):
 BPTreeNode<TRecord,blockSize>(leaf),records_(leaf.records_),next_(leaf.next_){
+	searchIterator=records_.begin();
+	typename std::list<TRecord>::const_iterator it=leaf.records_.begin();
+	for(;it!=leaf.searchIterator;it++,searchIterator++);
 
 }
 
@@ -86,6 +94,26 @@ void  BPTreeLeaf<TRecord,blockSize>::next(uint32_t n)
 template<class TRecord,unsigned int blockSize>
 void  BPTreeLeaf<TRecord,blockSize>::clear(){
 	records_.clear();
+}
+
+template<class TRecord,unsigned int blockSize>
+TRecord * BPTreeLeaf<TRecord,blockSize>::search(const TRecord & rec){
+	searchIterator=itSearch(rec);
+
+	if(searchIterator==records_.end())
+		throw LeafRecordNotFoundException();
+	TRecord * found=new TRecord(*searchIterator);
+	return found;
+}
+
+template<class TRecord,unsigned int blockSize>
+TRecord * BPTreeLeaf<TRecord,blockSize>::nextRecord(){
+	searchIterator++;
+	if(searchIterator==records_.end())
+		throw LeafRecordNotFoundException();
+	TRecord * found=new TRecord(*searchIterator);
+	return found;
+
 }
 
 template<class TRecord,unsigned int blockSize>
