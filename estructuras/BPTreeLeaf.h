@@ -20,6 +20,7 @@ protected:
 public:
 	BPTreeLeaf(File & file);
 	BPTreeLeaf(File & file,unsigned long blockNumber);
+	BPTreeLeaf(const BPTreeLeaf<TRecord,blockSize> &);
 
 
 	const typename std::list<TRecord>& getRecords();
@@ -44,6 +45,12 @@ template<class TRecord,unsigned int blockSize>
 BPTreeLeaf<TRecord,blockSize>::BPTreeLeaf(File & file,unsigned long blockNumber):
 BPTreeNode<TRecord,blockSize>(file,blockNumber),next_(0){
 	BPTreeNode<TRecord,blockSize>::level_=0;
+}
+
+template<class TRecord,unsigned int blockSize>
+BPTreeLeaf<TRecord,blockSize>::BPTreeLeaf(const BPTreeLeaf<TRecord,blockSize> &leaf):
+BPTreeNode<TRecord,blockSize>(leaf),records_(leaf.records_),next_(leaf.next_){
+
 }
 
 template<class TRecord,unsigned int blockSize>

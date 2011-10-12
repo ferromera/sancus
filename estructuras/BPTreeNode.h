@@ -20,6 +20,7 @@ public:
             BPTreeNode();
             BPTreeNode(File & file);
             BPTreeNode(File & file,unsigned long pos);
+            BPTreeNode(const BPTreeNode<TRecord,blockSize> & );
 
             unsigned int level()const;
             unsigned long blockNumber()const;
@@ -52,6 +53,12 @@ template<class TRecord,unsigned int blockSize>
 BPTreeNode<TRecord,blockSize>::BPTreeNode(File & file):
 file_(&file),isFree_(false){
 	blockNumber_=getFreeBlock();
+}
+
+template<class TRecord,unsigned int blockSize>
+BPTreeNode<TRecord,blockSize>::BPTreeNode(const BPTreeNode<TRecord,blockSize> & node):
+file_(node.file_),blockNumber_(node.blockNumber_),level_(node.level_),isFree_(node.isFree_){
+
 }
 
 template<class TRecord,unsigned int blockSize>
