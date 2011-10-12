@@ -17,7 +17,7 @@ ElectionRecord::ElectionRecord(std::string date, DistrictRecord::Key* district, 
 	this->charge = new ChargeRecord::Key(charge);
 	this->district = new DistrictRecord::Key(district);
 }
-void ElectionRecord::setCharge(ChargeRecord::key* charge) {
+void ElectionRecord::setCharge(ChargeRecord::Key* charge) {
 	this->charge = charge;
 }
 void ElectionRecord::setDate(std::string date) {

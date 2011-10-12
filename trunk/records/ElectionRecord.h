@@ -10,6 +10,9 @@
 
 #include "Record.h"
 #include "ComposedStringKey.h"
+#include "ChargeRecord.h"
+#include "DistrictRecord.h"
+
 
 class ElectionRecord: public Record {
 private:
@@ -28,7 +31,7 @@ public:
     };
     unsigned int size()const;
 	ElectionRecord();
-	ElectionRecord(std::string date, DistrictRecord::Key* district, ChargeRecord::key* charge);
+	ElectionRecord(std::string date, DistrictRecord::Key* district, ChargeRecord::Key* charge);
 	virtual ~ElectionRecord();
 	const ElectionRecord::Key & getKey()const;
     void setKey(const ElectionRecord::Key & k);

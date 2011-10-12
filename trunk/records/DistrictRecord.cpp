@@ -14,7 +14,7 @@ DistrictRecord::DistrictRecord() {
 
 DistrictRecord::DistrictRecord(std::string name,std::list<DistrictRecord::Key*>* districtList) {
 	this->name = name;
-	districtList = new List<DistrictRecord*> (districtList);
+	this->districtList = districtList;
 }
 
 void DistrictRecord::setName(std::string name) {
