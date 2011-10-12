@@ -27,11 +27,10 @@ VoterRecord::VoterRecord(std::string name, Uint16Key dni, std::string address, s
 
 VoterRecord::~VoterRecord(){
 	delete this->voterDistrict;
-	std::list<ElectionRecord*>::iterator it;
-	//electionList->it;
+	std::list<ElectionRecord::Key*>::iterator it;
 	if (this->electionList != NULL) {
       for(it = this->electionList->begin(); it != this->electionList->end(); it++){
-          ElectionRecord* election;
+          ElectionRecord::Key* election;
           election = *it;
           delete election;
       }

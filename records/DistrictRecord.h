@@ -25,7 +25,7 @@ public:
     class Key: public StringKey{
     public:
         Key(char ** input):StringKey(input){}
-        Key(std::string key=0):StringKey(key){}
+        Key(std::string key=" "):StringKey(key){}
     };
     unsigned int size()const;
     void setKey(const DistrictRecord::Key & k);
