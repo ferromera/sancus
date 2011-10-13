@@ -32,6 +32,7 @@ public:
 	virtual void clear();
 	TRecord * search(const TRecord & rec);
 	TRecord * nextRecord();
+	void saveToSequential(File &,VariableSequentialBlock<blockSize>*,char**);
 	~BPTreeLeaf();
 
 };
@@ -113,6 +114,22 @@ TRecord * BPTreeLeaf<TRecord,blockSize>::nextRecord(){
 		throw LeafRecordNotFoundException();
 	TRecord * found=new TRecord(*searchIterator);
 	return found;
+
+}
+
+template<class TRecord,unsigned int blockSize>
+void BPTreeLeaf<TRecord,blockSize>::saveToSequential(File & file,VariableSequentialBlock<blockSize>* block,char ** lastPosition){
+	typename std::list<TRecord>::iterator it=records_.begin();
+
+	for(; it!= records_.end();it++){
+		if(block->freeSpace < it->size()){
+			file.write((char*)block,blockSize);
+			block->freeSpace=blockSize-VARIABLE_SEQUENTIAL_CONTROL_BYTES;
+			(*lastPosition)=block->bytes;
+		}
+		it->write(lastPosition);
+		block->freeSpace-=it->size();
+	}
 
 }
 

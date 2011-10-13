@@ -25,6 +25,7 @@ public:
 	void read();
 	void write();
 	void insert(const TRecord &);
+	void loadInsert(const TRecord &,float );
 	void remove(const TRecord &);
 	const TRecord & getFirstRecord()const;
 	BPTreeLeaf<TRecord,blockSize> * nextLeaf();
@@ -141,6 +142,16 @@ void BPTreeVariableLeaf<TRecord,blockSize>::insert(const TRecord & rec){
 	freeSpace-=rec.size();
 
 }
+template<class TRecord,unsigned int blockSize>
+void BPTreeVariableLeaf<TRecord,blockSize>::loadInsert(const TRecord & rec ,float compression){
+	if(((float)(blockSize-VARIABLE_LEAF_CONTROL_BYTES))*(1.0-compression)+(float)rec.size() > (float)freeSpace)
+		throw LeafOverflowException();
+
+	typename std::list<TRecord>::iterator itInsertionPos=itSearch(rec);
+	TRecord * rp=new TRecord(rec);
+	BPTreeLeaf<TRecord,blockSize>::records_.insert(itInsertionPos,*rp);
+	freeSpace-=rec.size();
+}
 
 template<class TRecord,unsigned int blockSize>
 const TRecord & BPTreeVariableLeaf<TRecord,blockSize>::getFirstRecord()const{
@@ -190,18 +201,7 @@ void BPTreeVariableLeaf<TRecord,blockSize>::clear(){
 	BPTreeLeaf<TRecord,blockSize>::clear();
 	freeSpace=blockSize-VARIABLE_LEAF_CONTROL_BYTES;
 }
-/*
-template<class TRecord,unsigned int blockSize>
-TRecord * BPTreeVariableLeaf<TRecord,blockSize>::search(const TRecord & rec){
-	typename std::list<TRecord>::iterator it=BPTreeLeaf<TRecord,blockSize>::itSearch(rec);
-	typename std::list<TRecord>::iterator it2=BPTreeLeaf<TRecord,blockSize>::records_.begin();
-	for(searchIndex_=0;it2!=it;it2++)
-		searchIndex_++;
-	if(it==BPTreeLeaf<TRecord,blockSize>::records_.end())
-		throw LeafRecordNotFoundException();
-	TRecord * found=new TRecord(*it);
-	return found;
-}*/
+
 template<class TRecord,unsigned int blockSize>
 void BPTreeVariableLeaf<TRecord,blockSize>::update(const TRecord & rec){
 	unsigned int oldFreeSpace=freeSpace;
@@ -224,9 +224,8 @@ void  BPTreeVariableLeaf<TRecord,blockSize>::preOrderReport(File & reportFile,un
 	reportFile<<"("<<0<<")("<<freeSpace<<")("<<BPTreeLeaf<TRecord,blockSize>::next_<<") -- ";
 
 	typename std::list<TRecord>::iterator itRecords=BPTreeLeaf<TRecord,blockSize>::records_.begin();
-	reportFile<<"|";
 	for(;itRecords!=BPTreeLeaf<TRecord,blockSize>::records_.end();itRecords++){
-		reportFile<<itRecords->getKey().getKey()<<"|";
+		reportFile<<"("<<itRecords->getKey().getKey()<<")";
 	}
 	reportFile<<"\n";
 }
