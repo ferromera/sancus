@@ -4,6 +4,7 @@
 #include "FreeSpaceStackBlock.h"
 #include "File.h"
 #include "BPlusTreeExceptions.h"
+#include "VariableSequentialBlock.h"
 
 template<class TRecord,unsigned int blockSize>
 class BPTreeNode{
@@ -32,10 +33,12 @@ public:
             virtual void read()=0;
             virtual void write()=0;
             virtual void insert(const TRecord &)=0;
+            virtual void loadInsert(const TRecord &,float )=0;
             virtual void remove(const TRecord &)=0;
             virtual bool isLeaf()const=0;
             virtual void update(const TRecord &)=0;
             virtual void preOrderReport(File & ,unsigned int)=0;
+            virtual void saveToSequential(File &,VariableSequentialBlock<blockSize>*,char**)=0;
 
             virtual ~BPTreeNode();
 

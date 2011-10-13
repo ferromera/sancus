@@ -23,6 +23,8 @@ class BPTreeVariableInternalNode : public BPTreeInternalNode<TRecord,blockSize>{
 	void writeRecords( BPTreeVariableNodeBlock<blockSize> *);
 	void handleLeafOverflow(BPTreeVariableLeaf<TRecord,blockSize> *, const TRecord & );
 	void handleNodeOverflow(BPTreeVariableInternalNode<TRecord,blockSize>*,NodeOverflowException<typename TRecord::Key>);
+	void handleLoadLeafOverflow(BPTreeVariableLeaf<TRecord,blockSize> *, const TRecord & ,float);
+	void handleLoadNodeOverflow(BPTreeVariableInternalNode<TRecord,blockSize>*,NodeOverflowException<typename TRecord::Key>,float);
 	void handleLeafUnderflow(BPTreeVariableLeaf<TRecord,blockSize>* ,typename std::list<typename TRecord::Key>::iterator,std::list<unsigned int>::iterator );
 	void handleNodeUnderflow(BPTreeVariableInternalNode<TRecord,blockSize>* ,typename std::list<typename TRecord::Key>::iterator,std::list<unsigned int>::iterator );
 public:
@@ -33,8 +35,10 @@ public:
 	void read();
 	void write();
 	void insert(const TRecord &);
+	void loadInsert(const TRecord &,float);
 	void remove(const TRecord &);
 	void insertInNode(typename TRecord::Key & , unsigned int);
+	void loadInsertInNode(typename TRecord::Key & , unsigned int,float);
 	void removeInNode(typename TRecord::Key & );
 	void clear();
 	unsigned int usedSpace();
@@ -42,6 +46,7 @@ public:
 	TRecord * search(const TRecord & rec,BPTreeVariableLeaf<TRecord,blockSize> **);
 	void update(const TRecord & );
 	void preOrderReport(File & reportFile,unsigned int);
+	void saveToSequential(File & file ,VariableSequentialBlock<blockSize>*block ,char** lastPosicion);
 
 	virtual ~BPTreeVariableInternalNode(){}
 };
@@ -202,6 +207,56 @@ void BPTreeVariableInternalNode<TRecord,blockSize>::insert(const TRecord & recor
 
 }
 template<class TRecord,unsigned int blockSize>
+void BPTreeVariableInternalNode<TRecord,blockSize>::loadInsert(const TRecord & record ,float compression){
+	typename TRecord::Key key = record.getKey();
+	//Busco la clave en la lista
+	typename std::list<typename TRecord::Key>::iterator itKey = BPTreeInternalNode<TRecord,blockSize>::itSearch(key);
+	std::list<unsigned int>::iterator itChildren;
+
+	//Obtengo el hijo donde se debera insertar
+
+	if(itKey == BPTreeInternalNode<TRecord,blockSize>::keys_.end()){
+		itKey--;
+		itChildren = BPTreeInternalNode<TRecord,blockSize>::getRightChild(*itKey);
+	}
+	else if(*itKey==key)
+		itChildren = BPTreeInternalNode<TRecord,blockSize>::getRightChild(*itKey);
+	else // (*itKey)>key
+		itChildren = BPTreeInternalNode<TRecord,blockSize>::getLeftChild(*itKey);
+
+
+	if(BPTreeNode<TRecord,blockSize>::level_ == 1)
+	{
+		BPTreeVariableLeaf<TRecord,blockSize> *childLeaf = new BPTreeVariableLeaf<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
+
+		try
+		{
+			childLeaf->loadInsert(record,compression);
+			childLeaf->write();
+			delete childLeaf;
+		}
+		catch(LeafOverflowException ovException)
+		{
+			handleLoadLeafOverflow(childLeaf,record,compression);
+			return;
+		}
+	}
+	else  //level > 1
+	{
+		BPTreeVariableInternalNode<TRecord,blockSize>* childNode=new BPTreeVariableInternalNode<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
+		try
+		{
+			childNode->loadInsert(record,compression);
+			delete childNode;
+		}
+		catch(NodeOverflowException<typename TRecord::Key> ovException)
+		{
+			handleLoadNodeOverflow(childNode,ovException,compression);
+		}
+	}
+}
+
+template<class TRecord,unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord,blockSize>::handleLeafOverflow(BPTreeVariableLeaf<TRecord,blockSize> * childLeaf,const TRecord & record){
 	typename std::list<TRecord> recordList = childLeaf->getRecords();
 	typename std::list<TRecord>::iterator recordIt = recordList.begin();
@@ -286,10 +341,91 @@ handleNodeOverflow(BPTreeVariableInternalNode<TRecord,blockSize>*childNode,NodeO
 	write();
 
 }
+
+template<class TRecord,unsigned int blockSize>
+void BPTreeVariableInternalNode<TRecord,blockSize>::
+handleLoadLeafOverflow(BPTreeVariableLeaf<TRecord,blockSize> *childLeaf, const TRecord & record ,float compression){
+
+	BPTreeVariableLeaf<TRecord,blockSize> *newLeaf = new BPTreeVariableLeaf<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_);
+
+	newLeaf->insert(record);
+
+	newLeaf->next(childLeaf->next());
+	childLeaf->next(newLeaf->blockNumber());
+	childLeaf->write();
+	newLeaf->write();
+
+	typename TRecord::Key newKey =record.getKey();
+	unsigned int newBlockNumber=newLeaf->blockNumber();
+	delete newLeaf;
+	delete childLeaf;
+
+	loadInsertInNode(newKey,newBlockNumber,compression);
+	write();
+
+}
+
+template<class TRecord,unsigned int blockSize>
+void BPTreeVariableInternalNode<TRecord,blockSize>::
+handleLoadNodeOverflow(BPTreeVariableInternalNode<TRecord,blockSize>*childNode,NodeOverflowException<typename TRecord::Key> ovException ,float compression){
+
+	BPTreeVariableInternalNode<TRecord,blockSize>* newNode=new BPTreeVariableInternalNode<TRecord,blockSize>(BPTreeNode<TRecord,blockSize>::level_-1,
+							*BPTreeNode<TRecord,blockSize>::file_);
+
+	typename std::list<typename TRecord::Key> childKeys=childNode->getKeys();
+		std::list <unsigned int> childChildren = childNode->getChildren();
+
+	//Busco donde voy a insertar la clave que subio y donde voy a insertar su hijo derecho.
+	typename std::list<typename TRecord::Key>::iterator itKey=--childKeys.end() ;
+	std::list<unsigned int>::iterator itChildren=--childChildren.end()  ;
+
+	childNode->removeInNode(*itKey);
+
+	typename TRecord::Key middleKey=*itKey;
+
+	newNode->setFirstChild(*itChildren);
+
+	newNode->insertInNode(ovException.key,ovException.child);
+
+	childNode->write();
+	newNode->write();
+
+	unsigned int newBlockNumber=newNode->blockNumber();
+	delete newNode;
+	delete childNode;
+
+	loadInsertInNode(middleKey,newBlockNumber,compression);
+	write();
+
+}
+
 template<class TRecord,unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord,blockSize>::insertInNode(typename TRecord::Key & key, unsigned int child)
 {
 	if(freeSpace< key.size() + 4)
+		   throw NodeOverflowException<typename TRecord::Key>(child,key);
+
+	typename std::list<typename TRecord::Key>::iterator itKey =
+			BPTreeInternalNode<TRecord,blockSize>::itSearch(key);
+
+	typename std::list<unsigned int>::iterator itChildren ;
+
+	if(itKey!= BPTreeInternalNode<TRecord,blockSize>::keys_.end())
+			itChildren=BPTreeInternalNode<TRecord,blockSize>::getRightChild(*itKey);
+	else
+			itChildren=BPTreeInternalNode<TRecord,blockSize>::children_.end();
+
+
+	BPTreeInternalNode<TRecord,blockSize>::keys_.insert(itKey,key);
+	BPTreeInternalNode<TRecord,blockSize>::children_.insert(itChildren,child);
+	freeSpace-= key.size() + 4;
+
+}
+
+template<class TRecord,unsigned int blockSize>
+void BPTreeVariableInternalNode<TRecord,blockSize>::loadInsertInNode(typename TRecord::Key & key, unsigned int child,float compression)
+{
+	if((float)freeSpace < ((float)(blockSize-VARIABLE_NODE_CONTROL_BYTES))*(1.0-compression)+(float)(key.size() + 4 ) )
 		   throw NodeOverflowException<typename TRecord::Key>(child,key);
 
 	typename std::list<typename TRecord::Key>::iterator itKey =
@@ -757,9 +893,9 @@ void  BPTreeVariableInternalNode<TRecord,blockSize>::preOrderReport(File & repor
 	reportFile<<"("<<BPTreeNode<TRecord,blockSize>::level_<<")("<<freeSpace<<") -- ";
 	std::list<unsigned int>::iterator itChildren=BPTreeInternalNode<TRecord,blockSize>::children_.begin();
 	typename std::list<typename TRecord::Key>::iterator itKeys=BPTreeInternalNode<TRecord,blockSize>::keys_.begin();
-	reportFile<<"("<<*itChildren<<")";
+	reportFile<<*itChildren;
 	for(itChildren++;itChildren!=BPTreeInternalNode<TRecord,blockSize>::children_.end();itChildren++,itKeys++){
-		reportFile<<itKeys->getKey()<<"("<<*itChildren<<")";
+		reportFile<<"("<<itKeys->getKey()<<")"<<*itChildren;
 	}
 	reportFile<<"\n";
 	if(BPTreeNode<TRecord,blockSize>::level_==1){
@@ -779,6 +915,31 @@ void  BPTreeVariableInternalNode<TRecord,blockSize>::preOrderReport(File & repor
 			delete internal;
 		}
 	}
+}
+
+template<class TRecord,unsigned int blockSize>
+void  BPTreeVariableInternalNode<TRecord,blockSize>::saveToSequential(File & file ,VariableSequentialBlock<blockSize>*block ,char** lastPosicion){
+	std::list<unsigned int>::iterator itChildren;
+
+	if(BPTreeNode<TRecord,blockSize>::level_==1){
+		BPTreeVariableLeaf<TRecord,blockSize> * leaf;
+		for(itChildren=BPTreeInternalNode<TRecord,blockSize>::children_.begin();
+				itChildren!=BPTreeInternalNode<TRecord,blockSize>::children_.end();itChildren++){
+			leaf=new BPTreeVariableLeaf<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
+			leaf->saveToSequential( file ,block ,lastPosicion);
+			delete leaf;
+		}
+	}
+	else{
+		BPTreeVariableInternalNode<TRecord,blockSize> * node;
+		for(itChildren=BPTreeInternalNode<TRecord,blockSize>::children_.begin();
+						itChildren!=BPTreeInternalNode<TRecord,blockSize>::children_.end();itChildren++){
+			node=new BPTreeVariableInternalNode<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,*itChildren);
+			node->saveToSequential( file ,block ,lastPosicion);
+			delete node;
+		}
+	}
+
 }
 
 #endif /* BPTREEVARIABLEINTERNALNODE_H_ */

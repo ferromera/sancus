@@ -5,11 +5,13 @@
 #include "BPlusTreeExceptions.h"
 #include "BPTreeVariableLeaf.h"
 #include "BPTreeVariableInternalNode.h"
+#include "VariableSequentialBlock.h"
 #include "File.h"
 #include <list>
 #include <string>
 #include <iostream>
 
+#define BPTREE_LOAD_COMPRESSION_RATIO 0.8
 
 template<class TRecord,unsigned int blockSize>
 class BPlusTree{
@@ -27,18 +29,22 @@ private:
     BPlusTree(){}
     void create();
     void load();
-    void loadFromSecuential(const std::string & );
+    void loadFromSequential(const std::string & );
+    void saveToSequential(const std::string & );
     unsigned int getFreeBlock();
     void handleLeafOverflow(const TRecord & rec);
     void handleNodeOverflow(const TRecord & rec,NodeOverflowException<typename TRecord::Key> );
+    void handleLoadLeafOverflow(const TRecord & rec);
+    void handleLoadNodeOverflow(const TRecord & rec,NodeOverflowException<typename TRecord::Key> );
     void handleNodeUnderflow();
+    void loadInsert(const TRecord & rec,float);
 
     BPTreeVariableLeaf<TRecord,blockSize> * getFristLeaf();
 
 public:
 
     BPlusTree(const std::string & path, char creationMode);
-    BPlusTree(const std::string & treePath,const std::string & secuentialPath);
+    BPlusTree(const std::string & treePath,const std::string & sequentialPath);
 
     void insert(const TRecord & rec);
     void remove(const TRecord & rec);
@@ -46,6 +52,7 @@ public:
     void update(const TRecord & rec);
     const TRecord & next();
     void preOrderReport();
+    void restructure();
 };
 
 
@@ -69,7 +76,7 @@ root(NULL),searchLeaf(NULL),file_(NULL),dataPath(path),found(NULL){
 
 }
 template<class TRecord,unsigned int blockSize>
-BPlusTree<TRecord,blockSize>::BPlusTree(const std::string & treePath,const std::string & secuentialPath):
+BPlusTree<TRecord,blockSize>::BPlusTree(const std::string & treePath,const std::string & sequentialPath):
 root(NULL),searchLeaf(NULL),file_(NULL),dataPath(treePath),found(NULL){
 	reportPath=dataPath;
 	std::string::iterator it=reportPath.end;
@@ -78,8 +85,7 @@ root(NULL),searchLeaf(NULL),file_(NULL),dataPath(treePath),found(NULL){
 		reportPath.erase(it,reportPath.end());
 	reportPath.append("_report.txt");
 
-	create();
-	loadFromSecuential(secuentialPath);
+	loadFromSequential(sequentialPath);
 
 }
 template<class TRecord,unsigned int blockSize>
@@ -111,30 +117,31 @@ void BPlusTree<TRecord,blockSize>::load(){
 	searchLeaf= getFristLeaf();
 }
 template<class TRecord,unsigned int blockSize>
-void BPlusTree<TRecord,blockSize>::loadFromSecuential(const std::string & secuentialPath){/*
-	delete file_;
-	delete root;
-	delete searchLeaf;
-	file_=new File(dataPath,File::BIN|File::IO);
-	File secuentialFile(secuentialPath,File::BIN|File::IO);
+void BPlusTree<TRecord,blockSize>::loadFromSequential(const std::string & sequentialPath){
+	create();
+	File sequentialFile(sequentialPath,File::BIN|File::IO);
 
-	SecuentialBlock<blockSize> * secBlock= new SecuentialBlock<blockSize>;
+	VariableSequentialBlock<blockSize> * seqBlock= new VariableSequentialBlock<blockSize>;
 	unsigned int freeSpace;
 	char * bytes;
 	TRecord * rec;
-	while(! secuentialFile.reachEnd()){
-		secuentialFile.read((char*)secBlock,blockSize);
-		freeSpace=blockSize-VAR_SECUENTIAL_CONTROL_BYTES;
-		bytes=secBlock->bytes;
-		for(; freeSpace>secBlock->freeSpace;freeSpace-=rec->size()){
+	while(1){
+	try{
+		sequentialFile.read((char*)seqBlock,blockSize);
+	}catch(EndOfFileException e){
+		delete seqBlock;
+		return;
+	}
+		freeSpace=blockSize-VARIABLE_SEQUENTIAL_CONTROL_BYTES;
+		bytes=seqBlock->bytes;
+		while(freeSpace > seqBlock->freeSpace){
 			rec= new TRecord(&bytes);
-			loadInsert(*rec);
+			loadInsert(*rec,BPTREE_LOAD_COMPRESSION_RATIO);
+			freeSpace-=rec->size();
 			delete rec;
 		}
-		delete secBlock;
-	}
 
-*/
+	}delete seqBlock;
 
 }
 
@@ -197,6 +204,19 @@ void BPlusTree<TRecord,blockSize>::insert(const TRecord & rec){
 	}
 	catch(NodeOverflowException<typename TRecord::Key> e){
 		handleNodeOverflow(rec,e);
+	}
+}
+template<class TRecord,unsigned int blockSize>
+void BPlusTree<TRecord,blockSize>::loadInsert(const TRecord & rec,float compression){
+	delete searchLeaf;
+	searchLeaf=NULL;
+	try{
+		root->loadInsert(rec,compression);
+	}catch(LeafOverflowException e){
+		handleLoadLeafOverflow(rec);
+	}
+	catch(NodeOverflowException<typename TRecord::Key> e){
+		handleLoadNodeOverflow(rec,e);
 	}
 }
 template<class TRecord,unsigned int blockSize>
@@ -334,6 +354,85 @@ void BPlusTree<TRecord,blockSize>::handleNodeUnderflow(){
 }
 
 template<class TRecord,unsigned int blockSize>
+void BPlusTree<TRecord,blockSize>::handleLoadLeafOverflow(const TRecord & rec){
+	BPTreeVariableLeaf<TRecord,blockSize>* rootAsLeaf=(BPTreeVariableLeaf<TRecord,blockSize>*)root;
+
+	typename std::list<TRecord> recordList = rootAsLeaf->getRecords();
+	typename std::list<TRecord>::iterator recordIt = recordList.begin();
+
+	BPTreeVariableLeaf<TRecord,blockSize> *leftLeaf = new BPTreeVariableLeaf<TRecord,blockSize>(*file_);
+	BPTreeVariableLeaf<TRecord,blockSize> *rightLeaf = new BPTreeVariableLeaf<TRecord,blockSize>(*file_);
+	for(; recordIt!= recordList.end();recordIt++)
+		leftLeaf->insert(*recordIt);
+	rightLeaf->insert(rec);
+
+	rightLeaf->next(0);
+	leftLeaf->next(rightLeaf->blockNumber());
+	leftLeaf->write();
+	rightLeaf->write();
+
+	typename TRecord::Key newKey = rec.getKey();
+	unsigned int leftBlockNumber=leftLeaf->blockNumber();
+	unsigned int rightBlockNumber=rightLeaf->blockNumber();
+	delete rightLeaf;
+	delete leftLeaf;
+
+	delete root;
+	root=new BPTreeVariableInternalNode<TRecord,blockSize>();
+	BPTreeVariableInternalNode<TRecord,blockSize>* rootAsInternal=(BPTreeVariableInternalNode<TRecord,blockSize>*)root;
+
+	root->file(*file_);
+	root->level(1);
+	rootAsInternal->setFirstChild(leftBlockNumber);
+	rootAsInternal->insertInNode(newKey,rightBlockNumber);
+	root->write();
+
+}
+
+template<class TRecord,unsigned int blockSize>
+void BPlusTree<TRecord,blockSize>::handleLoadNodeOverflow(const TRecord & rec,NodeOverflowException<typename TRecord::Key> ovException){
+	BPTreeVariableInternalNode<TRecord,blockSize>* leftNode=new BPTreeVariableInternalNode<TRecord,blockSize>(root->level(),
+								*file_);
+	BPTreeVariableInternalNode<TRecord,blockSize>* rightNode=new BPTreeVariableInternalNode<TRecord,blockSize>(root->level(),
+								*file_);
+
+	BPTreeVariableInternalNode<TRecord,blockSize>* castedRoot=(BPTreeVariableInternalNode<TRecord,blockSize>*)root;
+	typename std::list<typename TRecord::Key> childKeys=castedRoot->getKeys();
+	std::list <unsigned int> childChildren = castedRoot->getChildren();
+
+	typename std::list<typename TRecord::Key>::iterator itKey=childKeys.begin() ;
+	std::list<unsigned int>::iterator itChildren=childChildren.begin()  ;
+
+	leftNode->setFirstChild(*itChildren);
+	for(itChildren++;(++itKey)!=childKeys.end();itKey++,itChildren++){
+		itKey--;
+		leftNode->insertInNode(*itKey,*itChildren);
+	}
+	typename TRecord::Key middleKey=*itKey;
+	rightNode->setFirstChild(*itChildren);
+	rightNode->insertInNode(ovException.key,ovException.child);
+
+	leftNode->write();
+	rightNode->write();
+
+	unsigned int leftBlockNumber=leftNode->blockNumber();
+	unsigned int rightBlockNumber=rightNode->blockNumber();
+	delete leftNode;
+	delete rightNode;
+	unsigned int newLevel=root->level()+1;
+	delete root;
+
+	root=new BPTreeVariableInternalNode<TRecord,blockSize>();
+	BPTreeVariableInternalNode<TRecord,blockSize>* rootAsInternal = (BPTreeVariableInternalNode<TRecord,blockSize>*)root;
+	root->file(*file_);
+	root->level(newLevel);
+	rootAsInternal->setFirstChild(leftBlockNumber);
+	rootAsInternal->insertInNode(middleKey,rightBlockNumber);
+	root->write();
+
+}
+
+template<class TRecord,unsigned int blockSize>
 void BPlusTree<TRecord,blockSize>::preOrderReport(){
 	File reportFile (reportPath,File::NEW);
 	std::string header="Pre-Order Traversal of B+ Tree : ";
@@ -342,9 +441,9 @@ void BPlusTree<TRecord,blockSize>::preOrderReport(){
 
 	reportFile<<"Pre-Order Traversal of B+ Tree : "<<dataPath<<"\n\n";
 	reportFile<<"Internal Node Format :"<<"\n";
-	reportFile<<"Node N : (level)(free space) -- (child 0)key 0(child 1)key 1(child 2)key 2(child 3) ..."<<"\n\n";
+	reportFile<<"Node N : (level)(free space) -- child 0(key 0)child 1(key 1)child 2(key 2)child 3 ..."<<"\n\n";
 	reportFile<<"Leaf Format :"<<"\n";
-	reportFile<<"Node N : (0)(free space)(next leaf) -- |key 0|key 1|key 2|key 3| ..."<<"\n\n";
+	reportFile<<"Node N : (0)(free space)(next leaf) -- (key 0)(key 1)(key 2)(key 3) ..."<<"\n\n";
 
 	root->preOrderReport(reportFile,root->level());
 }
@@ -409,6 +508,28 @@ const TRecord & BPlusTree<TRecord,blockSize>::next(){
 
 		return *found;
 	}
+}
+template<class TRecord,unsigned int blockSize>
+void BPlusTree<TRecord,blockSize>::saveToSequential(const std::string & sequentialPath){
+	File sequentialFile(sequentialPath,File::NEW|File::BIN|File::IO);
+	VariableSequentialBlock<blockSize> * block = new VariableSequentialBlock<blockSize>;
+	block->freeSpace=blockSize-VARIABLE_SEQUENTIAL_CONTROL_BYTES;
+	char * lastPosition=block->bytes;
+	root->saveToSequential(sequentialFile,block,&lastPosition);
+	sequentialFile.write((char*)block,blockSize);
+	delete block;
+}
+
+template<class TRecord,unsigned int blockSize>
+void BPlusTree<TRecord,blockSize>::restructure(){
+	std::string sequentialPath=dataPath;
+	std::string::iterator it=sequentialPath.end();
+		for(;(*it)!='.'&&(*it)!='/';it--);
+		if(*it=='.')
+			sequentialPath.erase(it,sequentialPath.end());
+		sequentialPath.append("_sequential.bin");
+	saveToSequential( sequentialPath);
+	loadFromSequential(sequentialPath);
 }
 
 #endif //BPLUSTREE_H_INCLUDED
