@@ -137,7 +137,7 @@ void SecundaryIndexKey<attributeKey,primaryKey>::write(char ** output)const{
 
 template <class attributeKey, class primaryKey>
 bool SecundaryIndexKey<attributeKey,primaryKey>::operator <(const Record::Key &k)const{
-	SecundaryIndexKey<attributeKey,primaryKey> & secKey= dynamic_cast<SecundaryIndexKey<attributeKey,primaryKey> &>(k);
+	const SecundaryIndexKey<attributeKey,primaryKey> & secKey= dynamic_cast<const SecundaryIndexKey<attributeKey,primaryKey> &>(k);
 	if((*att)<(*secKey.att))
 		return true;
 	else if((*att)==(*secKey.att))
@@ -148,32 +148,33 @@ bool SecundaryIndexKey<attributeKey,primaryKey>::operator <(const Record::Key &k
 
 template <class attributeKey, class primaryKey>
 bool SecundaryIndexKey<attributeKey,primaryKey>::operator ==(const Record::Key &k)const{
-	SecundaryIndexKey<attributeKey,primaryKey> & secKey= dynamic_cast<SecundaryIndexKey<attributeKey,primaryKey> &>(k);
+	const SecundaryIndexKey<attributeKey,primaryKey> & secKey= dynamic_cast<const SecundaryIndexKey<attributeKey,primaryKey> &>(k);
 	return ((*att)==(*secKey.att) && (*pri)==(*secKey.pri));
 }
 template <class attributeKey, class primaryKey>
 bool SecundaryIndexKey<attributeKey,primaryKey>::operator <=(const Record::Key & k)const{
-	SecundaryIndexKey<attributeKey,primaryKey> & secKey= dynamic_cast<SecundaryIndexKey<attributeKey,primaryKey> &>(k);
+	const SecundaryIndexKey<attributeKey,primaryKey> & secKey= dynamic_cast<const SecundaryIndexKey<attributeKey,primaryKey> &>(k);
 	return ((*this)<secKey || (*this)==secKey );
 }
 template <class attributeKey, class primaryKey>
 bool SecundaryIndexKey<attributeKey,primaryKey>::operator >(const Record::Key &k)const{
-	SecundaryIndexKey<attributeKey,primaryKey> & secKey= dynamic_cast<SecundaryIndexKey<attributeKey,primaryKey> &>(k);
+	const SecundaryIndexKey<attributeKey,primaryKey> & secKey= dynamic_cast<const SecundaryIndexKey<attributeKey,primaryKey> &>(k);
 	return !((*this)<=secKey );
 }
 template <class attributeKey, class primaryKey>
 bool SecundaryIndexKey<attributeKey,primaryKey>::operator !=(const Record::Key &k)const{
-	SecundaryIndexKey<attributeKey,primaryKey> & secKey= dynamic_cast<SecundaryIndexKey<attributeKey,primaryKey> &>(k);
+	const SecundaryIndexKey<attributeKey,primaryKey> & secKey= dynamic_cast<const SecundaryIndexKey<attributeKey,primaryKey> &>(k);
 	return ((*this)<secKey || (*this)>secKey );
 }
 template <class attributeKey, class primaryKey>
 bool SecundaryIndexKey<attributeKey,primaryKey>::operator >=(const Record::Key & k)const{
+	const SecundaryIndexKey<attributeKey,primaryKey> & secKey= dynamic_cast<const SecundaryIndexKey<attributeKey,primaryKey> &>(k);
 	return !((*this)<secKey );
 }
 
 template <class attributeKey, class primaryKey>
 SecundaryIndexKey<attributeKey,primaryKey> & SecundaryIndexKey<attributeKey,primaryKey>::operator=(const SecundaryIndexKey<attributeKey,primaryKey> & k){
-	if(this == &rk)
+	if(this == &k)
 		return *this;
 	setKey(k);
 	return *this;
