@@ -63,7 +63,7 @@ SecundaryIndexRecord<attributeKey,primaryKey>::SecundaryIndexRecord(const attrib
 template<class attributeKey,class primaryKey>
 const typename SecundaryIndexRecord<attributeKey,primaryKey>::Key &
 SecundaryIndexRecord<attributeKey,primaryKey>::getKey()const{
-	return *key_;
+	return *((Key*)key_);
 }
 
 template<class attributeKey,class primaryKey>
