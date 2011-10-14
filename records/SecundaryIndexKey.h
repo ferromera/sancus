@@ -14,15 +14,20 @@ template <class attributeKey, class primaryKey>
 class SecundaryIndexKey: public Record::Key{
 	attributeKey * att;
 	primaryKey * pri;
+	std::string stringKey;
+
+	void updateString();
 public:
 
 	SecundaryIndexKey(char ** input);
 	SecundaryIndexKey(const SecundaryIndexKey<attributeKey,primaryKey> &);
 	SecundaryIndexKey(const attributeKey & a,const primaryKey & p);
 	static const bool isVariable=true;
+	static const bool isString=true;
+	const std::string & getString(){return getKey();}
 	void setKey(const attributeKey & a,const primaryKey & p);
 	void setKey(const Record::Key & rk);
-	std::string getKey()const;
+	const std::string & getKey()const;
 	void setAttribute(const attributeKey &);
 	void setPrimary(const primaryKey &);
 	const attributeKey & getAttribute();
@@ -55,12 +60,14 @@ template <class attributeKey, class primaryKey>
 SecundaryIndexKey<attributeKey,primaryKey>::SecundaryIndexKey(const SecundaryIndexKey<attributeKey,primaryKey> & key){
 	att=new attributeKey(*(key.att));
 	pri=new primaryKey(*(key.pri));
+	updateString();
 }
 
 template <class attributeKey, class primaryKey>
 SecundaryIndexKey<attributeKey,primaryKey>::SecundaryIndexKey(const attributeKey & a,const primaryKey & p){
 	att=new attributeKey(a);
 	pri=new primaryKey(p);
+	updateString();
 }
 
 template <class attributeKey, class primaryKey>
@@ -69,6 +76,7 @@ void SecundaryIndexKey<attributeKey,primaryKey>::setKey(const attributeKey & a,c
 	delete pri;
 	att=new attributeKey(a);
 	pri=new primaryKey(p);
+	updateString();
 }
 
 template <class attributeKey, class primaryKey>
@@ -78,37 +86,43 @@ void SecundaryIndexKey<attributeKey,primaryKey>::setKey(const Record::Key & rk){
 }
 
 template <class attributeKey, class primaryKey>
-std::string SecundaryIndexKey<attributeKey,primaryKey>::getKey()const{
-	std::string stringKey;
-	if(att->isString())
-		stringKey=att->getKey();
+void  SecundaryIndexKey<attributeKey,primaryKey>::updateString(){
+
+	if(attributeKey::isString)
+		stringKey="att->getString";
 	else{
 		char str [256];
-		spintf(str,"%u",att->getKey());
+		sprintf(str,"%u",att->getUint());
 		stringKey=str;
 	}
 	stringKey.append("|");
-	if(pri->isString())
-		stringKey.append(att->getKey());
+	if(primaryKey::isString)
+		stringKey.append(pri->getString());
 	else{
 		char str [256];
-		spintf(str,"%u",att->getKey());
+		sprintf(str,"%u",pri->getUint());
 		stringKey.append(str);
 	}
-	return stringKey;
 
+}
+
+template <class attributeKey, class primaryKey>
+const std::string &  SecundaryIndexKey<attributeKey,primaryKey>::getKey()const{
+	return stringKey;
 }
 
 template <class attributeKey, class primaryKey>
 void SecundaryIndexKey<attributeKey,primaryKey>::setAttribute(const attributeKey & a){
 	delete att;
 	att=new attributeKey(a);
+	updateString();
 }
 
 template <class attributeKey, class primaryKey>
 void SecundaryIndexKey<attributeKey,primaryKey>::setPrimary(const primaryKey & p){
 	delete pri;
 	pri=new primaryKey(p);
+	updateString();
 }
 
 template <class attributeKey, class primaryKey>
@@ -127,6 +141,7 @@ void SecundaryIndexKey<attributeKey,primaryKey>::read(char ** input){
 	delete pri;
 	att=new attributeKey(input);
 	pri=new primaryKey(input);
+	updateString();
 }
 
 template <class attributeKey, class primaryKey>

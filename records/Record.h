@@ -3,11 +3,20 @@
 
 #include <fstream>
 
+class KeyException: public std::exception{};
+class IsNotAnIntegerKeyException: public KeyException{};
+class IsNotAStringKeyException: public KeyException{};
+
 class Record{
 public:
     class Key{
     public:
-
+    virtual unsigned int getUint(){
+    	throw IsNotAnIntegerKeyException();
+    }
+    virtual const std::string & getString(){
+    	throw IsNotAStringKeyException();
+    }
     virtual void read(char ** input)=0;
     virtual void write(char ** output)const=0;
     virtual unsigned int size()const=0;
