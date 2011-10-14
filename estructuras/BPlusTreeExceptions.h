@@ -1,7 +1,6 @@
 #ifndef BPLUSTREEEXCEPTIONS_H_INCLUDED
 #define BPLUSTREEEXCEPTIONS_H_INCLUDED
 
-#include <exception>
 
 class BPlusTreeException: public std::exception{};
 class LeafOverflowException:public BPlusTreeException{};
