@@ -18,6 +18,8 @@
 #include "Uint16Key.h"
 #include "Record.h"
 #include "HashTableExceptions.h"
+#include "Function.h"
+#include <algorithm>
 
 #define PACKAGE_DENSITY 0.7
 #define BUCKET_LOAD_FACTOR 0.75
@@ -33,13 +35,11 @@ private:
 	unsigned int maxNumberOfRecords;
 	unsigned int maxNumberOfRehashes;
 
-	unsigned int insertRecord(T & record,
-			unsigned int(*hashFunction)(const typename T::Key & key),
+	Function<T> * hashFunction;
+	Function<T> * rehashFunction;
+
+	unsigned int insertRecord(T & record, Function<T> * function,
 			unsigned int jump);
-
-	unsigned int hash(const typename T::Key & key);
-
-	unsigned int rehash(const typename T::Key & key);
 
 public:
 
@@ -74,6 +74,8 @@ HashTable<T, bucketSize>::HashTable(File & file,
 	this->file = &file;
 	this->maxNumberOfRecords = maxNumberOfRecords;
 	this->size = maxNumberOfRecords / (PACKAGE_DENSITY * recordsPerBucket);
+	this->hashFunction = new HashFunction<T>(size);
+	this->rehashFunction = new ReHashFunction<T>(size);
 
 	if (!MathUtils::isPrime(size)) {
 		this->size = MathUtils::nextPrime(size);
@@ -106,12 +108,12 @@ template<class T, unsigned int bucketSize>
 void HashTable<T, bucketSize>::insert(T & record) {
 	unsigned int rehashingCount = 0;
 
-	unsigned int jump = insertRecord(record, hash, 0);
+	unsigned int jump = insertRecord(record, this->hashFunction, 0);
 
 	if (jump != 0) {
 		if (rehashingCount < maxNumberOfRehashes) {
 			rehashingCount++;
-			insertRecord(record, rehash, jump);
+			insertRecord(record, this->rehashFunction, jump);
 		} else {
 			throw new RehashCountException();
 		}
@@ -120,10 +122,9 @@ void HashTable<T, bucketSize>::insert(T & record) {
 
 template<class T, unsigned int bucketSize>
 unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
-		unsigned int(*hashFunction)(const typename T::Key & key),
-		unsigned int jump) {
+		Function<T> * function, unsigned int jump) {
 	Bucket<bucketSize> * bucket;
-	unsigned int position = hashFunction(record.getKey()) + jump;
+	unsigned int position = function->hash(record.getKey()) + jump;
 	unsigned int insertOffset = (position * bucketSize);
 
 	file->seek(insertOffset, File::BEG);
@@ -159,7 +160,6 @@ unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 			//No existe en el bucket debemos insertar (respetando el orden);
 			bufferedRecords.push_front(record);
 
-			//Los records tienen los operadores sobrecargados deberia andar bien el sort nativo
 			bufferedRecords.sort();
 			typename std::list<T>::iterator recordsIterator;
 
@@ -191,12 +191,12 @@ T * HashTable<T, bucketSize>::get(const typename T::Key & key) {
 	Bucket<bucketSize> * bucket;
 	unsigned int offset;
 	unsigned int rehashingCount = 0;
-	unsigned int position = hash(key);
+	unsigned int position = hashFunction->hash(key);
 	char * buffer;
 
 	while (rehashingCount < maxNumberOfRehashes) {
 		if (rehashingCount > 0) {
-			position = rehash(key);
+			position = rehashFunction->hash(key);
 		}
 
 		offset = (position * bucketSize);
@@ -234,13 +234,13 @@ void HashTable<T, bucketSize>::remove(T & record) {
 	Bucket<bucketSize> * bucket;
 	unsigned int offset;
 	unsigned int rehashingCount = 0;
-	unsigned int position = hash(record.getKey());
+	unsigned int position = hashFunction->hash(record.getKey());
 	char * buffer;
 	typename std::list<T> bufferedRecords;
 
 	while (rehashingCount < maxNumberOfRehashes) {
 		if (rehashingCount > 0) {
-			position = rehash(record.getKey());
+			position = rehashFunction->hash(record.getKey());
 		}
 
 		offset = (position * bucketSize);
@@ -286,16 +286,6 @@ void HashTable<T, bucketSize>::remove(T & record) {
 		delete (bucket);
 		delete (buffer);
 	}
-}
-
-template<class T, unsigned int bucketSize>
-unsigned int HashTable<T, bucketSize>::hash(const typename T::Key & key) {
-	return key.getKey() % size;
-}
-
-template<class T, unsigned int bucketSize>
-unsigned int HashTable<T, bucketSize>::rehash(const typename T::Key & key) {
-	return (key.getKey() + 1) % size;;
 }
 
 template<class T, unsigned int bucketSize>
