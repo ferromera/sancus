@@ -9,7 +9,7 @@
 #define BPTREEINTERNALNODE_H_
 
 #include "BPTreeNode.h"
-#include "Record.h"
+#include "../records/Record.h"
 #include <list>
 
 template<class TRecord,unsigned int blockSize>
