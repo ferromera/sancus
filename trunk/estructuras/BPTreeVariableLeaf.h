@@ -27,7 +27,6 @@ public:
 	void insert(const TRecord &);
 	void loadInsert(const TRecord &,float );
 	void remove(const TRecord &);
-	const TRecord & getFirstRecord()const;
 	BPTreeLeaf<TRecord,blockSize> * nextLeaf();
 	void clear();
 	bool hasMinimumCapacity();
@@ -151,11 +150,6 @@ void BPTreeVariableLeaf<TRecord,blockSize>::loadInsert(const TRecord & rec ,floa
 	TRecord * rp=new TRecord(rec);
 	BPTreeLeaf<TRecord,blockSize>::records_.insert(itInsertionPos,*rp);
 	freeSpace-=rec.size();
-}
-
-template<class TRecord,unsigned int blockSize>
-const TRecord & BPTreeVariableLeaf<TRecord,blockSize>::getFirstRecord()const{
-	return BPTreeLeaf<TRecord,blockSize>::records_.front();
 }
 
 template<class TRecord,unsigned int blockSize>

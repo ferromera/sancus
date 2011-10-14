@@ -31,15 +31,12 @@ private:
     void load();
     void loadFromSequential(const std::string & );
     void saveToSequential(const std::string & );
-    unsigned int getFreeBlock();
     void handleLeafOverflow(const TRecord & rec);
     void handleNodeOverflow(const TRecord & rec,NodeOverflowException<typename TRecord::Key> );
     void handleLoadLeafOverflow(const TRecord & rec);
     void handleLoadNodeOverflow(const TRecord & rec,NodeOverflowException<typename TRecord::Key> );
     void handleNodeUnderflow();
     void loadInsert(const TRecord & rec,float);
-
-    BPTreeVariableLeaf<TRecord,blockSize> * getFristLeaf();
 
 public:
 
@@ -114,7 +111,6 @@ void BPlusTree<TRecord,blockSize>::load(){
 
 	root=new BPTreeVariableLeaf<TRecord,blockSize>(*file_,1);
 
-	searchLeaf= getFristLeaf();
 }
 template<class TRecord,unsigned int blockSize>
 void BPlusTree<TRecord,blockSize>::loadFromSequential(const std::string & sequentialPath){
@@ -145,54 +141,6 @@ void BPlusTree<TRecord,blockSize>::loadFromSequential(const std::string & sequen
 
 }
 
-template<class TRecord,unsigned int blockSize>
-BPTreeVariableLeaf<TRecord,blockSize> * BPlusTree<TRecord,blockSize>::getFristLeaf(){
-	unsigned int level = root -> level();
-	BPTreeInternalNode<TRecord,blockSize> * prevNode;
-	BPTreeInternalNode<TRecord,blockSize> * nextNode;
-	BPTreeVariableLeaf<TRecord,blockSize> * firstLeaf;
-	if(root->level()==0){
-
-		firstLeaf= new BPTreeVariableLeaf<TRecord,blockSize>(*file_,1);
-		return firstLeaf;
-	}
-	prevNode=(BPTreeInternalNode<TRecord,blockSize> *)root;
-	while(level >1 ){
-		nextNode = new BPTreeVariableInternalNode<TRecord,blockSize>(*file_,prevNode->getFirstChild());
-
-		if(prevNode!=root)
-			delete prevNode;
-		level= nextNode->level();
-		prevNode=nextNode;
-	}
-
-	firstLeaf=new BPTreeVariableLeaf<TRecord,blockSize>(*file_,prevNode->getFirstChild());
-
-	if(prevNode!=root)
-		delete prevNode;
-	return firstLeaf;
-}
-template<class TRecord,unsigned int blockSize>
-unsigned int BPlusTree<TRecord,blockSize>::getFreeBlock(){
-	unsigned int newBlockNumber;
-	FreeSpaceStackBlock<blockSize> *freeBlock= new FreeSpaceStackBlock<blockSize>;
-	file_->seek(0,File::BEG);
-	file_->read((char *)freeBlock,blockSize);
-	newBlockNumber=freeBlock->blockNumber;
-	unsigned long pos= newBlockNumber * blockSize;
-	if(freeBlock->inFile){
-		file_->seek(pos,File::BEG);
-		file_->read((char *)freeBlock,blockSize);
-		file_->seek(0,File::BEG);
-		file_->write((char *)freeBlock,blockSize);
-	}else{
-		freeBlock->blockNumber++;
-		file_->seek(0,File::BEG);
-		file_->write((char *)freeBlock,blockSize);
-	}
-	delete freeBlock;
-	return newBlockNumber;
-}
 template<class TRecord,unsigned int blockSize>
 void BPlusTree<TRecord,blockSize>::insert(const TRecord & rec){
 	delete searchLeaf;
@@ -474,13 +422,14 @@ void BPlusTree<TRecord,blockSize>::update(const TRecord & rec){
 template<class TRecord,unsigned int blockSize>
 const TRecord & BPlusTree<TRecord,blockSize>::search(const TRecord & rec){
 	delete found;
+	found=NULL;
 	if(root->level() == 0)
 	{	BPTreeVariableLeaf<TRecord,blockSize> * rootAsLeaf=(BPTreeVariableLeaf<TRecord,blockSize>*)root;
 		try{
-		found= rootAsLeaf ->search(rec);
-		delete searchLeaf;
-		searchLeaf= new BPTreeVariableLeaf<TRecord,blockSize>(*rootAsLeaf);
-		return *found;
+			found= rootAsLeaf ->search(rec);
+			delete searchLeaf;
+			searchLeaf= new BPTreeVariableLeaf<TRecord,blockSize>(*rootAsLeaf);
+			return *found;
 		}catch(LeafRecordNotFoundException e){
 			throw ThereIsNoGreaterRecordException();
 		}catch(ThereIsNoNextLeafException){

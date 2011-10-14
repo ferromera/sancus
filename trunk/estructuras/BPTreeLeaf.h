@@ -33,6 +33,8 @@ public:
 	TRecord * search(const TRecord & rec);
 	TRecord * nextRecord();
 	void saveToSequential(File &,VariableSequentialBlock<blockSize>*,char**);
+	const TRecord & getFirstRecord()const;
+	const TRecord & getLastRecord()const;
 	~BPTreeLeaf();
 
 };
@@ -131,6 +133,16 @@ void BPTreeLeaf<TRecord,blockSize>::saveToSequential(File & file,VariableSequent
 		block->freeSpace-=it->size();
 	}
 
+}
+
+template<class TRecord,unsigned int blockSize>
+const TRecord & BPTreeLeaf<TRecord,blockSize>::getFirstRecord()const{
+	return records_.front();
+}
+
+template<class TRecord,unsigned int blockSize>
+const TRecord & BPTreeLeaf<TRecord,blockSize>::getLastRecord()const{
+	return records_.back();
 }
 
 template<class TRecord,unsigned int blockSize>
