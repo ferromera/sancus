@@ -1,5 +1,5 @@
 /*
- * SecundaryIndexRecord.h
+ * SecondaryIndexRecord.h
  *
  *  Created on: 14/10/2011
  *      Author: fernando
@@ -16,11 +16,11 @@ class SecondaryIndexRecord: public Record{
 public:
 	class Key:public SecondaryIndexKey<attributeKey,primaryKey>{
 	public:
-		 Key(char ** input):SecundaryIndexKey<attributeKey,primaryKey>(input){}
+		 Key(char ** input):SecondaryIndexKey<attributeKey,primaryKey>(input){}
 		 Key(const attributeKey & at,const primaryKey &pr):
-			 SecundaryIndexKey<attributeKey,primaryKey>(at,pr){
+			 SecondaryIndexKey<attributeKey,primaryKey>(at,pr){
 		 }
-		 Key(const Key & k):SecundaryIndexKey<attributeKey,primaryKey>(k){}
+		 Key(const Key & k):SecondaryIndexKey<attributeKey,primaryKey>(k){}
 		 ~Key(){}
 	};
 	SecondaryIndexRecord(char ** input);

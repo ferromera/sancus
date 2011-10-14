@@ -1,5 +1,5 @@
 /*
- * SecundaryIndexKey.h
+ * SecondaryIndexKey.h
  *
  *  Created on: 14/10/2011
  *      Author: fernando
