@@ -8,13 +8,14 @@ class Uint16Key: public Record::Key{
         uint16_t buffer;
     public:
         static const bool isVariable=false;
-        static const unsigned int fixedSize=2;
+        static const bool isString=false;
         Uint16Key(char ** input); //Load the key from input.
         Uint16Key(uint16_t key=0);
         Uint16Key(const Uint16Key &);
         void setKey(uint16_t  i);
         void setKey(const Record::Key & rk);
         uint16_t getKey()const;
+        unsigned int getUint(){return getKey();}
 
         void read(char ** input);
         void write(char ** output)const;
