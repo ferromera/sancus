@@ -6,7 +6,7 @@
  */
 
 #include "BPTreeVariableLeafTest.h"
-#include "StudentRecord.h"
+#include "../records/StudentRecord.h"
 #include <iostream>
 #include <string>
 using namespace std;

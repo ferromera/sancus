@@ -7,7 +7,7 @@
 
 #include "BPTreeVariableInternalNodeTest.h"
 #include "File.h"
-#include "StudentRecord.h"
+#include "../records/StudentRecord.h"
 #include <cstring>
 #include <iostream>
 
