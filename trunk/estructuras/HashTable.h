@@ -74,22 +74,23 @@ HashTable<T, bucketSize>::HashTable(File & file,
 	this->file = &file;
 	this->maxNumberOfRecords = maxNumberOfRecords;
 	this->size = maxNumberOfRecords / (PACKAGE_DENSITY * recordsPerBucket);
-	this->hashFunction = new HashFunction<T>(size);
-	this->rehashFunction = new ReHashFunction<T>(size);
 
 	if (!MathUtils::isPrime(size)) {
 		this->size = MathUtils::nextPrime(size);
 	}
 
+	this->hashFunction = new HashFunction<T>(this->size);
+	this->rehashFunction = new ReHashFunction<T>(this->size);
+
 	//por propiedad de los numeros primos luego de size rehashes se vuelve a repetir el primer resultado.
-	this->maxNumberOfRehashes = size;
+	this->maxNumberOfRehashes = this->size;
 
 	Bucket<bucketSize> * bucket = new Bucket<bucketSize>();
 	bucket->freeSpace = sizeof(bucket->bytes);
 	bucket->count = 0;
 	bucket->overflow = false;
 
-	for (unsigned int i = 0; i < size; i++) {
+	for (unsigned int i = 0; i < this->size; i++) {
 		file.write((char *) bucket, bucketSize);
 	}
 
@@ -123,11 +124,11 @@ void HashTable<T, bucketSize>::insert(T & record) {
 template<class T, unsigned int bucketSize>
 unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 		Function<T> * function, unsigned int jump) {
-	Bucket<bucketSize> * bucket;
+	Bucket<bucketSize> * bucket = new Bucket<bucketSize>();
 	unsigned int position = function->hash(record.getKey()) + jump;
 	unsigned int insertOffset = (position * bucketSize);
 
-	file->seek(insertOffset, File::BEG);
+	file->seek(position, File::BEG);
 	file->read(bucket, bucketSize);
 	char * buffer = bucket->bytes;
 
