@@ -30,8 +30,8 @@ public:
 	const std::string & getKey()const;
 	void setAttribute(const attributeKey &);
 	void setPrimary(const primaryKey &);
-	const attributeKey & getAttribute();
-	const primaryKey & getPrimary();
+	const attributeKey & getAttribute()const;
+	const primaryKey & getPrimary()const;
 
 
 	void read(char ** input);
@@ -81,7 +81,7 @@ void SecondaryIndexKey<attributeKey,primaryKey>::setKey(const attributeKey & a,c
 
 template <class attributeKey, class primaryKey>
 void SecondaryIndexKey<attributeKey,primaryKey>::setKey(const Record::Key & rk){
-	SecondaryIndexKey<attributeKey,primaryKey> & secKey= dynamic_cast<SecondaryIndexKey<attributeKey,primaryKey> &>(rk);
+	const SecondaryIndexKey<attributeKey,primaryKey> & secKey= dynamic_cast<const SecondaryIndexKey<attributeKey,primaryKey> &>(rk);
 	setKey(secKey.getAttribute(),secKey.getPrimary());
 }
 
@@ -126,12 +126,12 @@ void SecondaryIndexKey<attributeKey,primaryKey>::setPrimary(const primaryKey & p
 }
 
 template <class attributeKey, class primaryKey>
-const attributeKey & SecondaryIndexKey<attributeKey,primaryKey>::getAttribute(){
+const attributeKey & SecondaryIndexKey<attributeKey,primaryKey>::getAttribute()const{
 	return *att;
 }
 
 template <class attributeKey, class primaryKey>
-const primaryKey & SecondaryIndexKey<attributeKey,primaryKey>::getPrimary(){
+const primaryKey & SecondaryIndexKey<attributeKey,primaryKey>::getPrimary()const{
 	return *pri;
 }
 
