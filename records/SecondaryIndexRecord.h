@@ -21,6 +21,10 @@ public:
 			 SecondaryIndexKey<attributeKey,primaryKey>(at,pr){
 		 }
 		 Key(const Key & k):SecondaryIndexKey<attributeKey,primaryKey>(k){}
+		 Key& operator=(const Key & k){
+			 SecondaryIndexKey<attributeKey,primaryKey>::operator =(k);
+			 return *this;
+		 }
 		 ~Key(){}
 	};
 	SecondaryIndexRecord(char ** input);
@@ -36,10 +40,10 @@ public:
 	void write(char ** output);
 	unsigned int size()const;
 
-	void setAttribute(const attributeKey& a )const;
-    void setPrimary(const primaryKey& a )const;
-    const attributeKey& getAttribute();
-    const primaryKey& getPrimary();
+	void setAttribute(const attributeKey& a );
+    void setPrimary(const primaryKey& p );
+    const attributeKey& getAttribute()const;
+    const primaryKey& getPrimary()const;
     SecondaryIndexRecord<attributeKey,primaryKey>& operator=(const SecondaryIndexRecord<attributeKey,primaryKey>&);
     static const bool isVariable=true;
 
@@ -91,22 +95,22 @@ unsigned int SecondaryIndexRecord<attributeKey,primaryKey>::size()const{
 }
 
 template<class attributeKey,class primaryKey>
-void SecondaryIndexRecord<attributeKey,primaryKey>::setAttribute(const attributeKey& a )const{
+void SecondaryIndexRecord<attributeKey,primaryKey>::setAttribute(const attributeKey& a ){
 	((Key*)key_)->setAttribute(a);
 }
 
 template<class attributeKey,class primaryKey>
-void SecondaryIndexRecord<attributeKey,primaryKey>::setPrimary(const primaryKey& p )const{
+void SecondaryIndexRecord<attributeKey,primaryKey>::setPrimary(const primaryKey& p ){
 	((Key*)key_)->setPrimary(p);
 }
 
 template<class attributeKey,class primaryKey>
-const attributeKey& SecondaryIndexRecord<attributeKey,primaryKey>::getAttribute(){
+const attributeKey& SecondaryIndexRecord<attributeKey,primaryKey>::getAttribute()const{
 	return ((Key*)key_)->getAttribute();
 }
 
 template<class attributeKey,class primaryKey>
-const primaryKey& SecondaryIndexRecord<attributeKey,primaryKey>::getPrimary(){
+const primaryKey& SecondaryIndexRecord<attributeKey,primaryKey>::getPrimary()const{
 	return ((Key*)key_)->getPrimary();
 }
 
