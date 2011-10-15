@@ -91,6 +91,7 @@ template<class primaryKey>
 void PrimaryIndexRecord<primaryKey>::write(char ** output){
 	key_->write(output);
 	memcpy(*output,&blockNumber_,4);
+	(*output)+=4;
 }
 
 template<class primaryKey>

@@ -26,7 +26,7 @@ public:
 	static const bool isString=true;
 	const std::string & getString(){return getKey();}
 	void setKey(const attributeKey & a,const primaryKey & p);
-	void setKey(const Record::Key & rk);
+	void setKey(const SecondaryIndexKey<attributeKey,primaryKey> & secKey);
 	const std::string & getKey()const;
 	void setAttribute(const attributeKey &);
 	void setPrimary(const primaryKey &);
@@ -80,8 +80,7 @@ void SecondaryIndexKey<attributeKey,primaryKey>::setKey(const attributeKey & a,c
 }
 
 template <class attributeKey, class primaryKey>
-void SecondaryIndexKey<attributeKey,primaryKey>::setKey(const Record::Key & rk){
-	const SecondaryIndexKey<attributeKey,primaryKey> & secKey= dynamic_cast<const SecondaryIndexKey<attributeKey,primaryKey> &>(rk);
+void SecondaryIndexKey<attributeKey,primaryKey>::setKey(const SecondaryIndexKey<attributeKey,primaryKey> & secKey){
 	setKey(secKey.getAttribute(),secKey.getPrimary());
 }
 
