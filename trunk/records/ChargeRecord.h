@@ -9,18 +9,16 @@
 #define CHARGERECORD_H_
 #include <string>
 #include <list>
-#include "../estructuras/Record.h"
+#include "Record.h"
 #include "StringKey.h"
 
 class ChargeRecord : public Record {
 private:
 	std::string chargeName;
-	//std::list<ChargeRecord::Key*>* chargeList;
-	std::list<ChargeRecord::Key*>* chargeList;
+	std::list<std::string>* chargeList;
 
 public:
 	static const bool isVariable=true;
-	static const unsigned int fixedSize=1;
     class Key: public StringKey{
     public:
         Key(char ** input):StringKey(input){}
@@ -32,13 +30,13 @@ public:
     void read(char ** input);
     void write(char ** output);
 	ChargeRecord();
-	ChargeRecord(std::string chargeName, std::list<ChargeRecord::Key*>* chargeList);
+	ChargeRecord(std::string chargeName, std::list<std::string>* chargeList);
 	virtual ~ChargeRecord();
 	void setChargeName(std::string chargeName);
 	std::string getChargeName();
 	const ChargeRecord::Key & getKey()const;
-	//void setChargeList(const std::list<ChargeRecord::Key*>* charge);
-	//std::list<ChargeRecord::Key*>* getChargeList();
+	void setChargeList(const std::list<std::string>* charges);
+	std::list<std::string>* getChargeList();
 };
 
 #endif /* CHARGERECORD_H_ */
