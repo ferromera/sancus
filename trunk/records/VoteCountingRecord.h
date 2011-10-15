@@ -28,6 +28,8 @@ public:
     	std::string stringKey_;
     	void updateString();
     public:
+    	static const bool isVariable=true;
+    	Key();
         Key(char ** input);
         Key(const Key & k);
         Key(const ListRecord::Key & , const DistrictRecord::Key & , const ElectionRecord::Key &);
@@ -45,6 +47,12 @@ public:
        	void read(char ** input);
        	void write(char ** output)const;
         unsigned int size()const;
+        bool operator <(const Record::Key &r)const;
+        bool operator <=(const KRecord::Keyey &r)const;
+        bool operator ==(const Record::Key &r)const;
+        bool operator >(const Record::Key & r)const;
+        bool operator >=(const Record::Key & r)const;
+        bool operator !=(const Record::Key & r)const;
         ~Key();
     };
 

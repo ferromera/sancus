@@ -29,7 +29,7 @@ public:
 	};
 	SecondaryIndexRecord(char ** input);
 	SecondaryIndexRecord(const SecondaryIndexRecord<attributeKey,primaryKey> & );
-	SecondaryIndexRecord(const attributeKey& a , const primaryKey & p);
+	SecondaryIndexRecord(const attributeKey& a , const primaryKey & p = primaryKey());
 
 	const typename SecondaryIndexRecord<attributeKey,primaryKey>::Key & getKey()const;
 	void setKey(const SecondaryIndexRecord<attributeKey,primaryKey>::Key & k);
