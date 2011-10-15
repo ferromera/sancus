@@ -8,21 +8,66 @@
 #ifndef VOTECOUNTINGRECORD_H_
 #define VOTECOUNTINGRECORD_H_
 
-#include "../estructuras/Record.h"
+#include "Record.h"
+#include "ListRecord.h"
+#include "DistrictRecord.h"
+#include "ElectionRecord.h"
+
 #include <list>
 
 class VoteCountingRecord: public Record {
+	unsigned int count_;
+
 public:
     static const bool isVariable=true;
-     //It's variable, so fixed size must be a number > 0.
-    static const unsigned int fixedSize=1;
-    class Key: public ComposedStringKey{
+
+    class Key: public Record::Key{
+    	ListRecord::Key * list_;
+    	DistrictRecord::Key * district_;
+    	ElectionRecord::Key * election_;
+    	std::string stringKey_;
+    	void updateString();
     public:
-        Key(char ** input):ComposedStringKey(input){}
-        Key(std::list<std::string> keys):ComposedStringKey(keys){}
-        ~Key(){}
+        Key(char ** input);
+        Key(const Key & k);
+        Key(const ListRecord::Key & , const DistrictRecord::Key & , const ElectionRecord::Key &);
+        Key & operator=(const Key & k);
+        const std::string & getString(){return getKey();}
+        void setKey(const ListRecord::Key & , const DistrictRecord::Key & , const ElectionRecord::Key &);
+        void setKey(const Key & k);
+        const std::string & getKey()const;
+        void setList(const ListRecord::Key &);
+        void setDistrict(const DistrictRecord::Key&);
+        void setElection(const ElectionRecord::Key&);
+        const ListRecord::Key & getList()const;
+        const ElectionRecord::Key& getElection()const;
+        const DistrictRecord::Key& getDistrict()const;
+       	void read(char ** input);
+       	void write(char ** output)const;
+        unsigned int size()const;
+        ~Key();
     };
-	VoteCountingRecord();
+
+	VoteCountingRecord(const Key &, unsigned int);
+	VoteCountingRecord(const ListRecord::Key & , const DistrictRecord::Key & , const ElectionRecord::Key & , unsigned int);
+	VoteCountingRecord(const VoteCountingRecord &);
+	const ListRecord::Key & getList()const;
+	const ElectionRecord::Key& getElection()const;
+	const DistrictRecord::Key& getDistrict()const;
+	unsigned int getCount()const;
+	void setList(const ListRecord::Key &);
+	void setDistrict(const DistrictRecord::Key&);
+	void setElection(const ElectionRecord::Key&);
+	void setCount(unsigned int)const;
+	void setKey(const Key &);
+	void setKey(const ListRecord::Key & , const DistrictRecord::Key & , const ElectionRecord::Key & );
+	const Key & getKey();
+	void read(char ** input);
+	void write(char ** output);
+	unsigned int size()const;
+
+	VoteCountingRecord & operator = (const VoteCountingRecord &);
+
 	virtual ~VoteCountingRecord();
 };
 
