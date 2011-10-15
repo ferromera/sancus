@@ -17,21 +17,45 @@
 class ElectionRecord: public Record {
 private:
 	DistrictRecord::Key* district;
-	ChargeRecord::Key* charge;
-	std::string date;
 public:
 
     static const bool isVariable=true;
      //It's variable, so fixed size must be a number > 0.
     static const unsigned int fixedSize=1;
-    class Key: public ComposedStringKey{
+    class Key : public Record::Key{
+    private:
+    	ChargeRecord::Key* charge;
+    	unsigned int  date;
+    	std::string stringKey_;
+    	void updateString();
     public:
-        Key(char ** input):ComposedStringKey(input){}
-        Key(std::string key=""):ComposedStringKey(key){}
+        Key(unsigned int date,const ChargeRecord::Key &);
+        Key(char ** input);
+        Key(const Key & k);
+        Key & operator=(const Key & k);
+        const std::string & getString(){return getKey();}
+        const std::string & getKey()const;
+        void setDate(unsigned int);
+        void setCharge(const ChargeRecord::Key&);
+        const unsigned int getDate()const;
+        const ChargeRecord::Key& getCharge()const;
+       	void read(char ** input);
+       	void write(char ** output)const;
+        unsigned int size()const;
+        bool operator <(const Record::Key &r)const;
+        bool operator ==(const Record::Key &r)const;
+        bool operator <=(const Record::Key & r)const;
+        bool operator >(const Record::Key &r)const;
+        bool operator !=(const Record::Key &r)const;
+        bool operator >=(const Record::Key & r)const;
+        ChargeRecord::Key & operator=(const ChargeRecord::Key & rk);
+        ~Key();
+
     };
     unsigned int size()const;
 	ElectionRecord();
-	ElectionRecord(std::string date, DistrictRecord::Key* district, ChargeRecord::Key* charge);
+	ElectionRecord(const ElectionRecord::Key & k);
+	ElectionRecord(unsigned int date, DistrictRecord::Key* district, ChargeRecord::Key* charge);
 	virtual ~ElectionRecord();
 	const ElectionRecord::Key & getKey()const;
     void setKey(const ElectionRecord::Key & k);
