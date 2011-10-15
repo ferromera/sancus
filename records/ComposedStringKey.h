@@ -8,12 +8,12 @@
 #ifndef COMPOSEDSTRINGKEY_H_
 #define COMPOSEDSTRINGKEY_H_
 
-#define SEPARATOR_SYMBOL "|"
+#define SEPARATOR_SYMBOL '|'
 
+#include "StringKey.h"
 #include <string>
 #include <list>
-#include "StringKey.h"
-#include "../estructuras/Record.h"
+#include "Record.h"
 
 
 

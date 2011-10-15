@@ -6,6 +6,7 @@
  */
 
 #include "StringKey.h"
+#include <cstring>
 
 StringKey::StringKey(char ** input)
 {
@@ -40,7 +41,7 @@ void StringKey::read(char ** input)
     char *myChar = new char[sizeStr + 1];
     memcpy(&myChar,*input,sizeStr);
     (*input)+=sizeStr;
-    myChar[sizeStr] = "\0";
+    myChar[sizeStr] = '\0';
     dataString = myChar;
 
 }
@@ -49,18 +50,53 @@ void StringKey::write(char ** output)const
 	unsigned int sizeStr = dataString.size();
     memcpy(*output,&sizeStr,1);
     (*output)+=1;
-    char *myChar = dataString.c_str();
-    memcpy(*output,&myChar,sizeStr);
+    memcpy(*output,dataString.c_str(),sizeStr);
     (*output)+=sizeStr;
 }
-//bool StringKey::operator <(const Record::Key &r)const
-//bool StringKey::operator ==(const Record::Key &r)const
-//bool StringKey::operator <=(const Record::Key & r)const
-//bool StringKey::operator >(const Record::Key &r)const
-//bool StringKey::operator !=(const Record::Key &r)const
-//bool StringKey::operator >=(const Record::Key & r)const
-//Record::Key & StringKey::operator=(const Record::Key & rk)
-//StringKey & StringKey::operator=(const StringKey & rk)
-//StringKey & StringKey::operator=(std::string string)
+bool StringKey::operator <(const Record::Key &r)const
+{
+	const StringKey & key = (const StringKey &) r;
+	if(dataString.compare(key.dataString) > 0)
+		return false;
+	else
+		return true;
+}
+bool StringKey::operator ==(const Record::Key &r)const
+{
+	const StringKey & key = (const StringKey &) r;
+	if(dataString.compare(key.dataString) == 0)
+		return true;
+	return false;
+}
+bool StringKey::operator <=(const Record::Key & r)const
+{
+	return *this < r || *this == r;
+}
+bool StringKey::operator >(const Record::Key &r)const
+{
+	return ! *this <= r;
+}
+bool StringKey::operator !=(const Record::Key &r)const
+{
+	return ! *this == r;
+}
+
+bool StringKey::operator >=(const Record::Key & r)const
+{
+	return ! *this<r;
+}
+StringKey & StringKey::operator=(const StringKey & rk)
+{
+	if(this == &rk)
+		return *this;
+
+	dataString = rk.dataString;
+	return *this;
+}
+StringKey & StringKey::operator=(std::string string)
+{
+	dataString = string;
+	return *this;
+}
 
 
