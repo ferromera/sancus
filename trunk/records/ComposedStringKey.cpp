@@ -29,13 +29,26 @@
 
 	 for(;itKeys != stringList.end();itKeys++)
 	 {
-		 dataString.append(SEPARATOR_SYMBOL);
+		 dataString.push_back(SEPARATOR_SYMBOL);
 		 dataString.append(*itKeys);
 	 }
  }
  void ComposedStringKey::setKey(std::string stringKey)
  {
 	 dataString = stringKey;
+	 std::string::iterator itString = dataString.begin();
+	 int begin = 0;
+
+	 for(unsigned int i = 0; i < dataString.size();i++,itString++)
+	 {
+		 if(*itString == SEPARATOR_SYMBOL)
+		 {
+			 stringList.push_back(dataString.substr(begin,i-begin));
+			 begin = i+1;
+		 }
+	 }
+	 stringList.push_back(dataString.substr(begin,dataString.size()-begin));
+
  }
  void ComposedStringKey::setString(unsigned int index , std::string keyComponent)
  {
@@ -66,7 +79,7 @@ std::string ComposedStringKey::getString(unsigned int index)
 	 }
 	 std::list<std::string>::iterator itKeys = stringList.begin();
 	 for(int i = 0 ; i < index ; itKeys++);
-	 return itKeys++;
+	 return *itKeys;
 }
 
 Record::Key & ComposedStringKey::operator=(const Record::Key & rk)

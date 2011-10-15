@@ -8,8 +8,9 @@
 #ifndef STRINGKEY_H_
 #define STRINGKEY_H_
 
-#include "../estructuras/Record.h"
+#include "Record.h"
 #include <string>
+#include <stdio.h>
 
 class StringKey: public Record::Key {
 public:
@@ -30,12 +31,9 @@ public:
     bool operator >(const Record::Key &r)const;
     bool operator !=(const Record::Key &r)const;
     bool operator >=(const Record::Key & r)const;
-
-    Record::Key & operator=(const Record::Key & rk);
     StringKey & operator=(const StringKey & rk);
     StringKey & operator=(std::string string);
     unsigned int size()const{ return dataString.size() + 1; }
-	StringKey();
 	~StringKey(){}
 protected:
 	std::string dataString;
