@@ -11,6 +11,7 @@
 #include <list>
 #include "Record.h"
 #include "StringKey.h"
+#include <cstring>
 
 class ChargeRecord : public Record {
 private:
@@ -35,7 +36,7 @@ public:
 	void setChargeName(std::string chargeName);
 	std::string getChargeName();
 	const ChargeRecord::Key & getKey()const;
-	void setChargeList(const std::list<std::string>* charges);
+	void setChargeList(std::list<std::string>* charges);
 	std::list<std::string>* getChargeList();
 };
 
