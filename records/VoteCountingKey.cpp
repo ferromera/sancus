@@ -7,6 +7,13 @@
 
 #include "VoteCountingRecord.h"
 
+VoteCountingRecord::Key::Key(){
+	list_=new ListRecord::Key();
+	district_=new DistrictRecord::Key();
+	election_=new ElectionRecord::Key();
+	updateString();
+}
+
 VoteCountingRecord::Key::Key(char ** input){
 	list_=new ListRecord::Key(input);
 	district_=new DistrictRecord::Key(input);
@@ -103,6 +110,42 @@ void VoteCountingRecord::Key::updateString(){
 	stringKey_.append(")");
 
 }
+
+bool VoteCountingRecord::Key::operator <(const Record::Key &rk)const{
+	const Key & k= (const Key & )rk;
+	if(list_<k.list_)
+		return true;
+	if(list_<k.list_)
+		return false;
+	if(district_<k.district_)
+		return true;
+	if(district_> k.district_)
+		return false;
+	return election_<k.election_;
+
+}
+bool VoteCountingRecord::Key::operator ==(const Record::Key &rk)const{
+	const Key & k= (const Key & )rk;
+	return (list_==k.list_ && district_==k.district_ && election_==k.election_);
+}
+bool VoteCountingRecord::Key::operator <=(const Record::Key &rk)const{
+	const Key & k= (const Key & )rk;
+	return ((*this)<k||(*this)==k);
+}
+bool VoteCountingRecord::Key::operator >(const Record::Key & rk)const{
+	const Key & k= (const Key & )rk;
+	return !((*this)<=k);
+}
+bool VoteCountingRecord::Key::operator >=(const Record::Key & rk)const{
+	const Key & k= (const Key & )rk;
+	return !((*this)<k);
+
+}
+bool VoteCountingRecord::Key::operator !=(const Record::Key & r)const{
+	const Key & k= (const Key & )rk;
+	return !((*this)==k);
+}
+
 VoteCountingRecord::Key::~Key(){
 	delete list_;
 	delete district_;
