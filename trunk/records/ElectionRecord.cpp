@@ -12,6 +12,10 @@ ElectionRecord::ElectionRecord() {
 	this->district = NULL;
 	this->charge = NULL;
 }
+ElectionRecord::ElectionRecord(const ElectionRecord::Key & k)
+{
+	this->setKey(k);
+}
 ElectionRecord::ElectionRecord(std::string date, DistrictRecord::Key* district, ChargeRecord::Key* charge) {
 	this->date = date;
 	this->charge = new ChargeRecord::Key(charge);
