@@ -36,23 +36,22 @@ public:
 	void testCreate() {
 		string path = "hashTableTest.bin";
 
-		table = new HashTable<StudentRecord, 512> (path, true, 20, 1000);
+		table = new HashTable<StudentRecord, 512> (path, 20, 1000);
 
 		assertTrue(MathUtils::isPrime(table->getSize()), "testCreate",
 				"El tamaño de la tabla debe ser primo");
-
 	}
 
-	void testGet() {
+	void testLoad() {
 		string path = "hashTableTest.bin";
 
-		table = new HashTable<StudentRecord, 512> (path, false, 20, 1000);
+		table = new HashTable<StudentRecord, 512> (path);
 
 		uint16_t id = 500;
 		StudentRecord::Key * k = new StudentRecord::Key(id);
 		StudentRecord record = table->get(*k);
 		cout << "Se recupero el student con id: " << record.idNumber() << endl;
-		assertTrue(record.idNumber() == id , "testGet",
+		assertTrue(record.idNumber() == id, "testGet",
 				"No se encontrol el student");
 	}
 
