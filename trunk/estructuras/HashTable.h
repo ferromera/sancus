@@ -15,8 +15,8 @@
 #include "File.h"
 #include "Bucket.h"
 #include <list>
-#include "Uint16Key.h"
-#include "Record.h"
+#include "../records/Uint16Key.h"
+#include "../records/Record.h"
 #include "HashTableExceptions.h"
 #include "Function.h"
 #include <algorithm>
