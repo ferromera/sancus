@@ -7,11 +7,6 @@
 
 #include "ElectionRecord.h"
 
-ElectionRecord::ElectionRecord() {
-	this->date = NULL;
-	this->district = NULL;
-	this->charge = NULL;
-}
 ElectionRecord::ElectionRecord(const ElectionRecord::Key & k)
 {
 	this->setKey(k);
