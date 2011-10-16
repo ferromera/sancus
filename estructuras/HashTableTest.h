@@ -101,17 +101,32 @@ public:
 		}
 	}
 
-
-	void testMassiveInsert(){
+	void testMassiveInsert() {
 		testCreate();
-		try{
-			for(int i=1; i<1000; i++){
+		try {
+			for (int i = 1; i < 1000; i++) {
 				StudentRecord * record = new StudentRecord(i, "student");
 				table->insert(*record);
 				delete (record);
 			}
-		}catch(RehashCountException & ex){
-			cout<<"Se lanzo la exception RehashCountException"<<endl;
+		} catch (RehashCountException & ex) {
+			cout << "Se lanzo la exception RehashCountException" << endl;
+		}
+	}
+
+	void testMassiveGet() {
+		testMassiveInsert();
+
+		try {
+			for (int i = 1; i < 1000; i++) {
+				StudentRecord::Key * k = new StudentRecord::Key(i);
+				StudentRecord record = table->get(*k);
+				cout << "Se recupero el student con id: " << record.idNumber()
+						<< endl;
+				delete (k);
+			}
+		} catch (RecordNotFoundException ex) {
+			cout << "Se lanzo la exception RecordNotFoundException" << endl;
 		}
 	}
 };
