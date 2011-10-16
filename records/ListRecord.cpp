@@ -52,6 +52,7 @@ ListRecord & ListRecord::operator=(const ListRecord &rec){
 	if(this==&rec)
 		return *this;
 	key_= new ListRecord::Key(rec.getKey());
+	return *this;
 
 }
 ListRecord::~ListRecord(){}

@@ -11,65 +11,48 @@ ElectionRecord::ElectionRecord(const ElectionRecord::Key & k)
 {
 	this->setKey(k);
 }
-ElectionRecord::ElectionRecord(std::string date, DistrictRecord::Key* district, ChargeRecord::Key* charge) {
-	this->date = date;
-	this->charge = new ChargeRecord::Key(charge);
+ElectionRecord::ElectionRecord(unsigned int date, const ChargeRecord::Key& charge, const DistrictRecord::Key& district) {
+	key_= new ElectionRecord::Key(date,charge);
 	this->district = new DistrictRecord::Key(district);
 }
-void ElectionRecord::setCharge(ChargeRecord::Key* charge) {
-	this->charge = charge;
+void ElectionRecord::setCharge(const ChargeRecord::Key& charge) {
+	((Key*)key_)->setCharge(charge);
 }
-void ElectionRecord::setDate(std::string date) {
-	this->date = date;
+void ElectionRecord::setDate(unsigned int date) {
+	((Key*)key_)->setDate(date);
 }
-void ElectionRecord::setDistrict(DistrictRecord::Key* district) {
-	this->district = district;
+void ElectionRecord::setDistrict(const DistrictRecord::Key& district) {
+	delete this->district;
+	this->district = new DistrictRecord::Key(district);
 }
-ChargeRecord::key* ElectionRecord::getCharge(){
-	return this->charge;
+const ChargeRecord::Key& ElectionRecord::getCharge()const{
+	return ((Key*)key_)->getCharge();
 }
-DistrictRecord::Key* ElectionRecord::getDistrict(){
-	return this->district;
+const DistrictRecord::Key& ElectionRecord::getDistrict()const{
+	return *district;
 }
-std::string ElectionRecord::getDate() {
-	return this->date;
+unsigned int ElectionRecord::getDate()const {
+	return ((Key*)key_)->getDate();
 }
-const ElectionRecord::Key ElectionRecord::getKey() {
-	return this->key_;
-}
-
-void ElectionRecord::read(char** in) {
-
-	 uint8_t nameSize;
-	 memcpy(&nameSize,*in,1);
-	 (*input)++;
-
-	 char * c_str=new char[nameSize+1];
-	 memcpy(c_str,*in,nameSize);
-	 (*input)+=nameSize;
-
-	 c_str[nameSize]='\0';
-	 this->date=c_str;
-
-	 this->district->read(in);
-	 this->charge->read(in);
-
-	 delete c_str;
-}
-void ElectionRecord::write(char** out) {
-	//TODO
+const ElectionRecord::Key& ElectionRecord::getKey()const{
+	return *((Key*)key_);
 }
 
-void ElectionRecord::update(){
-	//TODO
+void ElectionRecord::read(char** input) {
+
+	key_->read(input);
+	district->read(input);
+}
+void ElectionRecord::write(char** output) {
+	key_->write(output);
+	district->write(output);
 }
 
 unsigned int ElectionRecord::size()const{
-	return date.size()+1+this->district->size()+this->charge->size();
+	return key_->size() + district->size();
 }
 
 ElectionRecord::~ElectionRecord() {
-	delete this->charge;
-	delete this->district;
+	delete district;
 }
 

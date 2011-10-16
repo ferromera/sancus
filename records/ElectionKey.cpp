@@ -8,6 +8,11 @@
 #include "ElectionRecord.h"
 #include "../utils/StringUtils.h"
 
+ElectionRecord::Key::Key(){
+	charge=new ChargeRecord::Key();
+	date=0;
+}
+
 ElectionRecord::Key::Key(char ** input){
 	memcpy(&date,*input,4);
 	(*input)+=4;
@@ -45,7 +50,6 @@ const ChargeRecord::Key& ElectionRecord::Key::getCharge()const{
 	return *charge;
 }
 void ElectionRecord::Key::read(char ** input){
-	delete charge;
 	memcpy(&date,*input,4);
 	(*input)+=4;
 	charge->read(input);
@@ -78,14 +82,14 @@ bool ElectionRecord::Key::operator <(const Record::Key &r)const
 	else if (date > key.date)
 		return false;
 
-	return charge < key.charge;
+	return (*charge) < (*key.charge);
 
 }
 bool ElectionRecord::Key::operator ==(const Record::Key &r)const
 {
 	const ElectionRecord::Key & key = (const ElectionRecord::Key &) r;
 	if(date == key.date)
-		return charge == key.charge;
+		return (*charge) == (*key.charge);
 
 	return false;
 }
@@ -113,7 +117,7 @@ ElectionRecord::Key & ElectionRecord::Key::operator=(const ElectionRecord::Key &
 
 	delete charge;
 	date = rk.date;
-	charge = rk.charge;
+	charge = new ChargeRecord::Key(*rk.charge);
 	stringKey_ = rk.stringKey_;
 	return *this;
 }
