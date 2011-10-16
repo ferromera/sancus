@@ -19,7 +19,6 @@
 #include "../records/Record.h"
 #include "HashTableExceptions.h"
 #include "Function.h"
-#include <algorithm>
 
 #define PACKAGE_DENSITY 0.7
 #define BUCKET_LOAD_FACTOR 0.75
@@ -58,7 +57,7 @@ public:
 
 	void insert(T & record);
 
-	T * get(const typename T::Key & key);
+	T get(const typename T::Key & key);
 
 	void remove(T & record);
 
@@ -115,7 +114,7 @@ void HashTable<T, bucketSize>::insert(T & record) {
 			rehashingCount++;
 			insertRecord(record, this->rehashFunction, jump);
 		} else {
-			throw new RehashCountException();
+			throw RehashCountException();
 		}
 	}
 }
@@ -144,13 +143,13 @@ unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 
 			bufferedRecords.push_back(*recordFromBucket);
 
-			if (*recordFromBucket > record){ //NO ESTA! Porque los registros estan almacenados en orden
+			if (*recordFromBucket > record) { //NO ESTA! Porque los registros estan almacenados en orden
 				break;
 			}
 
-			if (*recordFromBucket == record){
+			if (*recordFromBucket == record) {
 				delete (recordFromBucket);
-				throw new UniqueViolationException();
+				throw UniqueViolationException();
 			}
 		}
 
@@ -175,9 +174,13 @@ unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 			bucket->freeSpace -= record.size();
 			bucket->count++;
 
-			//for(; recordsIterator != bufferedRecords.end();recordsIterator++){
-			record.write(&buffer);
-			//}
+			recordsIterator = bufferedRecords.begin();
+
+			while (recordsIterator != bufferedRecords.end()) {
+				T r = (*recordsIterator);
+				r.write(&buffer);
+				recordsIterator++;
+			}
 
 			file->seek(insertOffset, File::BEG);
 			file->write((char *) bucket, bucketSize);
@@ -203,7 +206,7 @@ unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 }
 
 template<class T, unsigned int bucketSize>
-T * HashTable<T, bucketSize>::get(const typename T::Key & key) {
+T HashTable<T, bucketSize>::get(const typename T::Key & key) {
 	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	unsigned int offset;
 	unsigned int rehashingCount = 0;
@@ -224,27 +227,40 @@ T * HashTable<T, bucketSize>::get(const typename T::Key & key) {
 		//Salto los bytes de control
 		file->seek(5, File::CUR);
 
+		if (bucket->count == 0) {
+			if (!bucket->overflow) {
+				delete (bucket);
+				throw RecordNotFoundException();
+			} else {
+				rehashingCount++;
+			}
+		}
+
 		for (int i = 0; i < bucket->count; i++) {
 			T * recordFromBucket = new T(&buffer);
 
 			if (recordFromBucket->getKey() > key) {
 				if (!bucket->overflow) {
-					throw new RecordNotFoundException();
+					delete (recordFromBucket);
+					throw RecordNotFoundException();
 				} else {
 					rehashingCount++;
 					break;
 				}
 			}
 
-			if (recordFromBucket->getKey() == key)
-				return recordFromBucket;
+			if (recordFromBucket->getKey() == key) {
+				T recordCopy = *recordFromBucket;
+				delete (bucket);
+				return recordCopy;
+			}
 		}
 
 		delete (bucket);
-		delete (buffer);
+		//delete (buffer);
 	}
 
-	throw new RecordNotFoundException();
+	throw RecordNotFoundException();
 }
 
 template<class T, unsigned int bucketSize>
@@ -254,6 +270,7 @@ void HashTable<T, bucketSize>::remove(T & record) {
 	unsigned int rehashingCount = 0;
 	unsigned int position = hashFunction->hash(record.getKey()) - 1;
 	char * buffer;
+	bool found;
 	typename std::list<T> bufferedRecords;
 
 	while (rehashingCount < maxNumberOfRehashes) {
@@ -270,45 +287,66 @@ void HashTable<T, bucketSize>::remove(T & record) {
 		//Salto los bytes de control
 		file->seek(5, File::CUR);
 
+		if (bucket->count == 0) {
+			if (!bucket->overflow) {
+				delete (bucket);
+				throw RecordNotFoundException();
+			} else {
+				found = false;
+				rehashingCount++;
+			}
+		}
+
 		for (int i = 0; i < bucket->count; i++) {
+
 			T * recordFromBucket = new T(&buffer);
 
-			if ( *recordFromBucket > record) {
+			if (*recordFromBucket > record) {
 				if (!bucket->overflow) {
 					delete (recordFromBucket);
-					throw new RecordNotFoundException();
+					throw RecordNotFoundException();
 				} else {
-					delete(recordFromBucket);
+					delete (recordFromBucket);
 					rehashingCount++;
+					found = false;
 					break;
 				}
 			}
 
-			if ( *recordFromBucket != record)
+			if (*recordFromBucket != record) {
 				bufferedRecords.push_front(record);
+			} else {
+				found = true;
+			}
 		}
 
-		//REVISAR ESTO, TENGO Q VACIAR ANTES DE VOLVER A ESCRIBIR ?
-		//free bucket bytes
-		for (unsigned int i = 0; i < sizeof(bucket->bytes); i++) {
-			bucket->bytes[i] = 0;
+		if (found) {
+			//REVISAR ESTO, TENGO Q VACIAR ANTES DE VOLVER A ESCRIBIR ?
+			//free bucket bytes
+			for (unsigned int i = 0; i < sizeof(bucket->bytes); i++) {
+				bucket->bytes[i] = 0;
+			}
+
+			bucket->freeSpace += record.size();
+			bucket->count--;
+
+			typename std::list<T>::iterator recordsIterator;
+
+			recordsIterator = bufferedRecords.begin();
+
+			while (recordsIterator != bufferedRecords.end()) {
+				T r = (*recordsIterator);
+				r.write(&buffer);
+				recordsIterator++;
+			}
+
+			file->seek(offset, File::BEG);
+			file->write((char *) bucket, bucketSize);
+			file->flush();
+
+			delete (bucket);
+			break;
 		}
-
-		bucket->freeSpace += record.size();
-		bucket->count--;
-
-		typename std::list<T>::iterator recordsIterator;
-
-		while (recordsIterator != bufferedRecords.end()) {
-			record.write(&buffer);
-		}
-
-		file->seek(offset, File::BEG);
-		file->write((char *) bucket, sizeof(bucket));
-		file->flush();
-
-		delete (bucket);
-		delete (buffer);
 	}
 }
 
