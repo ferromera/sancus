@@ -129,7 +129,7 @@ unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 	unsigned int insertOffset = (position * bucketSize);
 
 	file->seek(position, File::BEG);
-	file->read(bucket, bucketSize);
+	file->read((char *)bucket, bucketSize);
 	char * buffer = bucket->bytes;
 
 	if (!bucket->overflow) {
@@ -189,7 +189,7 @@ unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 
 template<class T, unsigned int bucketSize>
 T * HashTable<T, bucketSize>::get(const typename T::Key & key) {
-	Bucket<bucketSize> * bucket;
+	Bucket<bucketSize> * bucket = new Bucket<bucketSize>();
 	unsigned int offset;
 	unsigned int rehashingCount = 0;
 	unsigned int position = hashFunction->hash(key);
@@ -203,7 +203,7 @@ T * HashTable<T, bucketSize>::get(const typename T::Key & key) {
 		offset = (position * bucketSize);
 
 		file->seek(offset, File::BEG);
-		file->read(bucket, bucketSize);
+		file->read((char *)bucket, bucketSize);
 		buffer = bucket->bytes;
 
 		//Salto los bytes de control
@@ -232,7 +232,7 @@ T * HashTable<T, bucketSize>::get(const typename T::Key & key) {
 
 template<class T, unsigned int bucketSize>
 void HashTable<T, bucketSize>::remove(T & record) {
-	Bucket<bucketSize> * bucket;
+	Bucket<bucketSize> * bucket = new Bucket<bucketSize>();
 	unsigned int offset;
 	unsigned int rehashingCount = 0;
 	unsigned int position = hashFunction->hash(record.getKey());
@@ -247,7 +247,7 @@ void HashTable<T, bucketSize>::remove(T & record) {
 		offset = (position * bucketSize);
 
 		file->seek(offset, File::BEG);
-		file->read(bucket, bucketSize);
+		file->read((char *)bucket, bucketSize);
 		buffer = bucket->bytes;
 
 		//Salto los bytes de control
