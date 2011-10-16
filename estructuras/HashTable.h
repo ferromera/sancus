@@ -79,13 +79,13 @@ HashTable<T, bucketSize>::HashTable(std::string & path,
 		this->size = MathUtils::nextPrime(size);
 	}
 
-	this->hashFunction = new HashFunction<T>(this->size);
-	this->rehashFunction = new ReHashFunction<T>(this->size);
+	this->hashFunction = new HashFunction<T> (this->size);
+	this->rehashFunction = new ReHashFunction<T> (this->size);
 
 	//por propiedad de los numeros primos luego de size rehashes se vuelve a repetir el primer resultado.
 	this->maxNumberOfRehashes = this->size;
 
-	Bucket<bucketSize> * bucket = new Bucket<bucketSize>();
+	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	bucket->freeSpace = sizeof(bucket->bytes);
 	bucket->count = 0;
 	bucket->overflow = false;
@@ -123,12 +123,12 @@ void HashTable<T, bucketSize>::insert(T & record) {
 template<class T, unsigned int bucketSize>
 unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 		Function<T> * function, unsigned int jump) {
-	Bucket<bucketSize> * bucket = new Bucket<bucketSize>();
-	unsigned int position = function->hash(record.getKey()) + jump;
+	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
+	unsigned int position = (function->hash(record.getKey()) + jump)-1;
 	unsigned int insertOffset = (position * bucketSize);
 
-	file->seek(position, File::BEG);
-	file->read((char *)bucket, bucketSize);
+	file->seek(insertOffset, File::BEG);
+	file->read((char *) bucket, bucketSize);
 	char * buffer = bucket->bytes;
 
 	if (!bucket->overflow) {
@@ -155,19 +155,21 @@ unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 		//VERIFICAR EL FACTOR DE CARGA DEL BUCKET
 		unsigned int effectiveSizeForRecords = bucketSize - 5;
 
-		if ((bucket->freeSpace - record.size())
-				> effectiveSizeForRecords * BUCKET_LOAD_FACTOR) {
+		if ((bucket->freeSpace - record.size()) > effectiveSizeForRecords * (1
+				- BUCKET_LOAD_FACTOR)) {
 			//No existe en el bucket debemos insertar (respetando el orden);
 			bufferedRecords.push_front(record);
 
 			bufferedRecords.sort();
 			typename std::list<T>::iterator recordsIterator;
 
-			delete[] buffer; //REVISAR ESTO, TENGO Q VACIAR ANTES DE VOLVER A ESCRIBIR ?
+			//delete [] bucket->bytes; //REVISAR ESTO, TENGO Q VACIAR ANTES DE VOLVER A ESCRIBIR ?
+			//FREE ARRAY
 
-			while (recordsIterator != bufferedRecords.end()) {
-				bucket->freeSpace -= record.size();
-				bucket->count++;
+			bucket->freeSpace -= record.size();
+			bucket->count++;
+
+			for(; recordsIterator != bufferedRecords.end();recordsIterator++){
 				record.write(&buffer);
 			}
 
@@ -178,7 +180,7 @@ unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 			delete (bucket);
 
 			return 0;
-		}else{
+		} else {
 			return position;
 		}
 
@@ -190,7 +192,7 @@ unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 
 template<class T, unsigned int bucketSize>
 T * HashTable<T, bucketSize>::get(const typename T::Key & key) {
-	Bucket<bucketSize> * bucket = new Bucket<bucketSize>();
+	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	unsigned int offset;
 	unsigned int rehashingCount = 0;
 	unsigned int position = hashFunction->hash(key);
@@ -204,7 +206,7 @@ T * HashTable<T, bucketSize>::get(const typename T::Key & key) {
 		offset = (position * bucketSize);
 
 		file->seek(offset, File::BEG);
-		file->read((char *)bucket, bucketSize);
+		file->read((char *) bucket, bucketSize);
 		buffer = bucket->bytes;
 
 		//Salto los bytes de control
@@ -235,7 +237,7 @@ T * HashTable<T, bucketSize>::get(const typename T::Key & key) {
 
 template<class T, unsigned int bucketSize>
 void HashTable<T, bucketSize>::remove(T & record) {
-	Bucket<bucketSize> * bucket = new Bucket<bucketSize>();
+	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	unsigned int offset;
 	unsigned int rehashingCount = 0;
 	unsigned int position = hashFunction->hash(record.getKey());
@@ -250,7 +252,7 @@ void HashTable<T, bucketSize>::remove(T & record) {
 		offset = (position * bucketSize);
 
 		file->seek(offset, File::BEG);
-		file->read((char *)bucket, bucketSize);
+		file->read((char *) bucket, bucketSize);
 		buffer = bucket->bytes;
 
 		//Salto los bytes de control
