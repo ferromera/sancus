@@ -11,10 +11,10 @@ class Record{
 public:
     class Key{
     public:
-    virtual unsigned int getUint(){
+    virtual unsigned int getUint()const{
     	throw IsNotAnIntegerKeyException();
     }
-    virtual const std::string & getString(){
+    virtual const std::string & getString()const{
     	throw IsNotAStringKeyException();
     }
     virtual void read(char ** input)=0;
