@@ -23,6 +23,7 @@ class IndexedDataFile {
 	BPTreeVariableLeaf<TRecord,blockSize> * searchBlock_;
 	File * file_;
 	TRecord * found_;
+	unsigned int lastBlock_;
 
 	void handleOverflow(const TRecord &rec,BPTreeVariableLeaf<TRecord,blockSize> *block);
 	void handleUnderflow(BPTreeVariableLeaf<TRecord,blockSize> *block);
@@ -37,6 +38,7 @@ public:
 	unsigned int getNewBlock(){return newBlock_;}
 	bool overflow(){return overflow_;}
 	bool underflow(){return underflow_;}
+	unsigned int append(const TRecord & rec);
  	virtual ~IndexedDataFile();
 };
 
@@ -293,9 +295,23 @@ void IndexedDataFile<TRecord,blockSize>::update(const TRecord & rec, unsigned in
 }
 
 template<class TRecord,unsigned int blockSize>
+unsigned int IndexedDataFile<TRecord,blockSize>::append(const TRecord & rec){
+	BPTreeVariableLeaf<TRecord,blockSize> * lastBlock=BPTreeVariableLeaf<TRecord,blockSize>(*file_,lastBlock_);
+	BPTreeVariableLeaf<TRecord,blockSize> * newBlock=BPTreeVariableLeaf<TRecord,blockSize>(*file_);
+	lastBlock->next(newBlock->blockNumber());
+	lastBlock->write();
+	newBlock->next(0);
+	newBlock->insert(rec);
+	newBlock->write();
+	unsigned int blockNumber=newBlock->blockNumber();
+	delete newBlock;
+	delete lastBlock;
+	return blockNumber;
+}
+
+template<class TRecord,unsigned int blockSize>
 IndexedDataFile<TRecord,blockSize>::~IndexedDataFile(){
 	delete newLastKey_;
-	delete lastKeyOfNewBlock_;
 	delete searchBlock_;
 	delete file_;
 	delete found_;
