@@ -69,6 +69,6 @@ public:
 	const ListRecord::Key& getList();
 	CandidateRecord & operator=(const CandidateRecord &);
 	virtual ~CandidateRecord();
-}
+};
 
 #endif /* CANDIDATERECORD_H_ */
