@@ -19,6 +19,7 @@
 #include "../records/Record.h"
 #include "HashTableExceptions.h"
 #include "Function.h"
+#include <sys/stat.h>
 
 #define PACKAGE_DENSITY 0.7
 #define BUCKET_LOAD_FACTOR 0.75
@@ -29,16 +30,13 @@ class HashTable {
 private:
 	File * file;
 
-	/* El numero de filas de la tabla*/
 	unsigned int size;
-	unsigned int maxNumberOfRecords;
 	unsigned int maxNumberOfRehashes;
 
 	Function<T> * hashFunction;
 	Function<T> * rehashFunction;
 
-	int insertRecord(T & record, Function<T> * function,
-			unsigned int jump);
+	int insertRecord(T & record, Function<T> * function, unsigned int jump);
 
 public:
 
@@ -50,36 +48,54 @@ public:
 	 * @maxNumberOfRecords numero maximo de registros en el archivo (cuando se llegue a este numero se debera
 	 * enfrentar una reorganización de la tabla).
 	 */
-	HashTable(std::string & path, bool isNew, const unsigned int recordsPerBucket,
+	HashTable(std::string & path, const unsigned int recordsPerBucket,
 			const unsigned int maxNumberOfRecords);
 
-	void load(File & file);
+	/**
+	 * Primitiva de carga
+	 *
+	 * @path el path a un archivo directo existente (se supone que es un archivo valido)
+	 */
+	HashTable(std::string & path);
 
+	/**
+	 * Primitiva de insercion
+	 *
+	 * @record el registro que se quiere insertar
+	 * @throws RehashCountException cuando se supera la cantidad maxima de rehashes
+	 */
 	void insert(T & record);
 
+	/**
+	 * Primitiva de recuperacion
+	 *
+	 * @key la clave del registro que se quiere recuperar
+	 * @returns una copia del registro con la clava dada
+	 * @throws RecordNotFoundException cuando no se puede recuperar el registro
+	 */
 	T get(const typename T::Key & key);
 
+	/**
+	 * Primitiva de borrado
+	 *
+	 * @record el registro que se quiere borrar
+	 * @throws RecordNotFoundException cuando no se puede recuperar el registro
+	 */
 	void remove(T & record);
 
+	/**
+	 * @returns la cantidad de "filas" de la tabla
+	 */
 	unsigned int getSize();
 
 };
 
 template<class T, unsigned int bucketSize>
-HashTable<T, bucketSize>::HashTable(std::string & path, bool isNew,
+HashTable<T, bucketSize>::HashTable(std::string & path,
 		const unsigned int recordsPerBucket,
 		const unsigned int maxNumberOfRecords) {
 
-	char fmode;
-
-	if(isNew){
-		fmode = File::NEW | File::IO | File::BIN;
-	}else{
-		fmode = File::IO | File::BIN;
-	}
-
-	this->file = new File(path,fmode);
-	this->maxNumberOfRecords = maxNumberOfRecords;
+	this->file = new File(path, File::NEW | File::IO | File::BIN);
 	this->size = maxNumberOfRecords / (PACKAGE_DENSITY * recordsPerBucket);
 
 	if (!MathUtils::isPrime(size)) {
@@ -107,8 +123,13 @@ HashTable<T, bucketSize>::HashTable(std::string & path, bool isNew,
 }
 
 template<class T, unsigned int bucketSize>
-void HashTable<T, bucketSize>::load(File & file) {
-
+HashTable<T, bucketSize>::HashTable(std::string & path) {
+	this->file = new File(path, File::IO | File::BIN);
+	this->file->seek(0, File::END);
+	this->size = file->tell()/bucketSize;
+	this->maxNumberOfRehashes = this->size;
+	this->hashFunction = new HashFunction<T> (this->size);
+	this->rehashFunction = new ReHashFunction<T> (this->size);
 }
 
 template<class T, unsigned int bucketSize>
@@ -128,8 +149,8 @@ void HashTable<T, bucketSize>::insert(T & record) {
 }
 
 template<class T, unsigned int bucketSize>
-int HashTable<T, bucketSize>::insertRecord(T & record,
-		Function<T> * function, unsigned int jump) {
+int HashTable<T, bucketSize>::insertRecord(T & record, Function<T> * function,
+		unsigned int jump) {
 	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	unsigned int position = (function->hash(record.getKey(), jump));
 	unsigned int insertOffset = (position * bucketSize);
@@ -171,12 +192,13 @@ int HashTable<T, bucketSize>::insertRecord(T & record,
 			bufferedRecords.push_front(record);
 
 			// MENSAJE DE LOG
-			std::cout<<"SE inserta el record con id: " << record.getKey().getKey() << ". En el bucket: "<<position<<std::endl;
+			std::cout << "SE inserta el record con id: "
+					<< record.getKey().getKey() << ". En el bucket: "
+					<< position << std::endl;
 
 			bufferedRecords.sort();
 			typename std::list<T>::iterator recordsIterator;
 
-			//REVISAR ESTO, TENGO Q VACIAR ANTES DE VOLVER A ESCRIBIR ?
 			//free bucket bytes
 			for (unsigned int i = 0; i < sizeof(bucket->bytes); i++) {
 				bucket->bytes[i] = 0;
@@ -223,12 +245,12 @@ T HashTable<T, bucketSize>::get(const typename T::Key & key) {
 	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	unsigned int offset;
 	unsigned int rehashingCount = 0;
-	unsigned int position = hashFunction->hash(key,0);
+	unsigned int position = hashFunction->hash(key, 0);
 	char * buffer;
 
 	while (rehashingCount < maxNumberOfRehashes) {
 		if (rehashingCount > 0) {
-			position = rehashFunction->hash(key,position);
+			position = rehashFunction->hash(key, position);
 		}
 
 		offset = (position * bucketSize);
@@ -270,7 +292,6 @@ T HashTable<T, bucketSize>::get(const typename T::Key & key) {
 		}
 
 		delete (bucket);
-		//delete (buffer);
 	}
 
 	throw RecordNotFoundException();
@@ -281,7 +302,7 @@ void HashTable<T, bucketSize>::remove(T & record) {
 	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	unsigned int offset;
 	unsigned int rehashingCount = 0;
-	unsigned int position = hashFunction->hash(record.getKey(),0);
+	unsigned int position = hashFunction->hash(record.getKey(), 0);
 	char * buffer;
 	bool found;
 	typename std::list<T> bufferedRecords;
@@ -334,7 +355,6 @@ void HashTable<T, bucketSize>::remove(T & record) {
 		}
 
 		if (found) {
-			//REVISAR ESTO, TENGO Q VACIAR ANTES DE VOLVER A ESCRIBIR ?
 			//free bucket bytes
 			for (unsigned int i = 0; i < sizeof(bucket->bytes); i++) {
 				bucket->bytes[i] = 0;
