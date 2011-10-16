@@ -11,7 +11,7 @@
 #include <list>
 #include <string>
 #include "../records/VoteCountingRecord.h"
-#include "CreationMode.h"
+
 
 #define VOTE_COUNTING_ELECTION_INDEX_PATH "./VoteCountingElectionIndex.bin"
 #define VOTE_COUNTING_DISTRICT_INDEX_PATH "./VoteCountingDistrictIndex.bin"
@@ -31,21 +31,27 @@ class VoteCountingFile {
 	IndexedDataFile<VoteCountingRecord,8192> * dataFile;
 	enum lastSearchEnum lastSearch;
 
-
+	ElectionRecord::Key * electionSearched;
+	DistrictRecord::Key * districtSearched;
+	ListRecord::Key * listSearched;
+	VoteCountingRecord * found;
 
 	static VoteCountingFile * instance;
-	static VoteCountingFile * getInstance();
 
 public:
-	VoteCountingFile(int creationMode=CREATE);
+
+	static VoteCountingFile * getInstance();
+
+
+	VoteCountingFile();
 
 	void insert(const VoteCountingRecord &);
 	void remove(const VoteCountingRecord &);
 	void update(const VoteCountingRecord &);
 	const VoteCountingRecord & searchByDistrict(const DistrictRecord::Key & district);
-	const VoteCountingRecord & searchByElection(const ElectionRecord::Key & district);
-	const VoteCountingRecord & searchByList(const ListRecord::Key & district);
-	const VoteCountingRecord & search(const VoteCountingRecord::Key & district);
+	const VoteCountingRecord & searchByElection(const ElectionRecord::Key & election);
+	const VoteCountingRecord & searchByList(const ListRecord::Key & list);
+	const VoteCountingRecord & search(const VoteCountingRecord::Key & voteCounting);
 	const VoteCountingRecord & VoteCountingFile::nextDistrict();
 	const VoteCountingRecord & VoteCountingFile::nextElection();
 	const VoteCountingRecord & VoteCountingFile::nextList();

@@ -17,20 +17,16 @@ VoteCountingFile::VoteCountingFile(){
 	primaryIndex= new BPlusTree<PrimaryIndexRecord<VoteCountingRecord::Key>,4096>(VOTE_COUNTING_PRIMARY_INDEX_PATH);
 	dataFile= new IndexedDataFile<VoteCountingRecord,8192>(VOTE_COUNTING_DATA_PATH);
 	lastSearch= NO_SEARCH;
+	electionSearched=NULL;
+	districtSearched=NULL;
+	listSearched=NULL;
+	found=NULL;
 
 }
 VoteCountingFile* VoteCountingFile::getInstance(){
 	if(instance==NULL)
 		instance= new VoteCountingFile();
 	return instance;
-}
-
-VoteCountingFile::~VoteCountingFile(){
-	delete electionIndex;
-	delete districtIndex;
-	delete listIndex;
-	delete primaryIndex;
-	delete dataFile;
 }
 
 void VoteCountingFile::insert(const VoteCountingRecord & record){
@@ -47,7 +43,7 @@ void VoteCountingFile::insert(const VoteCountingRecord & record){
 			primaryIndex->update(*primaryIndexFound);
 		}
 	}catch(ThereIsNoGreaterRecordException e){
-		unsigned int block=dataFile.append(record);
+		unsigned int block=dataFile->append(record);
 		PrimaryIndexRecord<VoteCountingRecord::Key> newIndexRecord(record.getKey(),block);
 	}
 	catch(IndexedDataRecordNotFoundException e){
@@ -74,7 +70,7 @@ void VoteCountingFile::remove(const ElectionRecord & record){
 	PrimaryIndexRecord<VoteCountingRecord::Key>* primaryIndexFound=NULL;
 	try{
 		primaryIndexFound=new PrimaryIndexRecord<VoteCountingRecord::Key>(primaryIndex->search(indexToFind));
-		ElectionRecord * deletedRecord= new ElectionRecord(dataFile->search(record,primaryIndexFound->getBlockNumber()));
+		VoteCountingRecord * deletedRecord= new VoteCountingRecord(dataFile->search(record,primaryIndexFound->getBlockNumber()));
 		dataFile->remove(record,primaryIndexFound->getBlockNumber());
 		if(dataFile->underflow()){
 			VoteCountingRecord::Key newKey=dataFile->getNewKey();
@@ -114,7 +110,7 @@ void VoteCountingFile::update(const ElectionRecord & record){
 	PrimaryIndexRecord<VoteCountingRecord::Key>* primaryIndexFound=NULL;
 	try{
 		primaryIndexFound=new PrimaryIndexRecord<VoteCountingRecord::Key>(primaryIndex->search(indexToFind));
-		ElectionRecord * oldRecord= new ElectionRecord(dataFile->search(record,primaryIndexFound->getBlockNumber()));
+		VoteCountingRecord * oldRecord= new VoteCountingRecord(dataFile->search(record,primaryIndexFound->getBlockNumber()));
 		dataFile->update(record,primaryIndexFound->getBlockNumber());
 		if(dataFile->overflow()){
 			VoteCountingRecord::Key newKey=dataFile->getNewKey();
@@ -167,6 +163,8 @@ void VoteCountingFile::update(const ElectionRecord & record){
 
 const VoteCountingRecord & VoteCountingFile::searchByDistrict(const DistrictRecord::Key & district){
 	lastSearch=DISTRICT_SEARCH;
+	delete districtSearched;
+	districtSearched =new DistrictRecord::Key (district);
 	SecondaryIndexRecord<DistrictRecord::Key,VoteCountingRecord::Key> firstSecIndex(district);
 	firstSecIndex=districtIndex->search(firstSecIndex);
 	if(firstSecIndex.getAttribute()!=district)
@@ -179,6 +177,8 @@ const VoteCountingRecord & VoteCountingFile::searchByDistrict(const DistrictReco
 
 const VoteCountingRecord & VoteCountingFile::searchByElection(const ElectionRecord::Key & election){
 	lastSearch=ELECTION_SEARCH;
+	delete electionSearched;
+	electionSearched= new ElectionRecord::Key (election);
 	SecondaryIndexRecord<ElectionRecord::Key,VoteCountingRecord::Key> firstSecIndex(election);
 	firstSecIndex=electionIndex->search(firstSecIndex);
 	if(firstSecIndex.getAttribute()!=election)
@@ -193,6 +193,8 @@ const VoteCountingRecord & VoteCountingFile::searchByElection(const ElectionReco
 
 const VoteCountingRecord & VoteCountingFile::searchByList(const ListRecord::Key & list){
 	lastSearch=LIST_SEARCH;
+	delete listSearched;
+	listSearched = new ListRecord::Key(list);
 	SecondaryIndexRecord<ListRecord::Key,VoteCountingRecord::Key> firstSecIndex(list);
 	firstSecIndex=listIndex->search(firstSecIndex);
 	if(firstSecIndex.getAttribute()!=list)
@@ -214,7 +216,11 @@ const VoteCountingRecord & VoteCountingFile::nextDistrict(){
 	if(lastSearch!=DISTRICT_SEARCH)
 		throw FileNextException();
 	try{
-		return dataFile->next();
+		delete found;
+		found= new VoteCountingRecord(dataFile->next());
+		if(found->getDistrict()!=(*districtSearched))
+			throw FileNextException();
+		return *found;
 	}catch(IndexedDataNextException e){
 		throw FileNextException();
 	}
@@ -224,7 +230,11 @@ const VoteCountingRecord & VoteCountingFile::nextElection(){
 	if(lastSearch!=ELECTION_SEARCH)
 		throw FileNextException();
 	try{
-		return dataFile->next();
+		delete found;
+		found= new VoteCountingRecord(dataFile->next());
+		if(found->getElection()!=(*electionSearched))
+			throw FileNextException();
+		return *found;
 	}catch(IndexedDataNextException e){
 		throw FileNextException();
 	}
@@ -233,7 +243,11 @@ const VoteCountingRecord & VoteCountingFile::nextList(){
 	if(lastSearch!=LIST_SEARCH)
 		throw FileNextException();
 	try{
-		return dataFile->next();
+		delete found;
+		found= new VoteCountingRecord(dataFile->next());
+		if(found->getList()!=(*listSearched))
+			throw FileNextException();
+		return *found;
 	}catch(IndexedDataNextException e){
 		throw FileNextException();
 	}
@@ -248,5 +262,16 @@ const VoteCountingRecord & VoteCountingFile::next(){
 	}
 }
 
+VoteCountingFile::~VoteCountingFile(){
+	delete electionIndex;
+	delete districtIndex;
+	delete listIndex;
+	delete primaryIndex;
+	delete dataFile;
+	delete electionSearched;
+	delete districtSearched;
+	delete listSearched;
+	delete found;
+}
 
 
