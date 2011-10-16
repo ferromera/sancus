@@ -13,13 +13,30 @@ class Function {
 private:
 	unsigned int size;
 
-	unsigned int convertToInt(const std::string & key) {
-		return 0;
+	unsigned int convertToInt(const char* key) const {
+		const char *it = key;
+		unsigned int ret = 0, i;
+
+		while (*it != '\0') {
+			ret = (ret << 4) + *it;
+
+			i = ret & 0xf0000000;
+
+			if (i != 0)
+				ret ^= i >> 24;
+
+			ret &= ~i;
+
+			it++;
+		}
+
+		return ret;
 	}
 
 	virtual unsigned int
-			hashTemplateMethod(unsigned int key, unsigned int jump) = 0;
+	hashTemplateMethod(unsigned int key, unsigned int jump) = 0;
 public:
+
 	Function(unsigned int size) {
 		this->size = size;
 	}
@@ -30,7 +47,8 @@ public:
 
 	unsigned int hash(const typename T::Key & key, unsigned int jump) {
 		if (T::Key::isString)
-			return hashTemplateMethod(convertToInt(key.getString()), jump);
+			return hashTemplateMethod(convertToInt(key.getString().c_str()),
+					jump);
 		else
 			return hashTemplateMethod(key.getUint(), jump);
 	}
