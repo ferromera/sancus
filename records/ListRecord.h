@@ -50,18 +50,19 @@ public:
         ~Key();
     };
     ListRecord(const ListRecord::Key &);
+    ListRecord(const ListRecord &);
     ListRecord(const ElectionRecord::Key& election,const std::string & listName);
     unsigned int size()const;
     void setKey(const ListRecord::Key & k);
     void setKey(const ElectionRecord::Key& election,const std::string & listName);
+    const ListRecord::Key & getKey()const;
     void read(char ** input);
     void write(char ** output);
-
 	void setName(const std::string & listName);
 	const std::string & getName()const;
-	const ListRecord::Key & getKey()const;
 	void setElection (const ElectionRecord::Key & election);
 	const ElectionRecord::Key & getElection()const;
+	ListRecord & operator=(const ListRecord &rec);
 
 	virtual ~ListRecord();
 };
