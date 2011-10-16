@@ -36,7 +36,7 @@ public:
 	void testCreate() {
 		string path = "hashTableTest.bin";
 
-		table = new HashTable<StudentRecord, 512> (path, 10, 100);
+		table = new HashTable<StudentRecord, 512> (path, 20, 1000);
 
 		assertTrue(MathUtils::isPrime(table->getSize()), "testCreate",
 				"El tamaño de la tabla debe ser primo");
@@ -98,6 +98,20 @@ public:
 
 		if (inserted) {
 			cout << "testRemoveRecord FAIL" << endl;
+		}
+	}
+
+
+	void testMassiveInsert(){
+		testCreate();
+		try{
+			for(int i=1; i<1000; i++){
+				StudentRecord * record = new StudentRecord(i, "student");
+				table->insert(*record);
+				delete (record);
+			}
+		}catch(RehashCountException & ex){
+			cout<<"Se lanzo la exception RehashCountException"<<endl;
 		}
 	}
 };

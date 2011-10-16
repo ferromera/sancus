@@ -21,7 +21,7 @@ public:
 		return size;
 	}
 
-	virtual unsigned int hash(const typename T::Key & key) = 0;
+	virtual unsigned int hash(const typename T::Key & key, unsigned int jump) = 0;
 };
 
 template<class T>
@@ -30,7 +30,7 @@ public:
 	HashFunction(unsigned int size) : Function<T>(size) {
 	}
 
-	unsigned int hash(const typename T::Key & key) {
+	unsigned int hash(const typename T::Key & key, unsigned int jump) {
 		return key.getKey() % this->getSize();
 	}
 };
@@ -42,8 +42,8 @@ public:
 			Function<T>(size) {
 	}
 
-	unsigned int hash(const typename T::Key & key) {
-		return (key.getKey() + 1) % this->getSize();
+	unsigned int hash(const typename T::Key & key, unsigned int jump) {
+		return (jump + (key.getKey() % 5) + 1) % this->getSize();
 	}
 };
 
