@@ -10,36 +10,61 @@
 #include <string>
 #include <list>
 #include "Record.h"
-#include "ComposedStringKey.h"
 #include "ElectionRecord.h"
 
 class ListRecord : public Record {
-private:
-	std::string listName;
-	ElectionRecord::Key* election;
 
 public:
 	static const bool isVariable=true;
-	static const unsigned int fixedSize=1;
-    class Key: public ComposedStringKey{
+    class Key: public Record::Key{
+    	ElectionRecord::Key * election;
+    	std::string name;
+    	std::string stringKey_;
+    	void updateString();
     public:
-        Key(char ** input):ComposedStringKey(input){}
-        Key(std::string key=" "):ComposedStringKey(key){}
+    	static const bool isVariable=true;
+    	static const bool isString=true;
+
+        Key();
+        Key(char ** input);
+        Key(const Key & k);
+        Key(const ElectionRecord::Key & , const std::string & );
+        Key & operator=(const Key & k);
+        const std::string & getString(){return getKey();}
+        void setKey(const ElectionRecord::Key & , const std::string  &);
+        void setKey(const Key & k);
+        const std::string & getKey()const;
+        void setElection(const ElectionRecord::Key &);
+        void setName(const std::string &);
+        const ElectionRecord::Key& getElection()const;
+        const std::string & getName()const;
+        void read(char ** input);
+        void write(char ** output)const;
+        unsigned int size()const;
+        bool operator <(const Record::Key &rk)const;
+        bool operator <=(const Record::Key &rk)const;
+        bool operator ==(const Record::Key &rk)const;
+        bool operator >(const Record::Key & rk)const;
+        bool operator >=(const Record::Key & rk)const;
+        bool operator !=(const Record::Key & rk)const;
+        ~Key();
     };
+    ListRecord(const ListRecord::Key &);
+    ListRecord(const ElectionRecord::Key& election,const std::string & listName);
     unsigned int size()const;
     void setKey(const ListRecord::Key & k);
-    void setKey(std::string k);
+    void setKey(const ElectionRecord::Key& election,const std::string & listName);
     void read(char ** input);
     void write(char ** output);
-	ListRecord();
-	ListRecord(std::string listName, ElectionRecord* election);
-	virtual ~ListRecord();
-	void setListName(std::string listName);
-	std::string getListName();
+
+	void setName(const std::string & listName);
+	const std::string & getName()const;
 	const ListRecord::Key & getKey()const;
-	void setElection (ElectionRecord* election);
-	ElectionRecord* getElection();
-}
+	void setElection (const ElectionRecord::Key & election);
+	const ElectionRecord::Key & getElection()const;
+
+	virtual ~ListRecord();
+};
 
 
 #endif /* LISTRECORD_H_ */
