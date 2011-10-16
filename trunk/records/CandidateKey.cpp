@@ -27,7 +27,7 @@ CandidateRecord::Key::Key(const ListRecord::Key & aList, const ChargeRecord::Key
 	charge=new ChargeRecord::Key(aCharge);
 	updateString();
 }
-Key & CandidateRecord::Key::operator=(const Key & k){
+CandidateRecord::Key & CandidateRecord::Key::operator=(const Key & k){
 	if(this==&k)
 		return *this;
 	delete list;
@@ -37,7 +37,7 @@ Key & CandidateRecord::Key::operator=(const Key & k){
 	stringKey=k.stringKey;
 
 }
-const std::string & CandidateRecord::Key::getString(){return getKey();}
+
 void CandidateRecord::Key::setKey(const ListRecord::Key & aList, const ChargeRecord::Key& aCharge){
 	delete list;
 	delete charge;
@@ -67,8 +67,8 @@ void CandidateRecord::Key::read(char ** input){
 	charge->read(input);
 }
 void CandidateRecord::Key::write(char ** output)const{
-	list->write(input);
-	charge->write(input);
+	list->write(output);
+	charge->write(output);
 }
 unsigned int CandidateRecord::Key::size()const{
 	return list->size()+charge->size();
