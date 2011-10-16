@@ -32,12 +32,11 @@ public:
 	}
 
 	void testCreate() {
-		File file("hashTableTest.bin", File::NEW | File::IO | File::BIN);
+		string path = "hashTableTest.bin";
 
-		table = new HashTable<StudentRecord, 512>(file, 10, 100);
+		table = new HashTable<StudentRecord, 512>(path, 10, 100);
 
-		assertTrue(MathUtils::isPrime(table->getSize()),
-				"El tamaño de la tabla debe ser primo");
+		assertTrue(MathUtils::isPrime(table->getSize()),"El tamaño de la tabla debe ser primo");
 
 	}
 
@@ -50,8 +49,7 @@ public:
 
 		StudentRecord * record2 = table->get(record->getKey());
 
-		assertTrue(record->getKey() == record2->getKey(),
-				"Los records no son iguales");
+		assertTrue(record->getKey() == record2->getKey(),"Los records no son iguales");
 	}
 
 	void testUniquenessValidation() {
