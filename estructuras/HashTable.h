@@ -143,13 +143,15 @@ unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 			T * recordFromBucket = new T(&buffer);
 
 			bufferedRecords.push_back(*recordFromBucket);
-			delete (recordFromBucket);
 
-			if (recordFromBucket->getKey() > record.getKey()) //NO ESTA! Porque los registros estan almacenados en orden
+			if (*recordFromBucket > record){ //NO ESTA! Porque los registros estan almacenados en orden
 				break;
+			}
 
-			if (recordFromBucket->getKey() == record.getKey())
+			if (*recordFromBucket == record){
+				delete (recordFromBucket);
 				throw new UniqueViolationException();
+			}
 		}
 
 		//VERIFICAR EL FACTOR DE CARGA DEL BUCKET
@@ -271,23 +273,29 @@ void HashTable<T, bucketSize>::remove(T & record) {
 		for (int i = 0; i < bucket->count; i++) {
 			T * recordFromBucket = new T(&buffer);
 
-			if (recordFromBucket->getKey() > record.getKey()) {
+			if ( *recordFromBucket > record) {
 				if (!bucket->overflow) {
+					delete (recordFromBucket);
 					throw new RecordNotFoundException();
 				} else {
+					delete(recordFromBucket);
 					rehashingCount++;
 					break;
 				}
 			}
 
-			if (recordFromBucket->getKey() != record.getKey())
+			if ( *recordFromBucket != record)
 				bufferedRecords.push_front(record);
+		}
+
+		//REVISAR ESTO, TENGO Q VACIAR ANTES DE VOLVER A ESCRIBIR ?
+		//free bucket bytes
+		for (unsigned int i = 0; i < sizeof(bucket->bytes); i++) {
+			bucket->bytes[i] = 0;
 		}
 
 		bucket->freeSpace += record.size();
 		bucket->count--;
-
-		delete[] buffer; //REVISAR ESTO, TENGO Q VACIAR ANTES DE VOLVER A ESCRIBIR ?
 
 		typename std::list<T>::iterator recordsIterator;
 
