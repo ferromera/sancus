@@ -42,7 +42,7 @@ void ChargeRecord::read(char ** input)
 	if(flag == 1)
 		chargeFather->read(input);
 	else
-		chargeFather == NULL;
+		chargeFather = NULL;
 }
 void ChargeRecord::write(char ** output){
 	key_->write(output);
@@ -102,4 +102,5 @@ ChargeRecord & ChargeRecord::operator=(const ChargeRecord &rec){
 		chargeFather = new ChargeRecord::Key(rec.getChargeFatherKey());
 	else
 		chargeFather = NULL;
+	return *this;
 }
