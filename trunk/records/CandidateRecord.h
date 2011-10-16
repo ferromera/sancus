@@ -10,41 +10,65 @@
 #include <string>
 #include <list>
 #include "Record.h"
-#include "ComposedStringKey.h"
 #include "VoterRecord.h"
 #include "ChargeRecord.h"
 #include "ListRecord.h"
 
 
 class CandidateRecord : public Record {
-private:
-	ChargeRecord::Key* chargeName;
-	VoterRecord::Key* voterName;
-	ListRecord::Key* listName;
-
+	VoterRecord::Key* voterKey;
 public:
 	static const bool isVariable=true;
-	static const unsigned int fixedSize=1;
-    class Key: public ComposedStringKey{
+
+    class Key: public Record::Key{
+    	ListRecord::Key* list;
+    	ChargeRecord::Key* charge;
+    	std::string stringKey;
+    	void updateString();
     public:
-        Key(char ** input):ComposedStringKey(input){}
-        Key(std::string key=" "):ComposedStringKey(key){}
+    	static const bool isString=true;
+    	static const bool isVariable=true;
+        Key(char ** input);
+        Key();
+        Key(const Key &);
+        Key(const ListRecord::Key &, const ChargeRecord::Key&);
+        Key & operator=(const Key & k);
+        const std::string & getString(){return getKey();}
+        void setKey(const ListRecord::Key &, const ChargeRecord::Key&);
+        const std::string & getKey()const;
+        void setList(const ListRecord::Key &);
+        void setCharge(const ChargeRecord::Key &);
+        const ListRecord::Key& getList()const;
+        const ChargeRecord::Key & getCharge()const;
+        void read(char ** input);
+        void write(char ** output)const;
+        unsigned int size()const;
+        bool operator <(const Record::Key &rk)const;
+        bool operator <=(const Record::Key &rk)const;
+        bool operator ==(const Record::Key &rk)const;
+        bool operator >(const Record::Key & rk)const;
+        bool operator >=(const Record::Key & rk)const;
+        bool operator !=(const Record::Key & rk)const;
+        ~Key();
+
     };
+    CandidateRecord(const CandidateRecord::Key& key);
+    CandidateRecord(const CandidateRecord&);
+    CandidateRecord(const ListRecord::Key& listName,const ChargeRecord::Key& chargeName,const VoterRecord::Key& dni);
     unsigned int size()const;
     void setKey(const CandidateRecord::Key & k);
-    void setKey(std::string k);
+    void setKey(const ListRecord::Key& listName,const ChargeRecord::Key& chargeName);
     void read(char ** input);
     void write(char ** output);
-    CandidateRecord();
-    CandidateRecord(ChargeRecord::Key* chargeName, VoterRecord::Key* votername, ListRecord::Key* listName);
-	virtual ~CandidateRecord();
 	const CandidateRecord::Key & getKey()const;
-	void setChargeName(ChargeRecord::Key* chargeName);
-	ChargeRecord::Key* getChargeName();
-	void setVoterName(VoterRecord::Key* voterName);
-	VoterRecord::Key* getVoterName();
-	void setListName(const ListRecord::Key* listName);
-	ListRecord::Key* getListName();
+	void setCharge(const ChargeRecord::Key& chargeName);
+	const ChargeRecord::Key& getCharge();
+	void setVoter(const VoterRecord::Key& dni);
+	const VoterRecord::Key& getVoter();
+	void setList(const ListRecord::Key& listName);
+	const ListRecord::Key& getList();
+	CandidateRecord & operator=(const CandidateRecord &);
+	virtual ~CandidateRecord();
 }
 
 #endif /* CANDIDATERECORD_H_ */
