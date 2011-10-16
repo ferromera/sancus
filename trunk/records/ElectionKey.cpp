@@ -1,5 +1,5 @@
 /*
- * VoteCountingKey.cpp
+ * ElectionKey.cpp
  *
  *  Created on: 14/10/2011
  *      Author: juan manuel
@@ -23,17 +23,8 @@ ElectionRecord::Key::Key(const Key & k){
 
 ElectionRecord::Key::Key(unsigned int date_, const ChargeRecord::Key & charge){
 	date = date_;
-	charge = new ChargeRecord::Key(charge);
+	this->charge = new ChargeRecord::Key(charge);
 	updateString();
-}
-ElectionRecord::Key & ElectionRecord::Key::operator=(const Key & k){
-	if(this==&k)
-		return *this;
-	delete charge;
-	date = k.date;
-	charge = new ChargeRecord::Key(*k.charge);
-	stringKey_=k.stringKey_;
-	return *this;
 }
 const std::string & ElectionRecord::Key::getKey()const{
 	return stringKey_;
@@ -43,8 +34,8 @@ void ElectionRecord::Key::setDate(unsigned int date_){
 	updateString();
 }
 void ElectionRecord::Key::setCharge(const ChargeRecord::Key& charge){
-	delete charge;
-	charge =new ChargeRecord::Key(charge);
+	delete this->charge;
+	this->charge =new ChargeRecord::Key(charge);
 	updateString();
 }
 const unsigned int ElectionRecord::Key::getDate()const{
@@ -104,16 +95,16 @@ bool ElectionRecord::Key::operator <=(const Record::Key & r)const
 }
 bool ElectionRecord::Key::Key::operator >(const Record::Key &r)const
 {
-	return ! *this <= r;
+	return ! (*this <= r);
 }
 bool ElectionRecord::Key::operator !=(const Record::Key &r)const
 {
-	return ! *this == r;
+	return ! (*this == r);
 }
 
 bool ElectionRecord::Key::operator >=(const Record::Key & r)const
 {
-	return ! *this<r;
+	return ! (*this<r);
 }
 ElectionRecord::Key & ElectionRecord::Key::operator=(const ElectionRecord::Key & rk)
 {
