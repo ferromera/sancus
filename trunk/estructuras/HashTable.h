@@ -97,7 +97,6 @@ HashTable<T, bucketSize>::HashTable(std::string & path,
 	file->flush();
 
 	delete (bucket);
-	//delete[] buckets;
 }
 
 template<class T, unsigned int bucketSize>
@@ -179,6 +178,8 @@ unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 			delete (bucket);
 
 			return 0;
+		}else{
+			return position;
 		}
 
 	} else { //hubo overflow, retornara con el ultimo resultado de la funcion de hash
@@ -228,6 +229,8 @@ T * HashTable<T, bucketSize>::get(const typename T::Key & key) {
 		delete (bucket);
 		delete (buffer);
 	}
+
+	throw new RecordNotFoundException();
 }
 
 template<class T, unsigned int bucketSize>
