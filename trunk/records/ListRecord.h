@@ -30,7 +30,7 @@ public:
         Key(const Key & k);
         Key(const ElectionRecord::Key & , const std::string & );
         Key & operator=(const Key & k);
-        const std::string & getString(){return getKey();}
+        const std::string & getString()const{return getKey();}
         void setKey(const ElectionRecord::Key & , const std::string  &);
         void setKey(const Key & k);
         const std::string & getKey()const;

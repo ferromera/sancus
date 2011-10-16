@@ -26,11 +26,12 @@ public:
     	std::string stringKey_;
     	void updateString();
     public:
+    	Key();
         Key(unsigned int date,const ChargeRecord::Key &);
         Key(char ** input);
         Key(const Key & k);
         Key & operator=(const Key & k);
-        const std::string & getString(){return getKey();}
+        const std::string & getString()const{return getKey();}
         const std::string & getKey()const;
         void setDate(unsigned int);
         void setCharge(const ChargeRecord::Key&);
@@ -50,21 +51,21 @@ public:
 
     };
     unsigned int size()const;
-	ElectionRecord();
+	ElectionRecord(const ElectionRecord & rec);
 	ElectionRecord(const ElectionRecord::Key & k);
-	ElectionRecord(unsigned int date, DistrictRecord::Key* district, ChargeRecord::Key* charge);
-	virtual ~ElectionRecord();
+	ElectionRecord(unsigned int date, const ChargeRecord::Key& charge, const DistrictRecord::Key& district);
 	const ElectionRecord::Key & getKey()const;
     void setKey(const ElectionRecord::Key & k);
-    void setKey(std::string k);
+    void setKey(unsigned int date, const ChargeRecord::Key& charge);
     void read(char ** input);
     void write(char ** output);
-    void setDistrict(DistrictRecord::Key* district);
-    void setCharge(ChargeRecord::Key* charge);
-    void setDate(std::string date);
-    DistrictRecord::Key* getDistrict();
-    ChargeRecord::Key* getCharge();
-    std::string getDate();
+    void setDistrict(const DistrictRecord::Key& district);
+    void setCharge(const ChargeRecord::Key& charge);
+    void setDate(unsigned int date);
+    const DistrictRecord::Key& getDistrict()const;
+    const ChargeRecord::Key& getCharge()const;
+    unsigned int getDate()const;
+    virtual ~ElectionRecord();
 
 };
 

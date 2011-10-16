@@ -32,6 +32,7 @@ ListRecord::Key & ListRecord::Key::operator=(const Key & k){
 	election= new ElectionRecord::Key(*k.election);
 	name= k.name;
 	updateString();
+	return *this;
 }
 void ListRecord::Key::setKey(const ElectionRecord::Key & elect , const std::string  & listName){
 	delete election;
