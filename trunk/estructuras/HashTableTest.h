@@ -18,28 +18,28 @@ class HashTableTest {
 private:
 	HashTable<StudentRecord, 512> * table;
 
-public:
-
-	void assertTrue(bool condition,string testname, string message) {
+	void assertTrue(bool condition, string testname, string message) {
 		if (!condition) {
-			cout << testname << " FAIL."<<endl;
+			cout << testname << " FAIL." << endl;
 			cout << message << endl;
 			throw new exception();
-		}else{
-			cout << testname << " OK."<<endl;
+		} else {
+			cout << testname << " OK." << endl;
 		}
 	}
 
-	void assertFalse(bool condition,string testname, string message) {
-		assertTrue(!condition,testname, message);
+	void assertFalse(bool condition, string testname, string message) {
+		assertTrue(!condition, testname, message);
 	}
 
+public:
 	void testCreate() {
 		string path = "hashTableTest.bin";
 
-		table = new HashTable<StudentRecord, 512>(path, 10, 100);
+		table = new HashTable<StudentRecord, 512> (path, 10, 100);
 
-		assertTrue(MathUtils::isPrime(table->getSize()),"testCreate","El tamaño de la tabla debe ser primo");
+		assertTrue(MathUtils::isPrime(table->getSize()), "testCreate",
+				"El tamaño de la tabla debe ser primo");
 
 	}
 
@@ -50,55 +50,56 @@ public:
 
 		table->insert(*record);
 
-		StudentRecord * record2 = table->get(record->getKey());
+		StudentRecord record2 = table->get(record->getKey());
 
-		assertTrue((*record) == (*record2),"testInsertAndGet","Los records no son iguales");
+		assertTrue((*record) == (record2), "testInsertAndGet",
+				"Los records no son iguales");
 	}
 
-	void testUniquenessValidation() {
-		testCreate();
-
-		StudentRecord * record1 = new StudentRecord(12, "alfredo");
-
-		table->insert(*record1);
-		table->insert(*record1);
-	}
-
-	void testGetRecordWhichIsNotPresent(){
-		testCreate();
-
-		StudentRecord::Key * key = new StudentRecord::Key(10);
-
-		table->get(*key);
-	}
-
-	void testRemoveRecord(){
+	void testRemoveRecord() {
 		testCreate();
 
 		bool removed = false;
 
 		StudentRecord * record = new StudentRecord(12, "alfredo");
-		StudentRecord * record2;
+		StudentRecord record2;
 
 		table->insert(*record);
-
 		table->remove(*record);
 
-		try{
+		try {
 			record2 = table->get(record->getKey());
-		}catch (RecordNotFoundException & ex){
+		} catch (RecordNotFoundException & ex) {
 			removed = true;
-			assertTrue(record2 == NULL, "testRemoveRecord", "El record no es null");
-			cout<<"RecordNotFoundException lanzada."<<endl;
+			cout << "RecordNotFoundException lanzada." << endl;
+			cout << "testRemoveRecord OK." << endl;
 		}
 
-		if(!removed){
-			cout<<"testRemoveRecord FAIL"<<endl;
+		if (!removed) {
+			cout << "testRemoveRecord FAIL" << endl;
 		}
-
-
 	}
 
+	void testUniquenessValidation() {
+		testCreate();
+
+		bool inserted = true;
+		StudentRecord * record1 = new StudentRecord(12, "alfredo");
+
+		table->insert(*record1);
+
+		try {
+			table->insert(*record1);
+		} catch (UniqueViolationException & ex) {
+			inserted = false;
+			cout << "UniqueViolationException lanzada." << endl;
+			cout << "testUniquenessValidation OK." << endl;
+		}
+
+		if (inserted) {
+			cout << "testRemoveRecord FAIL" << endl;
+		}
+	}
 };
 
 #endif /* HASHTABLETEST_H_ */
