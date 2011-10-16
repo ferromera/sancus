@@ -6,6 +6,7 @@
  */
 
 #include "ListRecord.h"
+#include "stdint.h"
 
 ListRecord::Key::Key(){
 	election=new ElectionRecord::Key();
@@ -24,7 +25,7 @@ ListRecord::Key::Key(const ElectionRecord::Key & elect, const std::string & list
 	name=listName;
 	updateString();
 }
-Key & ListRecord::Key::operator=(const Key & k){
+ListRecord::Key & ListRecord::Key::operator=(const Key & k){
 	if(this==&k)
 		return *this;
 	delete election;
@@ -73,9 +74,9 @@ void ListRecord::Key::write(char ** output)const{
 	election->write(output);
 	uint8_t stringSize=name.size();
 	memcpy(*output,&stringSize,1);
-	(*input)++;
+	(*output)++;
 	memcpy(*output,name.c_str(),stringSize);
-	(*input)+=stringSize;
+	(*output)+=stringSize;
 
 
 }
@@ -116,7 +117,9 @@ bool ListRecord::Key::operator !=(const Record::Key & rk)const{
 }
 void ListRecord::Key::updateString(){
 	stringKey_="(";
-	stringKey_.append(name>getString());  // ((dsffdsf)(fdsfsdsfdfs)(9fddsfsdf))
+	stringKey_.append("(");
+	stringKey_.append(name);
+	stringKey_.append(")");
 	stringKey_.append(election->getString());
 	stringKey_.append(")");
 }

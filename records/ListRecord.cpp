@@ -5,7 +5,7 @@
  *      Author: fernando
  */
 
-#include "ListRecord.cpp"
+#include "ListRecord.h"
 
 ListRecord::ListRecord(const ListRecord::Key & k){
 	key_= new ListRecord::Key(k);
@@ -23,7 +23,7 @@ void ListRecord::setKey(const ListRecord::Key & k){
 	delete key_;
 	key_= new ListRecord::Key(k);
 }
-void ListRecord::setKey(const std::string & listName, ElectionRecord::Key* election){
+void ListRecord::setKey(const  ElectionRecord::Key& election,const std::string & listName){
 	delete key_;
 	key_= new ListRecord::Key(election,listName);
 }
