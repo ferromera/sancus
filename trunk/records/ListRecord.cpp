@@ -10,6 +10,9 @@
 ListRecord::ListRecord(const ListRecord::Key & k){
 	key_= new ListRecord::Key(k);
 }
+ListRecord::ListRecord(const ListRecord & rec){
+	key_= new ListRecord::Key(rec.getKey());
+}
 ListRecord::ListRecord(const ElectionRecord::Key& election,const std::string & listName){
 	key_= new ListRecord::Key(election,listName);
 }
@@ -44,5 +47,11 @@ void ListRecord::setElection (const ElectionRecord::Key & election){
 }
 const ElectionRecord::Key & ListRecord::getElection()const{
 	return ((Key*)key_)->getElection();
+}
+ListRecord & ListRecord::operator=(const ListRecord &rec){
+	if(this==&rec)
+		return *this;
+	key_= new ListRecord::Key(rec.getKey());
+
 }
 ListRecord::~ListRecord(){}
