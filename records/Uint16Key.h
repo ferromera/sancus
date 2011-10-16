@@ -15,7 +15,7 @@ class Uint16Key: public Record::Key{
         void setKey(uint16_t  i);
         void setKey(const Record::Key & rk);
         uint16_t getKey()const;
-        unsigned int getUint(){return getKey();}
+        unsigned int getUint() const{return getKey();}
 
         void read(char ** input);
         void write(char ** output)const;
