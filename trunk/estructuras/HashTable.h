@@ -51,7 +51,7 @@ public:
 	 * @maxNumberOfRecords numero maximo de registros en el archivo (cuando se llegue a este numero se debera
 	 * enfrentar una reorganización de la tabla).
 	 */
-	HashTable(File & file, const unsigned int recordsPerBucket,
+	HashTable(std::string & path, const unsigned int recordsPerBucket,
 			const unsigned int maxNumberOfRecords);
 
 	void load(File & file);
@@ -67,11 +67,11 @@ public:
 };
 
 template<class T, unsigned int bucketSize>
-HashTable<T, bucketSize>::HashTable(File & file,
+HashTable<T, bucketSize>::HashTable(std::string & path,
 		const unsigned int recordsPerBucket,
 		const unsigned int maxNumberOfRecords) {
 
-	this->file = &file;
+	this->file = new File(path, File::NEW | File::IO | File::BIN);
 	this->maxNumberOfRecords = maxNumberOfRecords;
 	this->size = maxNumberOfRecords / (PACKAGE_DENSITY * recordsPerBucket);
 
@@ -91,10 +91,10 @@ HashTable<T, bucketSize>::HashTable(File & file,
 	bucket->overflow = false;
 
 	for (unsigned int i = 0; i < this->size; i++) {
-		file.write((char *) bucket, bucketSize);
+		file->write((char *) bucket, bucketSize);
 	}
 
-	file.flush();
+	file->flush();
 
 	delete (bucket);
 	//delete[] buckets;
