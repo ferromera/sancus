@@ -9,7 +9,6 @@
 #define ELECTIONRECORD_H_
 
 #include "Record.h"
-#include "ComposedStringKey.h"
 #include "ChargeRecord.h"
 #include "DistrictRecord.h"
 
@@ -20,8 +19,6 @@ private:
 public:
 
     static const bool isVariable=true;
-     //It's variable, so fixed size must be a number > 0.
-    static const unsigned int fixedSize=1;
     class Key : public Record::Key{
     private:
     	ChargeRecord::Key* charge;
