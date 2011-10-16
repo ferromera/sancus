@@ -35,7 +35,7 @@ CandidateRecord::Key & CandidateRecord::Key::operator=(const Key & k){
 	list=new ListRecord::Key(*k.list);
 	charge=new ChargeRecord::Key(*k.charge);
 	stringKey=k.stringKey;
-
+	return *this;
 }
 
 void CandidateRecord::Key::setKey(const ListRecord::Key & aList, const ChargeRecord::Key& aCharge){

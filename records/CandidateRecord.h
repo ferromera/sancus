@@ -62,11 +62,11 @@ public:
     void write(char ** output);
 	const CandidateRecord::Key & getKey()const;
 	void setCharge(const ChargeRecord::Key& chargeName);
-	const ChargeRecord::Key& getCharge();
+	const ChargeRecord::Key& getCharge()const;
 	void setVoter(const VoterRecord::Key& dni);
-	const VoterRecord::Key& getVoter();
+	const VoterRecord::Key& getVoter()const;
 	void setList(const ListRecord::Key& listName);
-	const ListRecord::Key& getList();
+	const ListRecord::Key& getList()const;
 	CandidateRecord & operator=(const CandidateRecord &);
 	virtual ~CandidateRecord();
 };
