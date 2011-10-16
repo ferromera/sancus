@@ -15,10 +15,6 @@
 
 template<class TRecord,unsigned int blockSize>
 class BPlusTree{
-public:
-	static const char CREATE=0;
-	static const char LOAD=1;
-
 private:
     BPTreeNode<TRecord,blockSize> * root;
     BPTreeVariableLeaf<TRecord,blockSize> * searchLeaf;
@@ -40,7 +36,7 @@ private:
 
 public:
 
-    BPlusTree(const std::string & path, char creationMode);
+    BPlusTree(const std::string & path);
     BPlusTree(const std::string & treePath,const std::string & sequentialPath);
 
     void insert(const TRecord & rec);
@@ -54,7 +50,7 @@ public:
 
 
 template <class TRecord,unsigned int blockSize>
-BPlusTree<TRecord,blockSize>::BPlusTree(const std::string & path, char creationMode):
+BPlusTree<TRecord,blockSize>::BPlusTree(const std::string & path):
 root(NULL),searchLeaf(NULL),file_(NULL),dataPath(path),found(NULL){
 	reportPath=dataPath;
 	std::string::iterator it=reportPath.end();
@@ -63,12 +59,10 @@ root(NULL),searchLeaf(NULL),file_(NULL),dataPath(path),found(NULL){
 		reportPath.erase(it,reportPath.end());
 	reportPath.append("_report.txt");
 
-	switch(creationMode){
-	case CREATE: 	create();
-					break;
-	case LOAD:		load();
-					break;
-	default:		throw BPTreeInvalidCreationModeException();
+	try{
+		load();
+	}catch(OpenFileException){
+		create();
 	}
 
 }
@@ -87,9 +81,6 @@ root(NULL),searchLeaf(NULL),file_(NULL),dataPath(treePath),found(NULL){
 }
 template<class TRecord,unsigned int blockSize>
 void BPlusTree<TRecord,blockSize>::create(){
-	delete file_;
-	delete root;
-	delete searchLeaf;
 	file_=new File(dataPath,File::NEW|File::BIN|File::IO);
 	FreeSpaceStackBlock<blockSize> * fblock=new FreeSpaceStackBlock<blockSize>;
 	fblock->blockNumber=1;
@@ -104,9 +95,6 @@ void BPlusTree<TRecord,blockSize>::create(){
 }
 template<class TRecord,unsigned int blockSize>
 void BPlusTree<TRecord,blockSize>::load(){
-	delete file_;
-	delete root;
-	delete searchLeaf;
 	file_=new File(dataPath,File::BIN|File::IO);
 
 	root=new BPTreeVariableLeaf<TRecord,blockSize>(*file_,1);
