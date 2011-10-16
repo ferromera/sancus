@@ -9,7 +9,7 @@
 #define HASHTABLETEST_H_
 
 #include "HashTable.h"
-#include "StudentRecord.h"
+#include "../records/StudentRecord.h"
 
 using namespace std;
 
