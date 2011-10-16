@@ -37,7 +37,7 @@ private:
 	Function<T> * hashFunction;
 	Function<T> * rehashFunction;
 
-	unsigned int insertRecord(T & record, Function<T> * function,
+	int insertRecord(T & record, Function<T> * function,
 			unsigned int jump);
 
 public:
@@ -107,9 +107,9 @@ template<class T, unsigned int bucketSize>
 void HashTable<T, bucketSize>::insert(T & record) {
 	unsigned int rehashingCount = 0;
 
-	unsigned int jump = insertRecord(record, this->hashFunction, 0);
+	int jump = insertRecord(record, this->hashFunction, 0);
 
-	if (jump != 0) {
+	if (jump != -1) {
 		if (rehashingCount < maxNumberOfRehashes) {
 			rehashingCount++;
 			insertRecord(record, this->rehashFunction, jump);
@@ -120,10 +120,10 @@ void HashTable<T, bucketSize>::insert(T & record) {
 }
 
 template<class T, unsigned int bucketSize>
-unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
+int HashTable<T, bucketSize>::insertRecord(T & record,
 		Function<T> * function, unsigned int jump) {
 	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
-	unsigned int position = (function->hash(record.getKey()) + jump) - 1;
+	unsigned int position = (function->hash(record.getKey(), jump));
 	unsigned int insertOffset = (position * bucketSize);
 
 	file->seek(insertOffset, File::BEG);
@@ -162,6 +162,9 @@ unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 			//No existe en el bucket debemos insertar (respetando el orden);
 			bufferedRecords.push_front(record);
 
+			// MENSAJE DE LOG
+			std::cout<<"SE inserta el record con id: " << record.getKey().getKey() << ". En el bucket: "<<position<<std::endl;
+
 			bufferedRecords.sort();
 			typename std::list<T>::iterator recordsIterator;
 
@@ -170,6 +173,8 @@ unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 			for (unsigned int i = 0; i < sizeof(bucket->bytes); i++) {
 				bucket->bytes[i] = 0;
 			}
+
+			buffer = bucket->bytes;
 
 			bucket->freeSpace -= record.size();
 			bucket->count++;
@@ -188,7 +193,7 @@ unsigned int HashTable<T, bucketSize>::insertRecord(T & record,
 
 			delete (bucket);
 
-			return 0;
+			return -1;
 		} else {
 			bucket->overflow = true;
 
@@ -210,12 +215,12 @@ T HashTable<T, bucketSize>::get(const typename T::Key & key) {
 	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	unsigned int offset;
 	unsigned int rehashingCount = 0;
-	unsigned int position = hashFunction->hash(key) - 1;
+	unsigned int position = hashFunction->hash(key,0);
 	char * buffer;
 
 	while (rehashingCount < maxNumberOfRehashes) {
 		if (rehashingCount > 0) {
-			position = rehashFunction->hash(key) - 1;
+			position = rehashFunction->hash(key,position);
 		}
 
 		offset = (position * bucketSize);
@@ -268,14 +273,14 @@ void HashTable<T, bucketSize>::remove(T & record) {
 	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	unsigned int offset;
 	unsigned int rehashingCount = 0;
-	unsigned int position = hashFunction->hash(record.getKey()) - 1;
+	unsigned int position = hashFunction->hash(record.getKey(),0);
 	char * buffer;
 	bool found;
 	typename std::list<T> bufferedRecords;
 
 	while (rehashingCount < maxNumberOfRehashes) {
 		if (rehashingCount > 0) {
-			position = rehashFunction->hash(record.getKey()) - 1;
+			position = rehashFunction->hash(record.getKey(), position);
 		}
 
 		offset = (position * bucketSize);
@@ -326,6 +331,8 @@ void HashTable<T, bucketSize>::remove(T & record) {
 			for (unsigned int i = 0; i < sizeof(bucket->bytes); i++) {
 				bucket->bytes[i] = 0;
 			}
+
+			buffer = bucket->bytes;
 
 			bucket->freeSpace += record.size();
 			bucket->count--;
