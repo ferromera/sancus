@@ -6,45 +6,109 @@
  */
 
 #include "DistrictRecord.h"
+#include "stdint.h"
+#include <cstring>
 
-DistrictRecord::DistrictRecord() {
-	this->name.clear();
-	districtList = NULL;
+DistrictRecord::DistrictRecord(const DistrictRecord::Key &k)
+{
+	key_ = new DistrictRecord::Key(k);
+	districtFather = NULL;
 }
-
-DistrictRecord::DistrictRecord(std::string name,std::list<DistrictRecord::Key*>* districtList) {
-	this->name = name;
-	this->districtList = districtList;
+DistrictRecord::DistrictRecord(const DistrictRecord::Key &k,const DistrictRecord::Key &kFather)
+{
+	key_ = new DistrictRecord::Key(k);
+	districtFather = new DistrictRecord::Key(kFather);
 }
-
-void DistrictRecord::setName(std::string name) {
-	this->name = name;
+DistrictRecord::DistrictRecord(std::string chargeName,std::string districtFather)
+{
+	key_ = new DistrictRecord::Key(chargeName);
+	this->districtFather = new DistrictRecord::Key(districtFather);
 }
-
-std::string DistrictRecord::getName() {
-	return this->name;
+unsigned int DistrictRecord::size()const
+{
+	if(districtFather == NULL)
+		return key_->size() + 1;
+	return key_->size() + 1 + districtFather->size();
 }
-
-const DistrictRecord::Key DistrictRecord::getKey() {
-	return this->key_;
+void DistrictRecord::setKey(const DistrictRecord::Key & k)
+{
+	delete key_;
+	key_ = new DistrictRecord::Key(k);
 }
-
-unsigned int DistrictRecord::size()const{
-	return name.size()+1+this->districtList->size();
+void DistrictRecord::setFather(const DistrictRecord::Key & k)
+{
+	delete districtFather;
+	districtFather = new DistrictRecord::Key(k);
 }
-void DistrictRecord::setDistrictList(const std::list<DistrictRecord::Key*>* district){
-	this->districtList = district;
-}
-std::list<DistrictRecord::Key*>* DistrictRecord::getDistrictList(){
-	return this->districtList;
-}
-void DistrictRecord::read(char ** input){
-	//todo
+void DistrictRecord::read(char ** input)
+{
+	key_->read(input);
+	uint8_t flag;
+	memcpy(&flag,*input,1);
+	(*input)+=1;
+	if(flag == 1)
+		districtFather->read(input);
+	else
+		districtFather = NULL;
 }
 void DistrictRecord::write(char ** output){
-	//todo
+	key_->write(output);
+	uint8_t flag = 0;
+	if(districtFather != NULL)
+		flag = 1;
+	memcpy(*output,&flag,1);
+	(*output)+=1;
+	if(districtFather != NULL)
+		districtFather->write(output);
+}
+DistrictRecord::~DistrictRecord()
+{
+	delete districtFather;
+}
+void DistrictRecord::setDistrictName(std::string district)
+{
+	delete key_;
+	key_ = new DistrictRecord::Key(district);
+}
+std::string DistrictRecord::getDistrictName()
+{
+	return key_->getString();
+}
+const DistrictRecord::Key & DistrictRecord::getKey()const
+{
+	return *((DistrictRecord::Key*)key_);
+}
+void DistrictRecord::setFatherName(std::string districtFather)
+{
+	delete this->districtFather;
+	this->districtFather = new DistrictRecord::Key(districtFather);
+}
+std::string DistrictRecord::getFatherName()
+{
+	return districtFather->getString();
+}
+DistrictRecord::Key & DistrictRecord::getFather()const
+{
+	if(!hasFather())
+		throw districtFatherNullException();
+	return *((DistrictRecord::Key*)districtFather);
+}
+bool DistrictRecord::hasFather()const
+{
+	if(districtFather != NULL)
+		return true;
+	return false;
+}
+DistrictRecord & DistrictRecord::operator=(const DistrictRecord &rec){
+	if(this==&rec)
+		return *this;
+	delete key_;
+	delete districtFather;
+	key_=new DistrictRecord::Key(rec.getKey());
+	if(rec.hasFather())
+		districtFather = new DistrictRecord::Key(rec.getFather());
+	else
+		districtFather = NULL;
+	return *this;
 }
 
-DistrictRecord::~DistrictRecord() {
-	// TODO Auto-generated destructor stub
-}

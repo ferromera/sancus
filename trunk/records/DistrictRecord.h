@@ -16,12 +16,10 @@
 
 class DistrictRecord : public Record {
 private:
-	std::string name;
-	std::list<DistrictRecord::Key*>* districtList;
+	DistrictRecord::Key* districtFather;
 
 public:
 	static const bool isVariable=true;
-	static const unsigned int fixedSize=1;
     class Key: public StringKey{
     public:
         Key(char ** input):StringKey(input){}
@@ -32,14 +30,26 @@ public:
     void setKey(std::string k);
     void read(char ** input);
     void write(char ** output);
-	DistrictRecord();
-	DistrictRecord(std::string name, std::list<DistrictRecord::Key*>* districtList);
+    DistrictRecord(const DistrictRecord::Key &k);
+    DistrictRecord(const DistrictRecord::Key &k,const DistrictRecord::Key &kFather);
+	DistrictRecord(std::string district,std::string father);
 	virtual ~DistrictRecord();
-	void setName(std::string name);
-	std::string getName();
+	void setDistrictName(std::string district);
+	std::string getDistrictName();
+	void setFatherName(std::string father);
+	std::string getFatherName();
 	const DistrictRecord::Key & getKey()const;
-	void setDistrictList(const std::list<DistrictRecord::Key*>* district);
-	std::list<DistrictRecord::Key*>* getDistrictList();
+	void setFather(const DistrictRecord::Key & k);
+	DistrictRecord::Key & getFather()const;
+	bool hasFather()const;
+    bool operator <(const Record::Key &rk)const;
+    bool operator <=(const Record::Key &rk)const;
+    bool operator ==(const Record::Key &rk)const;
+    bool operator >(const Record::Key & rk)const;
+    bool operator >=(const Record::Key & rk)const;
+    bool operator !=(const Record::Key & rk)const;
+    DistrictRecord & operator=(const DistrictRecord &rec);
 };
+class districtFatherNullException : public std::exception{};
 
 #endif /* DISTRICTRECORD_H_ */
