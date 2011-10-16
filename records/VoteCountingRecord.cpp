@@ -42,7 +42,7 @@ void VoteCountingRecord::setDistrict(const DistrictRecord::Key& district){
 void VoteCountingRecord::setElection(const ElectionRecord::Key& election){
 	((Key*)key_)->setElection(election);
 }
-void VoteCountingRecord::setCount(unsigned int count)const{
+void VoteCountingRecord::setCount(unsigned int count){
 	count_=count;
 }
 void VoteCountingRecord::setKey(const Key & k){
@@ -53,7 +53,7 @@ void VoteCountingRecord::setKey(const ListRecord::Key & list, const DistrictReco
 	delete key_;
 	key_=new Key(list,district,election);
 }
-const Key & VoteCountingRecord::getKey(){
+const VoteCountingRecord::Key & VoteCountingRecord::getKey()const{
 	return *((Key*)key_);
 }
 void VoteCountingRecord::read(char ** input){
@@ -77,4 +77,5 @@ VoteCountingRecord & VoteCountingRecord::operator = (const VoteCountingRecord & 
 	delete key_;
 	key_=new Key(rec.getKey());
 	count_=rec.count_;
+	return *this;
 }

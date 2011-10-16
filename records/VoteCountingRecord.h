@@ -49,7 +49,7 @@ public:
        	void write(char ** output)const;
         unsigned int size()const;
         bool operator <(const Record::Key &r)const;
-        bool operator <=(const KRecord::Keyey &r)const;
+        bool operator <=(const Record::Key &r)const;
         bool operator ==(const Record::Key &r)const;
         bool operator >(const Record::Key & r)const;
         bool operator >=(const Record::Key & r)const;
@@ -67,10 +67,10 @@ public:
 	void setList(const ListRecord::Key &);
 	void setDistrict(const DistrictRecord::Key&);
 	void setElection(const ElectionRecord::Key&);
-	void setCount(unsigned int)const;
+	void setCount(unsigned int);
 	void setKey(const Key &);
 	void setKey(const ListRecord::Key & , const DistrictRecord::Key & , const ElectionRecord::Key & );
-	const Key & getKey();
+	const Key & getKey()const;
 	void read(char ** input);
 	void write(char ** output);
 	unsigned int size()const;

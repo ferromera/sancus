@@ -13,15 +13,18 @@
 #include <stdio.h>
 
 class StringKey: public Record::Key {
+protected:
+	std::string dataString;
 public:
-    static const bool isVariable=false;
+    static const bool isVariable=true;
+    static const bool isString=true;
     StringKey(char ** input); //Load the key from input.
     StringKey(std::string key="");
     StringKey(const StringKey &);
     void setKey(std::string  string);
     void setKey(const Record::Key & rk);
-    std::string getKey()const;
-
+    const std::string & getKey()const;
+    const std::string & getString()const{return getKey();}
     void read(char ** input);
     void write(char ** output)const;
 
@@ -35,8 +38,7 @@ public:
     StringKey & operator=(std::string string);
     unsigned int size()const{ return dataString.size() + 1; }
 	~StringKey(){}
-protected:
-	std::string dataString;
+
 };
 
 #endif /* STRINGKEY_H_ */

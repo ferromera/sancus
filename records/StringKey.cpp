@@ -29,7 +29,7 @@ void StringKey::setKey(const Record::Key & rk)
     const StringKey & sk= dynamic_cast<const StringKey &>(rk);
     dataString=sk.dataString;
 }
-std::string StringKey::getKey()const
+const std::string & StringKey::getKey()const
 {
 	return dataString;
 }
@@ -74,16 +74,16 @@ bool StringKey::operator <=(const Record::Key & r)const
 }
 bool StringKey::operator >(const Record::Key &r)const
 {
-	return ! *this <= r;
+	return ! (*this <= r);
 }
 bool StringKey::operator !=(const Record::Key &r)const
 {
-	return ! *this == r;
+	return ! (*this == r);
 }
 
 bool StringKey::operator >=(const Record::Key & r)const
 {
-	return ! *this<r;
+	return ! (*this<r);
 }
 StringKey & StringKey::operator=(const StringKey & rk)
 {
