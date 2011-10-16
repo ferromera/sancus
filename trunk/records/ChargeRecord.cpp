@@ -1,94 +1,105 @@
 
 #include "ChargeRecord.h"
+#include "stdint.h"
 
+ChargeRecord::ChargeRecord(const ChargeRecord::Key &k)
+{
+	key_ = new ChargeRecord::Key(k);
+	chargeFather = NULL;
+}
+ChargeRecord::ChargeRecord(const ChargeRecord::Key &k,const ChargeRecord::Key &kFather)
+{
+	key_ = new ChargeRecord::Key(k);
+	chargeFather = new ChargeRecord::Key(kFather);
+}
+ChargeRecord::ChargeRecord(std::string chargeName,std::string chargeFather)
+{
+	key_ = new ChargeRecord::Key(chargeName);
+	this->chargeFather = new ChargeRecord::Key(chargeFather);
+}
 unsigned int ChargeRecord::size()const
 {
-	unsigned int size = 1 + chargeName.size() + 1;
-	std::list<std::string>::iterator itCharges = chargeList->begin();
-	for(int i = 0;i<chargeList->size();i++,itCharges++)
-	{
-		size+= 1 + (*itCharges).size();
-	}
-	return size;
-
+	if(chargeFather == NULL)
+		return key_->size() + 1;
+	return key_->size() + 1 + chargeFather->size();
 }
 void ChargeRecord::setKey(const ChargeRecord::Key & k)
 {
 	delete key_;
-	key_ = new Key(k);
+	key_ = new ChargeRecord::Key(k);
+}
+void ChargeRecord::setChargeFather(const ChargeRecord::Key & k)
+{
+	delete chargeFather;
+	chargeFather = new ChargeRecord::Key(k);
 }
 void ChargeRecord::read(char ** input)
 {
-	char size;
-	char largeStr;
-	memcpy(&size,*input,1);
+	key_->read(input);
+	uint8_t flag;
+	memcpy(&flag,*input,1);
 	(*input)+=1;
-	memcpy(&chargeName,*input,size);
-	(*input)+=size;
-	memcpy(&size,*input,1);
-	(*input)+=1;
-	for(int i = 0 ; i < size ; i++)
-	{
-		memcpy(&largeStr,*input,1);
-		(*input)+=1;
-	    char *myChar = new char[largeStr + 1];
-	    memcpy(myChar,*input,largeStr);
-	    (*input)+=largeStr;
-	    myChar[largeStr] = '\0';
-	    chargeList->push_back(myChar);
-	}
+	if(flag == 1)
+		chargeFather->read(input);
+	else
+		chargeFather == NULL;
 }
 void ChargeRecord::write(char ** output){
-	char size = chargeName.size();
-	memcpy(*output,&size,1);
+	key_->write(output);
+	uint8_t flag = 0;
+	if(chargeFather != NULL)
+		flag = 1;
+	memcpy(*output,&flag,1);
 	(*output)+=1;
-	memcpy(*output,chargeName.c_str(),size);
-	(*output)+=chargeName.size();
-	size = chargeList->size();
-	memcpy(*output,&size,1);
-	(*output)+=1;
-	std::list<std::string>::iterator itCharges = chargeList->begin();
-	for(unsigned int i = 0;i<chargeList->size();i++,itCharges++)
-	{
-		size = (*itCharges).size();
-		memcpy(*output,&size,1);
-		(*output)+=1;
-		size = (*itCharges).size();
-		memcpy(*output,(*itCharges).c_str(),size);
-		(*output)+=(*itCharges).size();
-	}
-
-}
-ChargeRecord::ChargeRecord()
-{
-}
-ChargeRecord::ChargeRecord(std::string chargeName, std::list<std::string>* chargeList)
-{
-	this->chargeName = chargeName;
-	this->chargeList = chargeList;
+	if(chargeFather != NULL)
+		chargeFather->write(output);
 }
 ChargeRecord::~ChargeRecord()
 {
-	delete chargeList;
+	delete chargeFather;
 }
 void ChargeRecord::setChargeName(std::string chargeName)
 {
-	this->chargeName = chargeName;
+	delete key_;
+	key_ = new ChargeRecord::Key(chargeName);
 }
 std::string ChargeRecord::getChargeName()
 {
-	return chargeName;
+	return key_->getString();
 }
 const ChargeRecord::Key & ChargeRecord::getKey()const
 {
 	return *((ChargeRecord::Key*)key_);
 }
-void ChargeRecord::setChargeList(std::list<std::string>* charges)
+void ChargeRecord::setChargeFather(std::string chargeFather)
 {
-	chargeList = charges;
+	delete this->chargeFather;
+	this->chargeFather = new ChargeRecord::Key(chargeFather);
 }
-std::list<std::string>* ChargeRecord::getChargeList()
+std::string ChargeRecord::getChargeFather()
 {
-	return chargeList;
+	return chargeFather->getString();
 }
-
+ChargeRecord::Key & ChargeRecord::getChargeFatherKey()const
+{
+	if(!hasFather())
+		throw chargeFatherNullException();
+	return *((ChargeRecord::Key*)chargeFather);
+}
+bool ChargeRecord::hasFather()const
+{
+	if(chargeFather != NULL)
+		return true;
+	return false;
+}
+ChargeRecord & ChargeRecord::operator=(const ChargeRecord &rec){
+	if(this==&rec)
+		return *this;
+	delete key_;
+	delete chargeFather;
+	key_=new ChargeRecord::Key(rec.getKey());
+	if(rec.hasFather())
+		chargeFather = new ChargeRecord::Key(rec.getChargeFatherKey());
+	else
+		chargeFather = NULL;
+}
