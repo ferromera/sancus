@@ -9,15 +9,15 @@
 
 CandidateRecord::CandidateRecord(const CandidateRecord::Key& key){
 	key_=new CandidateRecord::Key(key);
-	voterKey= new VoterRecord();
+	voterKey= new VoterRecord::Key();
 }
 CandidateRecord::CandidateRecord(const CandidateRecord& rec){
 	key_=new CandidateRecord::Key(rec.getKey());
-	voterKey= new VoterRecord(rec.getVoter());
+	voterKey= new VoterRecord::Key(rec.getVoter());
 }
 CandidateRecord::CandidateRecord(const ListRecord::Key& listName,const ChargeRecord::Key& chargeName,const VoterRecord::Key& dni){
-	key_=new CandidateRecord::Key(key);
-	voterKey= new VoterRecord(dni);
+	key_=new CandidateRecord::Key(listName,chargeName);
+	voterKey= new VoterRecord::Key(dni);
 }
 unsigned int CandidateRecord::size()const{
 	return key_->size() + voterKey->size();
@@ -44,20 +44,20 @@ const CandidateRecord::Key & CandidateRecord::getKey()const{
 void CandidateRecord::setCharge(const ChargeRecord::Key& chargeName){
 	((Key*)key_)->setCharge(chargeName);
 }
-const ChargeRecord::Key& CandidateRecord::getCharge(){
+const ChargeRecord::Key& CandidateRecord::getCharge()const{
 	return ((Key*)key_)->getCharge();
 }
 void CandidateRecord::setVoter(const VoterRecord::Key& dni){
 	delete voterKey;
 	voterKey= new VoterRecord::Key(dni);
 }
-const VoterRecord::Key& CandidateRecord::getVoter(){
+const VoterRecord::Key& CandidateRecord::getVoter()const{
 	return *voterKey;
 }
 void CandidateRecord::setList(const ListRecord::Key& listName){
 	((Key*)key_)->setList(listName);
 }
-const ListRecord::Key& CandidateRecord::getList(){
+const ListRecord::Key& CandidateRecord::getList()const{
 	return ((Key*)key_)->getList();
 }
 CandidateRecord & CandidateRecord::operator=(const CandidateRecord &rec){
@@ -67,7 +67,8 @@ CandidateRecord & CandidateRecord::operator=(const CandidateRecord &rec){
 	delete voterKey;
 	key_=new CandidateRecord::Key(rec.getKey());
 	voterKey= new VoterRecord::Key(rec.getVoter());
+	return *this;
 }
-virtual CandidateRecord::~CandidateRecord(){
+CandidateRecord::~CandidateRecord(){
 	delete voterKey;
 }
