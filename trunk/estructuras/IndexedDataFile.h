@@ -20,7 +20,6 @@ class IndexedDataFile {
 	bool fusion_;
 	unsigned int newBlock_;
 	TRecord::Key * newLastKey_;
-	TRecord::Key * lastKeyOfNewBlock_;
 	BPTreeVariableLeaf<TRecord,blockSize> * searchBlock_;
 	File * file_;
 	TRecord * found_;
@@ -34,7 +33,11 @@ public:
 	const TRecord & search(const TRecord & rec , unsigned int blockNumber);
 	const TRecord & next();
 	void update(const TRecord &, unsigned int blockNumber);
-	virtual ~IndexedDataFile();
+	const TRecord::Key & getNewKey(){return *newLastKey_;}
+	unsigned int getNewBlock(){return newBlock_;}
+	bool overflow(){return overflow_;}
+	bool underflow(){return underflow_;}
+ 	virtual ~IndexedDataFile();
 };
 
 
@@ -81,6 +84,9 @@ void IndexedDataFile<TRecord,blockSize>::insert(const TRecord & rec, unsigned in
 		delete block;
 	}catch(LeafOverflowException e){
 		handleOverflow(rec,block);
+	}catch(LeafRecordNotFoundException e){
+		delete block;
+		throw IndexedDataRecordNotFoundException();
 	}
 }
 
@@ -89,7 +95,7 @@ void IndexedDataFile<TRecord,blockSize>::handleOverflow(const TRecord &rec,BPTre
 	// Se crea un nuevo bloque y muevo la mitad superior de los registros al nuevo bloque.
 	overflow_=true;
 	delete newLastKey_;
-	delete lastKeyOfNewBlock_;
+
 
 	BPTreeVariableLeaf<TRecord,blockSize> * newBlock = BPTreeVariableLeaf<TRecord,blockSize>(*file_);
 	typename std::list<TRecord> records = block->getRecords;
@@ -115,8 +121,7 @@ void IndexedDataFile<TRecord,blockSize>::handleOverflow(const TRecord &rec,BPTre
 
 	for(;recordsIt!=recordsIt.end();recordsIt++)
 		newBlock->insert(*recordsIt);
-	recordsIt--;
-	lastKeyOfNewBlock_=new TRecord::Key(recordsIt->getKey());
+
 	newBlock->next(block->next());
 	block->next(newBlock->blockNumber());
 
@@ -137,7 +142,7 @@ void IndexedDataFile<TRecord,blockSize>::remove(const TRecord & rec, unsigned in
 	delete searchBlock_;
 	searchBlock_=NULL;
 	delete newLastKey_;
-	BPTreeVariableLeaf<TRecord,blockSize> * block=BPTreeVariableLeaf<TRecord,blockSize>(*file_,blockNumber);
+	BPTreeVariableLeaf<TRecord,blockSize> * block=new BPTreeVariableLeaf<TRecord,blockSize>(*file_,blockNumber);
 	try{
 		block->remove(rec);
 		newLastKey_=new TRecord::Key(block->getLastRecord().getKey());
@@ -145,6 +150,9 @@ void IndexedDataFile<TRecord,blockSize>::remove(const TRecord & rec, unsigned in
 		delete block;
 	}catch(LeafUnderflowException e){
 		handleUnderflow(block);
+	}catch(LeafRecordNotFoundException e){
+		delete block;
+		throw IndexedDataRecordNotFoundException();
 	}
 }
 
@@ -249,10 +257,18 @@ const TRecord & IndexedDataFile<TRecord,blockSize>::next(){
 		found_=searchBlock_->nextRecord();
 		return *found_;
 	}catch(LeafRecordNotFoundException e){
-		delete searchBlock_;
-		searchBlock_=NULL;
-		throw IndexedDataNoMoreRecordsInBlockException();
+		BPTreeVariableLeaf<TRecord,blockSize> * oldSearchLeaf=searchBlock_;
+		try{
+			searchBlock_=(BPTreeVariableLeaf<TRecord,blockSize> *)searchBlock_->nextLeaf();
+		}catch(ThereIsNoNextLeafException e){
+			delete searchBlock_;
+			searchBlock_=NULL;
+			throw IndexedDataNextException();
+		}
+		delete oldSearchLeaf;
+		found_ = new TRecord(searchBlock_->getFirstRecord());
 
+		return *found;
 	}
 }
 
