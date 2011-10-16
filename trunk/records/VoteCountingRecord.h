@@ -29,6 +29,7 @@ public:
     	void updateString();
     public:
     	static const bool isVariable=true;
+    	static const bool isString=true;
     	Key();
         Key(char ** input);
         Key(const Key & k);

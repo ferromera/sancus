@@ -113,20 +113,20 @@ void VoteCountingRecord::Key::updateString(){
 
 bool VoteCountingRecord::Key::operator <(const Record::Key &rk)const{
 	const Key & k= (const Key & )rk;
-	if(list_<k.list_)
+	if((*list_)<(*k.list_))
 		return true;
-	if(list_<k.list_)
+	if((*list_)<(*k.list_))
 		return false;
-	if(district_<k.district_)
+	if((*district_)<(*k.district_))
 		return true;
-	if(district_> k.district_)
+	if((*district_)> (*k.district_))
 		return false;
-	return election_<k.election_;
+	return (*election_)<(*k.election_);
 
 }
 bool VoteCountingRecord::Key::operator ==(const Record::Key &rk)const{
 	const Key & k= (const Key & )rk;
-	return (list_==k.list_ && district_==k.district_ && election_==k.election_);
+	return ((*list_)==(*k.list_) && (*district_)==(*k.district_) && (*election_)==(*k.election_));
 }
 bool VoteCountingRecord::Key::operator <=(const Record::Key &rk)const{
 	const Key & k= (const Key & )rk;
@@ -141,7 +141,7 @@ bool VoteCountingRecord::Key::operator >=(const Record::Key & rk)const{
 	return !((*this)<k);
 
 }
-bool VoteCountingRecord::Key::operator !=(const Record::Key & r)const{
+bool VoteCountingRecord::Key::operator !=(const Record::Key & rk)const{
 	const Key & k= (const Key & )rk;
 	return !((*this)==k);
 }
