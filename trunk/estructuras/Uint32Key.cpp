@@ -17,7 +17,7 @@ Uint32Key::Uint32Key(uint32_t key):buffer(key){
 }
 Uint32Key::Uint32Key(const Uint32Key & uk):buffer(uk.buffer){
 }
-uint32_t Uint32Key::getKey()const{
+const uint32_t & Uint32Key::getKey()const{
     return buffer;
 }
 

@@ -27,6 +27,11 @@ void VoterFile::insert(const VoterRecord & vr){
 	} catch (RehashCountException & ex) {
 			throw FileInsertException();
 	}
+	catch (UniqueViolationException &e)
+	{
+		throw FileInsertException();
+	}
+
 }
 
 void VoterFile::remove(const VoterRecord & vr) {
