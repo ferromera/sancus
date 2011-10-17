@@ -31,7 +31,7 @@ public:
 	  public:
 	      Key(char ** input):Uint32Key(input){}
 	      Key(uint32_t key=0):Uint32Key(key){}
-	      const uint32_t & getUint()const{return getKey();}
+	     unsigned int getUint() const {return getKey();}
 
 	 };
 	const VoterRecord::Key & getKey()const;
