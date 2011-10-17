@@ -23,7 +23,7 @@ private:
 	std::string voterKey;
 	DistrictRecord::Key* voterDistrict;
 	std::list<ElectionRecord::Key>* electionList;
-	//VoterRecord();
+	VoterRecord();
 	void update();
 public:
 	 static const bool isVariable=true;
@@ -45,21 +45,21 @@ public:
 	VoterRecord(const VoterRecord &);
 	VoterRecord(const std::string & name, const uint32_t & dni, const std::string & address, const std::string & voterKey, const DistrictRecord::Key &  voterDistrict,  const std::list<ElectionRecord::Key> & el);
 
-	void setVoterName(const std::string & name);
+	void setName(const std::string & name);
 	void setDni(const uint32_t & dni);
 	void setAddress(const std::string & address);
-	void setVoterKey (const std::string & voterKey);
-	void setVoterDistrict (const DistrictRecord::Key & voterDistrict);
-	const std::string & getVoterName() const;
+	void setKey (const std::string & voterKey);
+	void setDistrict (const DistrictRecord::Key & voterDistrict);
+	const std::string & getName() const;
 	const uint32_t & getDni() const;
 	const std::string & getAddress() const;
-	const std::string & getVoterKey() const;
-	const DistrictRecord::Key & getVoterDistrict() const;
+	const std::string & getUserKey() const;
+	const DistrictRecord::Key & getDistrict() const;
 	void setElectionList(const std::list<ElectionRecord::Key> & el);
 	const std::list<ElectionRecord::Key> & getElectionList() const;
 
-	bool addElection (const ElectionRecord::Key & election);
-	bool removeElection(const ElectionRecord::Key & election);
+	void addElection (const ElectionRecord::Key & election);
+	void removeElection(const ElectionRecord::Key & election);
 	const VoterRecord & operator=(const VoterRecord & rk);
 	~VoterRecord();
 

@@ -16,18 +16,17 @@ VoterRecord::VoterRecord(const VoterRecord & vr) {
 	this->voterKey = vr.voterKey;
 	this->voterDistrict = vr.voterDistrict;
 	electionList = vr.electionList;
-	//key_ = new Key((uint32_t) dni);
 }
 
-//VoterRecord::VoterRecord() {
-//	this->key_ = NULL;
-//	this->voterName = "";
-//	this->dni = NULL;
-//	this->address = "";
-//	this->voterKey = "" ;
-//	this->voterDistrict = "";
-//	electionList = NULL;
-//}
+VoterRecord::VoterRecord() {
+	this->key_ = NULL;
+	this->voterName = "";
+	this->dni = NULL;
+	this->address = "";
+	this->voterKey = "" ;
+	this->voterDistrict = NULL;
+	electionList = NULL;
+}
 
 VoterRecord::VoterRecord(char** input) {
 	this->key_ = NULL;
@@ -38,7 +37,6 @@ VoterRecord::VoterRecord(char** input) {
 
 VoterRecord::VoterRecord(const std::string & name, const uint32_t & dni, const std::string & address, const std::string & voterKey, const DistrictRecord::Key & voterDistrict, const std::list<ElectionRecord::Key> & el) {
 	this->key_ = NULL;
-
 	this->setKey(dni);
 
 	this->voterName = name;
@@ -49,8 +47,7 @@ VoterRecord::VoterRecord(const std::string & name, const uint32_t & dni, const s
 	this->electionList = new std::list<ElectionRecord::Key>();
 	std::list<ElectionRecord::Key>::const_iterator it2;
 	for(it2 = el.begin(); it2 != el.end(); it2++){
-	  // ElectionRecord::Key* election = new ElectionRecord::Key(**it2);
-	   this->electionList->push_back(it2);
+	   this->electionList->push_back(*it2);
 	}
 }
 
@@ -58,37 +55,32 @@ VoterRecord::~VoterRecord(){
 	if(this->voterDistrict != NULL) {
 		delete this->voterDistrict;
 	}
-	std::list<ElectionRecord::Key>::iterator it;
-	if (this->electionList != NULL) {
-      for(it = this->electionList->begin(); it != this->electionList->end(); it++){
-          delete *it;
-      }
-    }
-
     delete this->electionList;
 }
 
-void VoterRecord::setVoterName(const std::string & name) {
+void VoterRecord::setName(const std::string & name) {
 	this->voterName = name;
 }
 
-//void VoterRecord::setDni(const Uint32Key & dni) {
-//		this->dni = this->setKey();
-//}
+void VoterRecord::setDni(const uint32_t & dni) {
+	this->key_ = NULL;
+	this->setKey(dni);
+	this->dni = dni;
+}
 
 void VoterRecord::setAddress(const std::string & address) {
 	this->address = address;
 }
 
-void VoterRecord::setVoterKey(const std::string & voterKey) {
+void VoterRecord::setKey(const std::string & voterKey) {
 	this->voterKey= voterKey;
 }
 
-void VoterRecord::setVoterDistrict(const DistrictRecord::Key & voterDistrict) {
+void VoterRecord::setDistrict(const DistrictRecord::Key & voterDistrict) {
 	this->voterDistrict = new DistrictRecord::Key(voterDistrict);
 }
 
-const std::string & VoterRecord::getVoterName() const {
+const std::string & VoterRecord::getName() const {
 	return this->voterName;
 }
 
@@ -100,43 +92,37 @@ const std::string & VoterRecord::getAddress() const {
 	return this->address;
 }
 
-const DistrictRecord::Key & VoterRecord::getVoterDistrict() const {
+const DistrictRecord::Key & VoterRecord::getDistrict() const {
 	return *this->voterDistrict;
 }
 
-const std::string & VoterRecord::getVoterKey() const {
+const std::string & VoterRecord::getUserKey() const {
 	return this->voterKey;
 }
 
 unsigned int VoterRecord::size() const {
+	if (electionList == NULL) {
+		return voterName.size()+1+ sizeof(dni) + voterKey.size()+1 + address.size()+1+this->voterDistrict->size();
+	}
+
 	return voterName.size()+1+ sizeof(dni) + voterKey.size()+1 + address.size()+1+this->voterDistrict->size()+this->electionList->size();
 }
 
-//const std::list<ElectionRecord::Key*> & VoterRecord::getElectionList() const{
-//	return this->electionList;
-//}
+const std::list<ElectionRecord::Key> & VoterRecord::getElectionList() const {
+	return *this->electionList;
+}
 
-void VoterRecord::setElectionList(const std::list<ElectionRecord::Key> & el){
-//	std::list<ElectionRecord::Key>::iterator it;
-//
-//	if (this->electionList != NULL) {
-//	  for(it = this->electionList->begin(); it != this->electionList->end(); it++){
-//		  ElectionRecord::Key election = it;
-//		  delete election;
-//	  }
-//	}
-//	delete this->electionList;
-//
-//	this->electionList = new std::list<ElectionRecord::Key>();
-//	std::list<ElectionRecord::Key>::const_iterator it2;
-//    for(it2 = el.begin(); it2 != el.end(); it2++){
-//	   ElectionRecord::Key election = *it2;
-//	   this->electionList->push_back(election);
-//    }
+void VoterRecord::setElectionList(const std::list<ElectionRecord::Key> & el) {
+	this->electionList = new std::list<ElectionRecord::Key>();
+	std::list<ElectionRecord::Key>::const_iterator it;
+	for(it = el.begin(); it != el.end(); it++){
+		this->electionList->push_back(*it);
+	}
 }
 
 void VoterRecord::read(char** in){
 	uint8_t nameSize;
+
 	memcpy(&nameSize,*in,1);
 	(*in)++;
 	char * c_str = new char[nameSize+1];
@@ -151,23 +137,40 @@ void VoterRecord::read(char** in){
 
 	memcpy(&nameSize,*in,1);
 	(*in)++;
-	char * c_str=new char[nameSize+1];
-	memcpy(c_str,*in,nameSize);
+	char * c_str_2 = new char[nameSize+1];
+	memcpy(c_str_2,*in,nameSize);
 	(*in)+=nameSize;
-	c_str[nameSize] = '\0';
-	this->address = c_str;
+	c_str_2[nameSize] = '\0';
+	this->address = c_str_2;
 
-	this->voterDistrict->read(in);
-	//this->electionList->read(in);
-
-	uint8_t nameSize;
 	memcpy(&nameSize,*in,1);
 	(*in)++;
+	char * c_str_3 = new char[nameSize+1];
+	memcpy(c_str_3,*in,nameSize);
+	(*in)+=nameSize;
+	c_str_3[nameSize] = '\0';
+	this->voterKey = c_str_3;
 
+	this->voterDistrict->read(in);
+
+	memcpy(&nameSize,*in,1);
+	(*in)+=1;
+	if (nameSize == 1){
+		for(int i = 0 ; i < nameSize ; i++)
+		{
+			ElectionRecord::Key e;
+			e.read(in);
+			this->electionList->push_back(e);
+		}
+	}
+	memcpy(&nameSize,*in,1);
+	(*in)++;
 	delete c_str;
 }
+
 void VoterRecord::write(char** out){
 	uint8_t nameSize;
+
 	nameSize = this->voterName.size();
 	key_->write(out);
 	memcpy(*out,&voterName,nameSize);
@@ -187,12 +190,16 @@ void VoterRecord::write(char** out){
 	memcpy(*out,&voterKey,nameSize);
 	(*out)+=nameSize;
 
-	this->voterDistrict->read(in);
+	this->voterDistrict->write(out);
 	(*out) += this->voterDistrict->size();
 
-
-
+	std::list<ElectionRecord::Key>::const_iterator it;
+	for(it = this->electionList->begin(); it != this->electionList->end(); it++){
+		it->write(out);
+		(*out) += it->size();
+	}
 }
+
 const VoterRecord::Key & VoterRecord::getKey()const {
 	return * ((VoterRecord::Key *) key_ );
 }
@@ -216,17 +223,18 @@ void VoterRecord::setKey(const VoterRecord::Key & k){
     this->dni = k.getKey();
 }
 
-bool VoterRecord::addElection (const ElectionRecord::Key & election){
-	//this->electionList
-
-	return true;
+void VoterRecord::addElection (const ElectionRecord::Key & election){
+	this->electionList->push_back(election);
 }
 
-bool VoterRecord::removeElection(const ElectionRecord::Key & election){
-	//this->electionList->remove(&election);
-	// cambiar por recorrer la lista y eliminar el que es igual
-
-	return true;
+void VoterRecord::removeElection(const ElectionRecord::Key & election){
+	this->electionList = new std::list<ElectionRecord::Key>();
+	std::list<ElectionRecord::Key>::const_iterator it;
+	for(it = electionList->begin(); it != electionList->end(); it++){
+		if(*it == election){
+			this->electionList->remove(*it);
+		}
+	}
 }
 
 const VoterRecord & VoterRecord::operator=(const VoterRecord & rk){
@@ -236,24 +244,17 @@ const VoterRecord & VoterRecord::operator=(const VoterRecord & rk){
 	address = rk.address;
 	voterKey = rk.voterKey;
 	voterDistrict = rk.voterDistrict;
-	dni = rk.dni;
-	std::list<ElectionRecord::Key>::iterator it;
-	if (this->electionList != NULL) {
-	  for(it = this->electionList->begin(); it != this->electionList->end(); it++){
-		  //ElectionRecord::Key* election = *it;
-		  ElectionRecord::Key election = it;
-		  delete election;
-	  }
-	}
+	this->key_ = NULL;
+	this->setKey(rk.dni);
+	this->dni = rk.dni;
+
 	delete this->electionList;
 
 	this->electionList = new std::list<ElectionRecord::Key>();
-	std::list<ElectionRecord::Key>::const_iterator it2;
-	for(it2 = el.begin(); it2 != el.end(); it2++){
-	   //ElectionRecord::Key election = new ElectionRecord::Key(**it2);
-	   this->electionList->push_back(it2);
+	std::list<ElectionRecord::Key>::const_iterator it;
+	for(it = rk.electionList->begin(); it != rk.electionList->end(); it++){
+		this->electionList->push_back(*it);
 	}
-	key_=new Key((uint32_t) dni);
 	return *this;
 }
 
