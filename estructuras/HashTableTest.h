@@ -10,6 +10,7 @@
 
 #include "HashTable.h"
 #include "../records/StudentRecord.h"
+#include "../records/DistrictRecord.h"
 
 using namespace std;
 
@@ -17,6 +18,7 @@ class HashTableTest {
 
 private:
 	HashTable<StudentRecord, 512> * table;
+	HashTable<DistrictRecord, 4096> * table2;
 
 	void assertTrue(bool condition, string testname, string message) {
 		if (!condition) {
@@ -137,8 +139,23 @@ public:
 						<< endl;
 				delete (k);
 			}
-		} catch (RecordNotFoundException ex) {
+		} catch (RecordNotFoundException & ex) {
 			cout << "Se lanzo la exception RecordNotFoundException" << endl;
+		}
+	}
+
+	void testUpdate(){
+		table2 = new HashTable<DistrictRecord, 4096>("DistrictFileHashTable", 40, 400);
+
+		try{
+			DistrictRecord * record = new DistrictRecord("Pacheco", "Buenos Aires");
+			table2->insert(*record);
+
+			DistrictRecord recordFromFile = table2->get(record->getKey());
+			assertTrue(recordFromFile.getDistrictName() == record->getDistrictName(),"testUpdate", "Los nombres de los distritos no son iguales");
+			assertTrue(recordFromFile.getFatherName() == record->getFatherName(), "testUpdate", "Los nombres de los padres no son iguales");
+		}catch (RecordNotFoundException & ex) {
+
 		}
 	}
 };
