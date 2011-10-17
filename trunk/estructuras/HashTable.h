@@ -49,7 +49,7 @@ public:
 	 * @maxNumberOfRecords numero maximo de registros en el archivo (cuando se llegue a este numero se debera
 	 * enfrentar una reorganización de la tabla).
 	 */
-	HashTable(std::string & path, const unsigned int recordsPerBucket,
+	HashTable(const std::string & path, const unsigned int recordsPerBucket,
 			const unsigned int maxNumberOfRecords);
 
 	/**
@@ -57,7 +57,7 @@ public:
 	 *
 	 * @path el path a un archivo directo existente (se supone que es un archivo valido)
 	 */
-	HashTable(std::string & path);
+	HashTable(const std::string & path);
 
 	~HashTable();
 
@@ -102,7 +102,7 @@ public:
 };
 
 template<class T, unsigned int bucketSize>
-HashTable<T, bucketSize>::HashTable(std::string & path,
+HashTable<T, bucketSize>::HashTable(const std::string & path,
 		const unsigned int recordsPerBucket,
 		const unsigned int maxNumberOfRecords) {
 
@@ -134,7 +134,7 @@ HashTable<T, bucketSize>::HashTable(std::string & path,
 }
 
 template<class T, unsigned int bucketSize>
-HashTable<T, bucketSize>::HashTable(std::string & path) {
+HashTable<T, bucketSize>::HashTable(const std::string & path) {
 	this->file = new File(path, File::IO | File::BIN);
 	this->file->seek(0, File::END);
 	this->size = file->tell() / bucketSize;
