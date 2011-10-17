@@ -23,7 +23,7 @@ public:
     class Key: public StringKey{
     public:
         Key(char ** input):StringKey(input){}
-        Key(std::string key=" "):StringKey(key){}
+        Key(const std::string & key=""):StringKey(key){}
         Key(const Key & key):StringKey(key){}
         Key& operator=(const Key & key){
         	StringKey::operator=(key);
@@ -36,8 +36,9 @@ public:
     void read(char ** input);
     void write(char ** output);
     DistrictRecord(const DistrictRecord::Key &k);
+    DistrictRecord(const std::string & district);
     DistrictRecord(const DistrictRecord::Key &k,const DistrictRecord::Key &kFather);
-	DistrictRecord(std::string district,std::string father);
+	DistrictRecord(const std::string & district,const std::string & father);
 	virtual ~DistrictRecord();
 	void setDistrictName(std::string district);
 	std::string getDistrictName();

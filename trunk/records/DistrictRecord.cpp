@@ -14,12 +14,16 @@ DistrictRecord::DistrictRecord(const DistrictRecord::Key &k)
 	key_ = new DistrictRecord::Key(k);
 	districtFather = NULL;
 }
+DistrictRecord::DistrictRecord(const std::string & district){
+	key_ = new DistrictRecord::Key(district);
+	districtFather = NULL;
+}
 DistrictRecord::DistrictRecord(const DistrictRecord::Key &k,const DistrictRecord::Key &kFather)
 {
 	key_ = new DistrictRecord::Key(k);
 	districtFather = new DistrictRecord::Key(kFather);
 }
-DistrictRecord::DistrictRecord(std::string chargeName,std::string districtFather)
+DistrictRecord::DistrictRecord(const std::string & chargeName,const std::string & districtFather)
 {
 	key_ = new DistrictRecord::Key(chargeName);
 	this->districtFather = new DistrictRecord::Key(districtFather);
