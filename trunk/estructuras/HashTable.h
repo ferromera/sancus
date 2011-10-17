@@ -58,6 +58,8 @@ public:
 	 */
 	HashTable(std::string & path);
 
+	~HashTable();
+
 	/**
 	 * Primitiva de insercion
 	 *
@@ -388,6 +390,13 @@ void HashTable<T, bucketSize>::remove(T & record) {
 template<class T, unsigned int bucketSize>
 unsigned int HashTable<T, bucketSize>::getSize() {
 	return this->size;
+}
+
+template<class T, unsigned int bucketSize>
+HashTable<T,bucketSize>::~HashTable(){
+	delete(hashFunction);
+	delete(rehashFunction);
+	delete(file);
 }
 
 #endif /* HASHTABLE_H_ */
