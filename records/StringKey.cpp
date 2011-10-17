@@ -8,12 +8,13 @@
 #include "StringKey.h"
 #include <cstring>
 #include "stdint.h"
+#include <iostream>
 
 StringKey::StringKey(char ** input)
 {
 	read(input);
 }
-StringKey::StringKey(std::string key)
+StringKey::StringKey(const std::string & key)
 {
 	dataString = key;
 }
@@ -65,6 +66,7 @@ bool StringKey::operator <(const Record::Key &r)const
 bool StringKey::operator ==(const Record::Key &r)const
 {
 	const StringKey & key = (const StringKey &) r;
+
 	if(dataString.compare(key.dataString) == 0)
 		return true;
 	return false;
