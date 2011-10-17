@@ -12,6 +12,7 @@
 #include "../screens/ListScreen.h"
 #include "../screens/AdministratorScreen.h"
 #include "../screens/ChargeScreen.h"
+#include "../screens/ResultScreen.h"
 
 VoteApp* VoteApp::voteApp = NULL;
 
@@ -22,14 +23,20 @@ VoteApp::VoteApp() {
 	Drawable *scr3 = new ListScreen();
 	Drawable *scr4 = new AdministratorScreen();
 	Drawable *scr5 = new ChargeScreen();
+	Drawable *scr6 = new ChargeScreen();
+	Drawable *scr7 = new ChargeScreen();
+	Drawable *scr8 = new ResultScreen();
 
 	this->screens.push_back(scr1);
 	this->screens.push_back(scr2);
 	this->screens.push_back(scr3);
 	this->screens.push_back(scr4);
 	this->screens.push_back(scr5);
+	this->screens.push_back(scr6);
+	this->screens.push_back(scr7);
+	this->screens.push_back(scr8);
 
-	actualScreen = ADM_SCREEN;
+	actualScreen = LOGIN_SCREEN;
 
 }
 VoteApp* VoteApp::getInstance()

@@ -15,14 +15,16 @@ public:
 	ChargeScreen();
 	void draw();
 private:
+	//VoterRecord user;
 	char chargeDistrict();
 	char chargeVoter();
-	void chargeElection();
-	void chargeList();
-	void chargeCandidate();
-	void chargeCharge();
-	void chargeCounting();
+	char chargeElection();
+	char chargeList();
+	char chargeCandidate();
+	char chargeCharge();
+	char chargeCounting();
 	char doQuestion();
+	bool validateDNI(uint32_t dni);
 };
 
 #endif /* CHARGESCREEN_H_ */

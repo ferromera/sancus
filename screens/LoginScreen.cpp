@@ -31,6 +31,7 @@ void  LoginScreen::draw()
 	std::cout<<""<<std::endl;
 
 	bool incorrectUser = true;
+	bool userAdmin = false;
 	std::cout<<"Porfavor ingrese su usuario (DNI) y presione enter"<<std::endl;
 	std::cout<<""<<std::endl;
 
@@ -39,10 +40,19 @@ void  LoginScreen::draw()
 		dni = IstreamUtils::getUint();
 		std::cout<<""<<std::endl;
 
-		if(false)//if(!validateDNI(dni))
+		if(true)//if(!validateDNI(dni))
 		{
-			std::cout<<""<<std::endl;
-			std::cout<<"Usuario Inexistente ingrese nuevamente"<<std::endl;
+			if(true)//if(validateAdmin(dni))
+			{
+				incorrectUser = false;
+				userAdmin = true;
+			}
+			else
+			{
+				std::cout<<""<<std::endl;
+				std::cout<<"Usuario Inexistente ingrese nuevamente"<<std::endl;
+			}
+
 		}
 		else
 		{
@@ -61,7 +71,9 @@ void  LoginScreen::draw()
 		std::cout<<""<<std::endl;
 		clave =  IstreamUtils::getString();
 		std::cout<<""<<std::endl;
-		if(true)//if(clave.compare(record->getPassword()) != 0)
+		if(false)
+		/*if( (!userAdmin && clave.compare(record->getPassword()) != 0)
+				|| (userAdmin && clave.compare(adminUser.getPassword != 0)) )*/
 		{
 			std::cout<<""<<std::endl;
 			std::cout<<"Contraseña incorrecta"<<std::endl;
@@ -83,12 +95,15 @@ void  LoginScreen::draw()
 			}
 		}
 		else
-		{
+		{	//if(!userAdmin)
 			//app->setUserLogin(user);
 			incorrectPassword = false;
 		}
 	}
-	app->setActualScreen(ELECTION_SCREEN);
+	if(userAdmin)
+		app->setActualScreen(ADM_SCREEN);
+	else
+		app->setActualScreen(ELECTION_SCREEN);
 	return;
 }
 /*
@@ -106,5 +121,19 @@ bool LoginScreen::validateDNI(uint32_t dni)
 	{
 		return false;
 	}
+}
+*/
+/*
+bool LoginScreen::validateAdmin(uint32_t user)
+{
+	AdminFile* adminFile = AdminFile::getInstance();
+	AdminRecord::Key adminKey = AdminRecord(user);
+	try{
+		adminUser = adminFile.search(adminKey);
+	}catch(FileSearchException e)
+	{
+		return false;
+	}
+	return true;
 }
 */

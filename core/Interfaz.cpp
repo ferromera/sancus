@@ -7,6 +7,7 @@
 //============================================================================
 
 #include <iostream>
+#include "../utils/Time.h"
 #include "VoteApp.h"
 using namespace std;
 
