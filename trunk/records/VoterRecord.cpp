@@ -21,7 +21,7 @@ VoterRecord::VoterRecord(const VoterRecord & vr) {
 VoterRecord::VoterRecord() {
 	this->key_ = NULL;
 	this->voterName = "";
-	this->dni = NULL;
+	this->dni = 0;
 	this->address = "";
 	this->voterKey = "" ;
 	this->voterDistrict = NULL;
@@ -84,7 +84,7 @@ const std::string & VoterRecord::getName() const {
 	return this->voterName;
 }
 
-const uint32_t & VoterRecord::getDni() const {
+uint32_t  VoterRecord::getDni() const {
 	return ((Key*)key_)->getKey();
 }
 

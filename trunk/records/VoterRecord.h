@@ -51,7 +51,7 @@ public:
 	void setKey (const std::string & voterKey);
 	void setDistrict (const DistrictRecord::Key & voterDistrict);
 	const std::string & getName() const;
-	const uint32_t & getDni() const;
+	uint32_t getDni() const;
 	const std::string & getAddress() const;
 	const std::string & getUserKey() const;
 	const DistrictRecord::Key & getDistrict() const;
