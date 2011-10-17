@@ -11,6 +11,7 @@
 #include <list>
 #include "Record.h"
 #include "StringKey.h"
+#include "DistrictRecord.h"
 #include <cstring>
 
 class ChargeRecord : public Record {
@@ -19,37 +20,66 @@ private:
 
 public:
 	static const bool isVariable=true;
-    class Key: public StringKey{
+    class Key: public Record::Key{
+    	StringKey *charge_;
+    	DistrictRecord::Key * district_;
+    	std::string stringKey_;
+    	void updateString();
+
     public:
-        Key(char ** input):StringKey(input){}
-        Key(std::string key=""):StringKey(key){}
-        Key(const Key & key):StringKey(key){}
-        Key& operator=(const Key& k){
-        	StringKey::operator =(k);
-        	return *this;
-        }
+    	static const bool isString=true;
+    	static const bool isVariable=true;
+        Key(char ** input);
+        Key(const std::string &,const std::string&);
+        Key(const std::string &,const DistrictRecord::Key &);
+        Key();
+        Key(const Key & key);
+        Key & operator=(const Key & k);
+        const std::string & getString()const{return getKey();}
+        void setKey(const std::string &, const DistrictRecord::Key&);
+        const std::string & getKey()const;
+        void setDistrict(const DistrictRecord::Key &);
+        void setCharge(const std::string &);
+        const DistrictRecord::Key& getDistrict()const;
+        const std::string & getCharge()const;
+        void read(char ** input);
+        void write(char ** output)const;
+        unsigned int size()const;
+        bool operator <(const Record::Key &rk)const;
+        bool operator <=(const Record::Key &rk)const;
+        bool operator ==(const Record::Key &rk)const;
+        bool operator >(const Record::Key & rk)const;
+        bool operator >=(const Record::Key & rk)const;
+        bool operator !=(const Record::Key & rk)const;
+        ~Key();
     };
-    unsigned int size()const;
-    void setKey(const ChargeRecord::Key & k);
-    void setKey(std::string k);
-    void read(char ** input);
-    void write(char ** output);
+
     ChargeRecord(char ** input);
     ChargeRecord(const ChargeRecord & rec);
     ChargeRecord(const ChargeRecord::Key &k);
-    ChargeRecord(const std::string & str);
+    ChargeRecord(const std::string & ,const DistrictRecord::Key& );
+    ChargeRecord(const std::string & ,const std::string & );
     ChargeRecord(const ChargeRecord::Key &k,const ChargeRecord::Key &kFather);
-	ChargeRecord(std::string chargeName,std::string chargeFather);
-	virtual ~ChargeRecord();
-	void setChargeName(std::string chargeName);
+	ChargeRecord(const std::string & charge,const DistrictRecord::Key& district,const std::string & chargeFather,const DistrictRecord::Key& districtFather);
+	ChargeRecord(const std::string & charge,const std::string & district,const std::string & chargeFather,const std::string & districtFather);
+	unsigned int size()const;
+	void setKey(const ChargeRecord::Key & k);
+	void setKey(const std::string & str,const DistrictRecord::Key&);
+	void read(char ** input);
+	void write(char ** output);
+	void setChargeName(const std::string & chargeName);
 	std::string getChargeName();
-	void setChargeFather(std::string chargeFather);
-	std::string getChargeFather();
-	const ChargeRecord::Key & getKey()const;
+	void setChargeFather(const std::string & chargeFather,const std::string &);
+	void setChargeFather(const std::string & chargeFather,const DistrictRecord::Key&);
 	void setChargeFather(const ChargeRecord::Key & k);
-	ChargeRecord::Key & getChargeFatherKey()const;
+	const ChargeRecord::Key & getChargeFather()const;
+	const ChargeRecord::Key & getKey()const;
 	bool hasFather()const;
+	void setDistrict(const std::string & district);
+	void setDistrict(const DistrictRecord::Key & district);
+	const DistrictRecord::Key & getDistrict()const;
     ChargeRecord & operator=(const ChargeRecord &rec);
+    virtual ~ChargeRecord();
 };
 class chargeFatherNullException : public std::exception{};
 

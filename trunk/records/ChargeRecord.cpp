@@ -2,18 +2,7 @@
 #include "ChargeRecord.h"
 #include "stdint.h"
 
-ChargeRecord::ChargeRecord(const ChargeRecord::Key &k)
-{
-	key_ = new ChargeRecord::Key(k);
-	chargeFather = NULL;
-}
-ChargeRecord::ChargeRecord(const ChargeRecord & rec){
-	key_ = new ChargeRecord::Key(rec.getKey());
-	if(rec.hasFather())
-		chargeFather = new ChargeRecord::Key(rec.getChargeFatherKey());
-	else
-		chargeFather=NULL;
-}
+
 ChargeRecord::ChargeRecord(char ** input){
 	key_=new ChargeRecord::Key(input);
 	uint8_t flag;
@@ -24,39 +13,51 @@ ChargeRecord::ChargeRecord(char ** input){
 	else
 		chargeFather = NULL;
 }
-ChargeRecord::ChargeRecord(const std::string & str)
-{
-	key_ = new ChargeRecord::Key(str);
+ChargeRecord::ChargeRecord(const ChargeRecord & rec){
+	key_ = new ChargeRecord::Key(rec.getKey());
+	if(rec.hasFather())
+		chargeFather = new ChargeRecord::Key(rec.getChargeFather());
+	else
+		chargeFather=NULL;
+}
+ChargeRecord::ChargeRecord(const ChargeRecord::Key &k){
+	key_ = new ChargeRecord::Key(k);
 	chargeFather = NULL;
 }
-ChargeRecord::ChargeRecord(const ChargeRecord::Key &k,const ChargeRecord::Key &kFather)
-{
+ChargeRecord::ChargeRecord(const std::string & charge,const DistrictRecord::Key& district){
+	key_ = new ChargeRecord::Key(charge,district);
+	chargeFather = NULL;
+}
+ChargeRecord::ChargeRecord(const std::string & charge,const std::string & district){
+	key_ = new ChargeRecord::Key(charge,district);
+	chargeFather = NULL;
+}
+ChargeRecord::ChargeRecord(const ChargeRecord::Key &k,const ChargeRecord::Key &kFather){
 	key_ = new ChargeRecord::Key(k);
 	chargeFather = new ChargeRecord::Key(kFather);
 }
-ChargeRecord::ChargeRecord(std::string chargeName,std::string chargeFather)
-{
-	key_ = new ChargeRecord::Key(chargeName);
-	this->chargeFather = new ChargeRecord::Key(chargeFather);
+ChargeRecord::ChargeRecord(const std::string & charge,const DistrictRecord::Key& district,const std::string & chargeFather,const DistrictRecord::Key& districtFather){
+	key_ = new ChargeRecord::Key(charge,district);
+	this->chargeFather = new ChargeRecord::Key(chargeFather,districtFather);
 }
-unsigned int ChargeRecord::size()const
-{
+ChargeRecord::ChargeRecord(const std::string & charge,const std::string & district,const std::string & chargeFather,const std::string & districtFather){
+	key_ = new ChargeRecord::Key(charge,district);
+	this->chargeFather = new ChargeRecord::Key(chargeFather,districtFather);
+}
+unsigned int ChargeRecord::size()const{
 	if(chargeFather == NULL)
 		return key_->size() + 1;
 	return key_->size() + 1 + chargeFather->size();
 }
-void ChargeRecord::setKey(const ChargeRecord::Key & k)
-{
+void ChargeRecord::setKey(const ChargeRecord::Key & k){
 	delete key_;
 	key_ = new ChargeRecord::Key(k);
 }
-void ChargeRecord::setChargeFather(const ChargeRecord::Key & k)
-{
-	delete chargeFather;
-	chargeFather = new ChargeRecord::Key(k);
+void ChargeRecord::setKey(const std::string & charge,const DistrictRecord::Key& district){
+	delete key_;
+	key_ = new ChargeRecord::Key(charge,district);
 }
-void ChargeRecord::read(char ** input)
-{
+void ChargeRecord::read(char ** input){
 	delete chargeFather;
 	key_->read(input);
 	uint8_t flag;
@@ -77,43 +78,44 @@ void ChargeRecord::write(char ** output){
 	if(chargeFather != NULL)
 		chargeFather->write(output);
 }
-ChargeRecord::~ChargeRecord()
-{
-	delete chargeFather;
+void ChargeRecord::setChargeName(const std::string & chargeName){
+	((Key*)key_)->setCharge(chargeName);
 }
-void ChargeRecord::setChargeName(std::string chargeName)
-{
-	delete key_;
-	key_ = new ChargeRecord::Key(chargeName);
+std::string ChargeRecord::getChargeName(){
+	return ((Key*)key_)->getCharge();
 }
-std::string ChargeRecord::getChargeName()
-{
-	return key_->getString();
-}
-const ChargeRecord::Key & ChargeRecord::getKey()const
-{
-	return *((ChargeRecord::Key*)key_);
-}
-void ChargeRecord::setChargeFather(std::string chargeFather)
-{
+void ChargeRecord::setChargeFather(const std::string & chargeFather,const std::string & districtFather){
 	delete this->chargeFather;
-	this->chargeFather = new ChargeRecord::Key(chargeFather);
+	this->chargeFather= new ChargeRecord::Key(chargeFather,districtFather);
 }
-std::string ChargeRecord::getChargeFather()
-{
-	return chargeFather->getString();
+void ChargeRecord::setChargeFather(const std::string & chargeFather,const DistrictRecord::Key& districtFather){
+	delete this->chargeFather;
+	this->chargeFather= new ChargeRecord::Key(chargeFather,districtFather);
 }
-ChargeRecord::Key & ChargeRecord::getChargeFatherKey()const
-{
+void ChargeRecord::setChargeFather(const ChargeRecord::Key & k){
+	delete chargeFather;
+	chargeFather= new ChargeRecord::Key(k);
+}
+const ChargeRecord::Key & ChargeRecord::getChargeFather()const{
 	if(!hasFather())
 		throw chargeFatherNullException();
 	return *((ChargeRecord::Key*)chargeFather);
 }
-bool ChargeRecord::hasFather()const
-{
-	if(chargeFather != NULL)
-		return true;
-	return false;
+const ChargeRecord::Key & ChargeRecord::getKey()const{
+	return *((Key*)key_);
+}
+bool ChargeRecord::hasFather()const{
+	return chargeFather != NULL;
+}
+void ChargeRecord::setDistrict(const std::string & district){
+	DistrictRecord::Key distKey(district);
+	((Key*)key_)->setDistrict(distKey);
+}
+void ChargeRecord::setDistrict(const DistrictRecord::Key & district){
+	((Key*)key_)->setDistrict(district);
+}
+const DistrictRecord::Key & ChargeRecord::getDistrict()const{
+	return ((Key*)key_)->getDistrict();
 }
 ChargeRecord & ChargeRecord::operator=(const ChargeRecord &rec){
 	if(this==&rec)
@@ -122,8 +124,11 @@ ChargeRecord & ChargeRecord::operator=(const ChargeRecord &rec){
 	delete chargeFather;
 	key_=new ChargeRecord::Key(rec.getKey());
 	if(rec.hasFather())
-		chargeFather = new ChargeRecord::Key(rec.getChargeFatherKey());
+		chargeFather = new ChargeRecord::Key(rec.getChargeFather());
 	else
 		chargeFather = NULL;
 	return *this;
+}
+ChargeRecord::~ChargeRecord(){
+	delete chargeFather;
 }
