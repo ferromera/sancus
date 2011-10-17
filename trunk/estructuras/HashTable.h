@@ -36,7 +36,8 @@ private:
 	Function<T> * hashFunction;
 	Function<T> * rehashFunction;
 
-	int insertRecord(T & record, Function<T> * function, unsigned int jump);
+	int insertRecord(const T & record, Function<T> * function,
+			unsigned int jump);
 
 public:
 
@@ -66,7 +67,7 @@ public:
 	 * @record el registro que se quiere insertar
 	 * @throws RehashCountException cuando se supera la cantidad maxima de rehashes
 	 */
-	void insert(T & record);
+	void insert(const T & record);
 
 	/**
 	 * Primitiva de recuperacion
@@ -75,7 +76,7 @@ public:
 	 * @returns una copia del registro con la clava dada
 	 * @throws RecordNotFoundException cuando no se puede recuperar el registro
 	 */
-	T get(const typename T::Key & key);
+	const T &  get(const typename T::Key & key);
 
 	/**
 	 * Primitiva de borrado
@@ -83,7 +84,7 @@ public:
 	 * @record el registro que se quiere borrar
 	 * @throws RecordNotFoundException cuando no se puede recuperar el registro
 	 */
-	void remove(T & record);
+	void remove(const T & record);
 
 	/**
 	 * @returns la cantidad de "filas" de la tabla
@@ -128,14 +129,14 @@ template<class T, unsigned int bucketSize>
 HashTable<T, bucketSize>::HashTable(std::string & path) {
 	this->file = new File(path, File::IO | File::BIN);
 	this->file->seek(0, File::END);
-	this->size = file->tell()/bucketSize;
+	this->size = file->tell() / bucketSize;
 	this->maxNumberOfRehashes = this->size;
 	this->hashFunction = new HashFunction<T> (this->size);
 	this->rehashFunction = new ReHashFunction<T> (this->size);
 }
 
 template<class T, unsigned int bucketSize>
-void HashTable<T, bucketSize>::insert(T & record) {
+void HashTable<T, bucketSize>::insert(const T & record) {
 	unsigned int rehashingCount = 0;
 
 	int jump = insertRecord(record, this->hashFunction, 0);
@@ -151,8 +152,8 @@ void HashTable<T, bucketSize>::insert(T & record) {
 }
 
 template<class T, unsigned int bucketSize>
-int HashTable<T, bucketSize>::insertRecord(T & record, Function<T> * function,
-		unsigned int jump) {
+int HashTable<T, bucketSize>::insertRecord(const T & record,
+		Function<T> * function, unsigned int jump)  {
 	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	unsigned int position = (function->hash(record.getKey(), jump));
 	unsigned int insertOffset = (position * bucketSize);
@@ -243,7 +244,7 @@ int HashTable<T, bucketSize>::insertRecord(T & record, Function<T> * function,
 }
 
 template<class T, unsigned int bucketSize>
-T HashTable<T, bucketSize>::get(const typename T::Key & key) {
+const T &  HashTable<T, bucketSize>::get(const typename T::Key & key) {
 	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	unsigned int offset;
 	unsigned int rehashingCount = 0;
@@ -287,9 +288,10 @@ T HashTable<T, bucketSize>::get(const typename T::Key & key) {
 			}
 
 			if (recordFromBucket->getKey() == key) {
-				T recordCopy = *recordFromBucket;
+				//REVISAR!!
+				//T recordCopy = *recordFromBucket;
 				delete (bucket);
-				return recordCopy;
+				return *recordFromBucket;
 			}
 		}
 
@@ -300,7 +302,7 @@ T HashTable<T, bucketSize>::get(const typename T::Key & key) {
 }
 
 template<class T, unsigned int bucketSize>
-void HashTable<T, bucketSize>::remove(T & record) {
+void HashTable<T, bucketSize>::remove(const T & record) {
 	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	unsigned int offset;
 	unsigned int rehashingCount = 0;
@@ -393,10 +395,10 @@ unsigned int HashTable<T, bucketSize>::getSize() {
 }
 
 template<class T, unsigned int bucketSize>
-HashTable<T,bucketSize>::~HashTable(){
-	delete(hashFunction);
-	delete(rehashFunction);
-	delete(file);
+HashTable<T, bucketSize>::~HashTable() {
+	delete (hashFunction);
+	delete (rehashFunction);
+	delete (file);
 }
 
 #endif /* HASHTABLE_H_ */

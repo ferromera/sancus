@@ -45,7 +45,7 @@ public:
     bool operator ==(const Record &r)const{return (*key_)==(*(r.key_));}
     bool operator !=(const Record &r)const{return !((*this)==r);}
     bool operator <=(const Record & r)const{return (*this)<r||(*this)==r;}
-    bool operator >(const Record& r)const{return !((*this)<=r);}
+    bool operator >(const Record &r)const{return !((*this)<=r);}
     bool operator >=(const Record & r)const{return !((*this)<r);}
     virtual ~Record(){ delete key_;}
 };

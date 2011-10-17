@@ -11,7 +11,9 @@
 #include "../records/DistrictRecord.h"
 #include "../estructuras/HashTable.h"
 
-#define DISTRICT_FILE_DATA_PATH	"./DistrictFileData.bin"
+#define DISTRICT_FILE_DATA_PATH	(std::string &) "./DistrictFileData.bin"
+#define DISTRICT_FILE_RECORDS_PER_BUCKET 50
+#define DISTRICT_FILE_MAX_NUMBER_OF_RECORDS	10000
 
 class DistrictFile {
 private:
@@ -19,6 +21,8 @@ private:
 	static DistrictFile * instance;
 public:
 	static DistrictFile * getInstance();
+
+	DistrictFile();
 
 	void insert(const DistrictRecord &);
 	void remove(const DistrictRecord &);
