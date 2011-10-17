@@ -76,7 +76,15 @@ public:
 	 * @returns una copia del registro con la clava dada
 	 * @throws RecordNotFoundException cuando no se puede recuperar el registro
 	 */
-	const T &  get(const typename T::Key & key);
+	const T & get(const typename T::Key & key);
+
+	/**
+	 * Primitiva de actualizacion
+	 *
+	 * @key El registro con las modificaciones que se quieren persistir
+	 * @throws RecordNotFoundException cuando no existe el registro a actualizar
+	 */
+	void update(const T & record);
 
 	/**
 	 * Primitiva de borrado
@@ -153,7 +161,7 @@ void HashTable<T, bucketSize>::insert(const T & record) {
 
 template<class T, unsigned int bucketSize>
 int HashTable<T, bucketSize>::insertRecord(const T & record,
-		Function<T> * function, unsigned int jump)  {
+		Function<T> * function, unsigned int jump) {
 	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	unsigned int position = (function->hash(record.getKey(), jump));
 	unsigned int insertOffset = (position * bucketSize);
@@ -244,7 +252,7 @@ int HashTable<T, bucketSize>::insertRecord(const T & record,
 }
 
 template<class T, unsigned int bucketSize>
-const T &  HashTable<T, bucketSize>::get(const typename T::Key & key) {
+const T & HashTable<T, bucketSize>::get(const typename T::Key & key) {
 	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	unsigned int offset;
 	unsigned int rehashingCount = 0;
@@ -385,6 +393,115 @@ void HashTable<T, bucketSize>::remove(const T & record) {
 
 			delete (bucket);
 			break;
+		}
+	}
+}
+
+template<class T, unsigned int bucketSize>
+void HashTable<T, bucketSize>::update(const T & record) {
+	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
+	unsigned int offset;
+	unsigned int rehashingCount = 0;
+	unsigned int position = hashFunction->hash(record.getKey(), 0);
+	char * buffer;
+	bool found;
+	typename std::list<T> bufferedRecords;
+
+	while (rehashingCount < maxNumberOfRehashes) {
+		if (rehashingCount > 0) {
+			position = rehashFunction->hash(record.getKey(), position);
+		}
+
+		offset = (position * bucketSize);
+
+		file->seek(offset, File::BEG);
+		file->read((char *) bucket, bucketSize);
+		buffer = bucket->bytes;
+
+		//Salto los bytes de control
+		file->seek(5, File::CUR);
+
+		if (bucket->count == 0) {
+			if (!bucket->overflow) {
+				delete (bucket);
+				throw RecordNotFoundException();
+			} else {
+				found = false;
+				rehashingCount++;
+			}
+		}
+
+		for (int i = 0; i < bucket->count; i++) {
+
+			T * recordFromBucket = new T(&buffer);
+
+			if (*recordFromBucket > record) {
+				if (!bucket->overflow) {
+					delete (recordFromBucket);
+					throw RecordNotFoundException();
+				} else {
+					delete (recordFromBucket);
+					rehashingCount++;
+					found = false;
+					break;
+				}
+			}
+
+			if (*recordFromBucket != record) {
+				bufferedRecords.push_front(record);
+			} else {
+				bucket->freeSpace+= recordFromBucket->size();
+				found = true;
+			}
+		}
+
+		if (found) {
+			//VERIFICAR EL FACTOR DE CARGA DEL BUCKET
+			unsigned int effectiveSizeForRecords = bucketSize - 5;
+
+			if ((bucket->freeSpace - record.size()) > effectiveSizeForRecords
+					* (1 - BUCKET_LOAD_FACTOR)) {
+
+				//insertarmos el bucket con las actualizaciones (respetando el orden);
+				bufferedRecords.push_front(record);
+
+				// MENSAJE DE LOG
+				std::cout << "SE actualiza el record con id: "
+						<< record.getKey().getKey() << ". En el bucket: "
+						<< position << std::endl;
+
+				bufferedRecords.sort();
+				typename std::list<T>::iterator recordsIterator;
+
+				//free bucket bytes
+				for (unsigned int i = 0; i < sizeof(bucket->bytes); i++) {
+					bucket->bytes[i] = 0;
+				}
+
+				buffer = bucket->bytes;
+				bucket->freeSpace -= record.size();
+
+				recordsIterator = bufferedRecords.begin();
+
+				while (recordsIterator != bufferedRecords.end()) {
+					T r = (*recordsIterator);
+					r.write(&buffer);
+					recordsIterator++;
+				}
+
+				file->seek(offset, File::BEG);
+				file->write((char *) bucket, bucketSize);
+				file->flush();
+
+				delete (bucket);
+				break;
+			} else {
+				bucket->overflow = true;
+
+				file->seek(offset, File::BEG);
+				file->write((char *) bucket, bucketSize);
+				file->flush();
+			}
 		}
 	}
 }
