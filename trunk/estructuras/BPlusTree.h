@@ -81,6 +81,9 @@ root(NULL),searchLeaf(NULL),file_(NULL),dataPath(treePath),found(NULL){
 }
 template<class TRecord,unsigned int blockSize>
 void BPlusTree<TRecord,blockSize>::create(){
+	delete file_;
+	delete root;
+	delete searchLeaf;
 	file_=new File(dataPath,File::NEW|File::BIN|File::IO);
 	FreeSpaceStackBlock<blockSize> * fblock=new FreeSpaceStackBlock<blockSize>;
 	fblock->blockNumber=1;
@@ -95,6 +98,9 @@ void BPlusTree<TRecord,blockSize>::create(){
 }
 template<class TRecord,unsigned int blockSize>
 void BPlusTree<TRecord,blockSize>::load(){
+	delete file_;
+	delete root;
+	delete searchLeaf;
 	file_=new File(dataPath,File::BIN|File::IO);
 
 	root=new BPTreeVariableLeaf<TRecord,blockSize>(*file_,1);
@@ -154,6 +160,7 @@ void BPlusTree<TRecord,blockSize>::loadInsert(const TRecord & rec,float compress
 	catch(NodeOverflowException<typename TRecord::Key> e){
 		handleLoadNodeOverflow(rec,e);
 	}
+
 }
 template<class TRecord,unsigned int blockSize>
 void BPlusTree<TRecord,blockSize>::remove(const TRecord & rec){

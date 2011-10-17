@@ -35,7 +35,7 @@ public:
     bool operator !=(const Record::Key &r)const;
     bool operator >=(const Record::Key & r)const;
     StringKey & operator=(const StringKey & rk);
-    StringKey & operator=(std::string string);
+    StringKey & operator=(const std::string& string);
     unsigned int size()const{ return dataString.size() + 1; }
 	~StringKey(){}
 
