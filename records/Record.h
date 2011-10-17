@@ -47,7 +47,7 @@ public:
     bool operator <=(const Record & r)const{return (*this)<r||(*this)==r;}
     bool operator >(const Record &r)const{return !((*this)<=r);}
     bool operator >=(const Record & r)const{return !((*this)<r);}
-    virtual ~Record(){ delete key_;}
+    virtual ~Record(){delete key_;}
 };
 
 #endif // RECORD_H_INCLUDED
