@@ -27,7 +27,11 @@ void DistrictFile::insert(const DistrictRecord & district) {
 		table->insert(district);
 	} catch (RehashCountException & ex) {
 		throw FileInsertException();
+	}catch(UniqueViolationException & e)
+	{
+		throw FileInsertException();
 	}
+
 }
 
 void DistrictFile::remove(const DistrictRecord & district) {
