@@ -121,7 +121,7 @@ void StringUtils::trim(std::string &str)
 	leftTrim(str);
 	rightTrim(str);
 }
-static std::string intToString(int num)
+std::string StringUtils::intToString(int num)
 {
 	std::stringstream strm;
 	std::string s_num;
