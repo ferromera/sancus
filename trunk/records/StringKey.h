@@ -19,7 +19,7 @@ public:
     static const bool isVariable=true;
     static const bool isString=true;
     StringKey(char ** input); //Load the key from input.
-    StringKey(std::string key="");
+    StringKey(const std::string & key="");
     StringKey(const StringKey &);
     void setKey(std::string  string);
     void setKey(const Record::Key & rk);
