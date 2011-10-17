@@ -16,12 +16,13 @@ class Uint32Key: public Record::Key{
     public:
         static const bool isVariable=false;
         static const unsigned int fixedSize=2;
+        static const bool isString=false;
         Uint32Key(char ** input); //Load the key from input.
         Uint32Key(uint32_t key=0);
         Uint32Key(const Uint32Key &);
         void setKey(uint32_t  i);
         void setKey(const Record::Key & rk);
-        uint32_t getKey()const;
+        const uint32_t & getKey()const;
 
         void read(char ** input);
         void write(char ** output)const;
