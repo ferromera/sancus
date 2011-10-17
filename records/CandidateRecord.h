@@ -33,7 +33,7 @@ public:
         Key(const Key &);
         Key(const ListRecord::Key &, const ChargeRecord::Key&);
         Key & operator=(const Key & k);
-        const std::string & getString(){return getKey();}
+        const std::string & getString()const{return getKey();}
         void setKey(const ListRecord::Key &, const ChargeRecord::Key&);
         const std::string & getKey()const;
         void setList(const ListRecord::Key &);
