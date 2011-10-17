@@ -152,8 +152,18 @@ public:
 			table2->insert(*record);
 
 			DistrictRecord recordFromFile = table2->get(record->getKey());
-			assertTrue(recordFromFile.getDistrictName() == record->getDistrictName(),"testUpdate", "Los nombres de los distritos no son iguales");
-			assertTrue(recordFromFile.getFatherName() == record->getFatherName(), "testUpdate", "Los nombres de los padres no son iguales");
+			assertTrue(recordFromFile.getDistrictName() == record->getDistrictName(),"testGet", "Los nombres de los distritos no son iguales");
+			assertTrue(recordFromFile.getFatherName() == record->getFatherName(), "testGet", "Los nombres de los padres no son iguales");
+
+			recordFromFile.setFatherName("Catamarca");
+
+			table2->update(recordFromFile);
+
+			DistrictRecord updatedRecord  = table2->get(recordFromFile.getKey());
+
+			assertTrue(recordFromFile.getDistrictName() == updatedRecord.getDistrictName(),"testUpdate", "Los nombres de los distritos no son iguales");
+			assertTrue(recordFromFile.getFatherName() == updatedRecord.getFatherName(), "testUpdate", "Los nombres de los padres no son iguales");
+
 		}catch (RecordNotFoundException & ex) {
 			cout << "Se lanzo la exception RecordNotFoundException" << endl;
 		}
