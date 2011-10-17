@@ -108,3 +108,12 @@ ChargeRecord::Key::~Key(){
 	delete charge_;
 	delete district_;
 }
+
+void ChargeRecord::Key::updateString(){
+	stringKey_="((";
+	stringKey_.append(charge_->getString());
+	stringKey_.append(")");
+	stringKey_.append(district_->getString());
+	stringKey_.append(")");
+
+}
