@@ -7,6 +7,9 @@
 
 #include "ChargeScreen.h"
 #include "../core/VoteApp.h"
+#include "../managers/DistrictFile.h"
+#include "../managers/FileManagerExceptions.h"
+#include "../records/DistrictRecord.h"
 #include <cstdio>
 
 ChargeScreen::ChargeScreen() {
@@ -61,13 +64,11 @@ char ChargeScreen::chargeDistrict()
 	std::cout<<""<<std::endl;
 	father = IstreamUtils::getString();
 	std::cout<<""<<std::endl;
-	/*
+
 	DistrictFile* dFile = DistrictFile::getInstance();
 	DistrictRecord::Key keyFather;
-	DistrictRecord record;
-	if(father.compare("") == 0)
-		record = DistrictRecord(district);
-	else
+	DistrictRecord record = DistrictRecord(district);
+	if(father.compare("") != 0)
 	{
 		keyFather = DistrictRecord::Key(father);
 		try
@@ -87,7 +88,7 @@ char ChargeScreen::chargeDistrict()
 	{
 		dFile->insert(record);
 	}
-	catch(DuplicateRecordException)
+	catch(FileInsertException e)
 	{
 		std::cout<<"Error el Registro ya existe"<<std::endl;
 		std::cout<<""<<std::endl;
@@ -96,7 +97,7 @@ char ChargeScreen::chargeDistrict()
 	}
 	std::cout<<"Se inserto correctamente el siguiente Registo distrito: ";
 	std::cout<<record.getKey().getString()<<std::endl;
-	*/
+
 
 	std::cout<<""<<std::endl;
 	std::cout<<"Quiere agregar otro registro al archivo de Distritos S/N"<<std::endl;

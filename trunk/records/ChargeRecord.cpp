@@ -18,7 +18,7 @@ ChargeRecord::ChargeRecord(const ChargeRecord & rec){
 	if(rec.hasFather())
 		chargeFather = new ChargeRecord::Key(rec.getChargeFather());
 	else
-		chargeFather=NULL;
+		chargeFather = NULL;
 }
 ChargeRecord::ChargeRecord(const ChargeRecord::Key &k){
 	key_ = new ChargeRecord::Key(k);

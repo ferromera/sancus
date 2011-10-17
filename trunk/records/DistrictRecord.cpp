@@ -8,7 +8,14 @@
 #include "DistrictRecord.h"
 #include "stdint.h"
 #include <cstring>
-
+DistrictRecord::DistrictRecord(const DistrictRecord &k)
+{
+	key_ = new DistrictRecord::Key(k.getKey());
+	if(k.hasFather())
+		districtFather = new DistrictRecord::Key(k.getFather());
+	else
+		districtFather = NULL;
+}
 DistrictRecord::DistrictRecord(const DistrictRecord::Key &k)
 {
 	key_ = new DistrictRecord::Key(k);
@@ -67,7 +74,8 @@ void DistrictRecord::write(char ** output){
 }
 DistrictRecord::~DistrictRecord()
 {
-	delete districtFather;
+	if(districtFather != NULL)
+		delete districtFather;
 }
 void DistrictRecord::setDistrictName(std::string district)
 {

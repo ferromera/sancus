@@ -6,6 +6,15 @@
  */
 
 #include "DistrictFile.h"
+#include "FileManagerExceptions.h"
+
+DistrictFile* DistrictFile::instance = NULL;
+
+DistrictFile * DistrictFile::getInstance(){
+	if(instance==NULL)
+		instance= new DistrictFile();
+	return instance;
+}
 
 DistrictFile::DistrictFile() {
 	this->table = new HashTable<DistrictRecord, 4096> (DISTRICT_FILE_DATA_PATH,
@@ -42,7 +51,7 @@ const DistrictRecord & DistrictFile::search(
 	try {
 		return table->get(districtKey);
 	} catch (RecordNotFoundException & ex) {
-		//throw FileSearchException();
+		throw FileSearchException();
 	}
 }
 
