@@ -7,6 +7,7 @@
 
 #include "StringKey.h"
 #include <cstring>
+#include "stdint.h"
 
 StringKey::StringKey(char ** input)
 {
@@ -35,7 +36,7 @@ const std::string & StringKey::getKey()const
 }
 void StringKey::read(char ** input)
 {
-    unsigned int sizeStr;
+	uint8_t sizeStr;
 	memcpy(&sizeStr,*input,1);
     (*input)+=1;
     char *myChar = new char[sizeStr + 1];
@@ -47,7 +48,7 @@ void StringKey::read(char ** input)
 }
 void StringKey::write(char ** output)const
 {
-	unsigned int sizeStr = dataString.size();
+	uint8_t sizeStr = dataString.size();
     memcpy(*output,&sizeStr,1);
     (*output)+=1;
     memcpy(*output,dataString.c_str(),sizeStr);
