@@ -19,9 +19,9 @@ void ElectionScreen::draw()
 	system("clear");
 	std::cout<<"PANTALLA DE ELECCIONES PENDIENTES"<<std::endl;
 	VoteApp* app = VoteApp::getInstance();
-
+/*
 	//VoterRecord user = app->getUserLogin();
-	/*
+
 	std::list<ElectionRecord::Key> keysOfElection = user.getElectionList();
 	std::list<ElectionRecord::Key>::iterator itElect = keysOfElection.begin();
 	ElectionFile* electionFile = ElectionFile::getInstance();
@@ -30,7 +30,14 @@ void ElectionScreen::draw()
 	{
 		int number = i+1;
 		ElectionRecord record = ElectionRecord((*itElect));
-		record = electionFile->search(record);
+		try
+		{
+			record = electionFile->search(record);
+		}
+		catch(FileSearchException e)
+		{
+			break;
+		}
 		elections.push_back(record);
 		std::cout<<number<<" - Cargo: "<<record.getCharge()<< " Fecha: " << record.getDate() <<std::endl;
 	}
@@ -47,11 +54,10 @@ void ElectionScreen::draw()
 		}
 		else
 		{
-			std::cout<<"Numero de eleccion Incorrecto eliga nuevamente<<std::endl;
+			std::cout<<"Numero de eleccion Incorrecto eliga nuevamente"<<std::endl;
 		}
 	}
 	*/
-
 }
 /*
 std::list<ElectionRecord>::iterator ElectionScreen::getElectionNumber(unsigned int electionNumber)

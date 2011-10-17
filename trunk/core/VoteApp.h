@@ -11,6 +11,7 @@
 #include <list>
 #include "Runable.h"
 #include "stdint.h"
+#include "../utils/Time.h"
 //#include "../records/VoterRecord.h"
 //#include "../records/ElectionRecord.h"
 #include "../screens/Drawable.h"

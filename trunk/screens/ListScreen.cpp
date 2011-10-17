@@ -21,20 +21,13 @@ void  ListScreen::draw(){
 	VoterRecord voterRecord = app->getUserLogin();
 	char opcion;
 	system("clear");
-	std::cout<<"/////////////////////////////////////////"<<std::endl;
-	std::cout<<"/////////////////////////////////////////"<<std::endl;
-	std::cout<<"/////////////////////////////////////////"<<std::endl;
-	std::cout<<"             ELIGA SU LISTA			          "<<std::endl;
-	std::cout<<"/////////////////////////////////////////"<<std::endl;
-	std::cout<<"/////////////////////////////////////////"<<std::endl;
-	std::cout<<"/////////////////////////////////////////"<<std::endl;
-
+	std::cout<<"PANTALLA DE LISTAS"<<std::endl;
 	try
 	{
 		ListRecord listRecord = listFile->searchByElection(electionRecord->getKey());
 	}catch(FileSearchException)
 	{
-
+		std::cout<<"Error no existe la lista en el archivo de Listas"<<std::endl;
 	}
 	while(true)
 	{
@@ -43,7 +36,7 @@ void  ListScreen::draw(){
 		while(opcionInvalida)
 		{
 			std::cout<<" Presione V para votar o S para seguir, luego apriete ENTER " << listRec.getName() << std::endl;
-			std::cin>>opcion;
+			opcion = IstreamUtils::getChar();
 			if(opcion == 'V')
 			{
 				VoteConuntingRecord::Key voteKey = VoteConuntingRecord::Key(listRecord.getKey(),voterRecord.getVoterDistrict(),electionRecord.getKey());
@@ -66,12 +59,14 @@ void  ListScreen::draw(){
 			}
 			else if (opcion == 'S')
 			{
-				listRecord = listFile->next();
-				if(listRecord.getElection() != electionRecord.getKey())
+				try
+				{
+					listRecord = listFile->nextByElection();
+				}catch(FileNextException e)
 				{
 					try
 					{
-						ListRecord listRecord = listFile->searchByElection(electionRecord->getKey());
+						listRecord = listFile->searchByElection(electionRecord->getKey());
 					}catch(FileSearchException)
 					{
 
@@ -84,13 +79,47 @@ void  ListScreen::draw(){
 				std::cout<<"OPCION INVALIDA " << std::endl;
 			}
 		}
-	}
-	*/
-
+	}*/
 }
 /*
 void ListRecord::showList(ListRecord listRec)
 {
 	std::cout<<" LISTA " << listRec.getName() << std::endl;
-}*/
+	std::cout<<""<<std::endl;
+	ElectionRecord electionRecord = app->getChooseElection();
+	//Busco cargos
+	ChargeFile* cFile = ChargeFile::getInstance();
+	CandidateFile* candFile = CandidateFile::getInstance();
+	std::list<ChargeRecord::Key> listaCargos;
+	listaCargos.push_back(electionRecord.getCharge());
+	ChargeRecord chRecord;
+	while(true)
+	{
+		try
+		{
+			chRecord = cFile->searchByFatherCharge(electionRecord.getCharge());
+		}catch(FileSearchEception e)
+		{
+			break;
+		}
+		listaCargos.push_back(chRecord.getCharge());
+	}
+	std::list<ChargeRecord::Key>::iterator itListaCargos = listaCargos.begin();
 
+	for(int i = 0 ; i<listaCargos.size(); i++,itListaCargos++)
+	{
+		CandidateRecord::Key candKey = CandidateRecord(listRec.getKey(),(*itListaCargos));
+		CandidateRecord candRecord;
+		try
+		{
+			candRecord = candFile->search(candKey);
+		}catch(FileSearchEception e)
+		{
+			continue;
+		}
+		std::cout<<"Cargo: "<< candRecord.getCharge() << " Candidato: " candRecord.getVoter().getName() << " " << candRecord.getVoter().getLastName()<<std::endl;
+	}
+
+
+}
+*/
