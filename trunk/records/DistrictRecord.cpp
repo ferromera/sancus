@@ -21,6 +21,24 @@ DistrictRecord::DistrictRecord(const DistrictRecord::Key &k)
 	key_ = new DistrictRecord::Key(k);
 	districtFather = NULL;
 }
+DistrictRecord::DistrictRecord(char ** input){
+	key_ = new DistrictRecord::Key(input);
+	uint8_t flag;
+	memcpy(&flag,*input,1);
+	(*input)+=1;
+	if(flag == 1)
+		districtFather = new DistrictRecord::Key(input);
+	else
+		districtFather = NULL;
+}
+
+DistrictRecord::DistrictRecord(const DistrictRecord &rec){
+	key_=new DistrictRecord::Key(rec.getKey());
+	if(rec.hasFather())
+		districtFather = new DistrictRecord::Key(rec.getFather());
+	else
+		districtFather = NULL;
+}
 DistrictRecord::DistrictRecord(const std::string & district){
 	key_ = new DistrictRecord::Key(district);
 	districtFather = NULL;
