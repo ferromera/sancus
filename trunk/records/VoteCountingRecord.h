@@ -77,7 +77,7 @@ public:
 
 	VoteCountingRecord & operator = (const VoteCountingRecord &);
 
-	virtual ~VoteCountingRecord();
+	virtual ~VoteCountingRecord(){}
 };
 
 #endif /* VOTECOUNTINGRECORD_H_ */
