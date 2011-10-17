@@ -7,6 +7,28 @@ ChargeRecord::ChargeRecord(const ChargeRecord::Key &k)
 	key_ = new ChargeRecord::Key(k);
 	chargeFather = NULL;
 }
+ChargeRecord::ChargeRecord(const ChargeRecord & rec){
+	key_ = new ChargeRecord::Key(rec.getKey());
+	if(rec.hasFather())
+		chargeFather = new ChargeRecord::Key(rec.getChargeFatherKey());
+	else
+		chargeFather=NULL;
+}
+ChargeRecord::ChargeRecord(char ** input){
+	key_=new ChargeRecord::Key(input);
+	uint8_t flag;
+	memcpy(&flag,*input,1);
+	(*input)+=1;
+	if(flag == 1)
+		chargeFather=new ChargeRecord::Key(input);
+	else
+		chargeFather = NULL;
+}
+ChargeRecord::ChargeRecord(const std::string & str)
+{
+	key_ = new ChargeRecord::Key(str);
+	chargeFather = NULL;
+}
 ChargeRecord::ChargeRecord(const ChargeRecord::Key &k,const ChargeRecord::Key &kFather)
 {
 	key_ = new ChargeRecord::Key(k);
@@ -35,12 +57,13 @@ void ChargeRecord::setChargeFather(const ChargeRecord::Key & k)
 }
 void ChargeRecord::read(char ** input)
 {
+	delete chargeFather;
 	key_->read(input);
 	uint8_t flag;
 	memcpy(&flag,*input,1);
 	(*input)+=1;
 	if(flag == 1)
-		chargeFather->read(input);
+		chargeFather=new ChargeRecord::Key(input);
 	else
 		chargeFather = NULL;
 }

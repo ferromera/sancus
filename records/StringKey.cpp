@@ -39,7 +39,7 @@ void StringKey::read(char ** input)
 	memcpy(&sizeStr,*input,1);
     (*input)+=1;
     char *myChar = new char[sizeStr + 1];
-    memcpy(&myChar,*input,sizeStr);
+    memcpy(myChar,*input,sizeStr);
     (*input)+=sizeStr;
     myChar[sizeStr] = '\0';
     dataString = myChar;
@@ -89,11 +89,10 @@ StringKey & StringKey::operator=(const StringKey & rk)
 {
 	if(this == &rk)
 		return *this;
-
 	dataString = rk.dataString;
 	return *this;
 }
-StringKey & StringKey::operator=(std::string string)
+StringKey & StringKey::operator=(const std::string & string)
 {
 	dataString = string;
 	return *this;

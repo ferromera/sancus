@@ -22,14 +22,22 @@ public:
     class Key: public StringKey{
     public:
         Key(char ** input):StringKey(input){}
-        Key(std::string key=" "):StringKey(key){}
+        Key(std::string key=""):StringKey(key){}
+        Key(const Key & key):StringKey(key){}
+        Key& operator=(const Key& k){
+        	StringKey::operator =(k);
+        	return *this;
+        }
     };
     unsigned int size()const;
     void setKey(const ChargeRecord::Key & k);
     void setKey(std::string k);
     void read(char ** input);
     void write(char ** output);
+    ChargeRecord(char ** input);
+    ChargeRecord(const ChargeRecord & rec);
     ChargeRecord(const ChargeRecord::Key &k);
+    ChargeRecord(const std::string & str);
     ChargeRecord(const ChargeRecord::Key &k,const ChargeRecord::Key &kFather);
 	ChargeRecord(std::string chargeName,std::string chargeFather);
 	virtual ~ChargeRecord();
@@ -41,12 +49,6 @@ public:
 	void setChargeFather(const ChargeRecord::Key & k);
 	ChargeRecord::Key & getChargeFatherKey()const;
 	bool hasFather()const;
-    bool operator <(const Record::Key &rk)const;
-    bool operator <=(const Record::Key &rk)const;
-    bool operator ==(const Record::Key &rk)const;
-    bool operator >(const Record::Key & rk)const;
-    bool operator >=(const Record::Key & rk)const;
-    bool operator !=(const Record::Key & rk)const;
     ChargeRecord & operator=(const ChargeRecord &rec);
 };
 class chargeFatherNullException : public std::exception{};
