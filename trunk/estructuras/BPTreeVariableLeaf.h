@@ -70,7 +70,7 @@ void BPTreeVariableLeaf<TRecord,blockSize>::read(){
 	unsigned long pos=blockNumber*blockSize;
 	file->seek(pos,File::BEG);
 	file->read((char*)block,blockSize);
-
+	BPTreeNode<TRecord,blockSize>::level_ = block->level;
 	freeSpace=block->freeSpace;
 	BPTreeLeaf<TRecord,blockSize>::next_=block->next;
 	readRecords(block);
@@ -101,7 +101,9 @@ void BPTreeVariableLeaf<TRecord,blockSize>::write(){
 	unsigned long & blockNumber=BPTreeNode<TRecord,blockSize>::blockNumber_;
 
 	block->freeSpace=freeSpace;
+	block->level=BPTreeNode<TRecord,blockSize>::level_;
 	block->next=BPTreeLeaf<TRecord,blockSize>::next_;
+
 
 	writeRecords(block);
 

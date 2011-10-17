@@ -196,6 +196,7 @@ bool BPTreeVariableInternalNodeTest::testInsert1(){
 	//Comparo bloque 5
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=14;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(2,"ABC");
@@ -217,6 +218,7 @@ bool BPTreeVariableInternalNodeTest::testInsert1(){
 	//Comparo bloque 6
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=7;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(40,"ABC");
@@ -237,6 +239,7 @@ bool BPTreeVariableInternalNodeTest::testInsert1(){
 	//Comparo bloque 7
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=8;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(72,"ABC");
@@ -258,6 +261,7 @@ bool BPTreeVariableInternalNodeTest::testInsert1(){
 	//Comparo bloque 8
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=9;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(92,"ABC");
@@ -278,6 +282,7 @@ bool BPTreeVariableInternalNodeTest::testInsert1(){
 	//Comparo bloque 9
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=10;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(120,"ABC");
@@ -298,6 +303,7 @@ bool BPTreeVariableInternalNodeTest::testInsert1(){
 	//Comparo bloque 10
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=11;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(130,"ABC");
@@ -318,6 +324,7 @@ bool BPTreeVariableInternalNodeTest::testInsert1(){
 	//Comparo bloque 11
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=12;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(160,"ABC");
@@ -338,6 +345,7 @@ bool BPTreeVariableInternalNodeTest::testInsert1(){
 	//Comparo bloque 12
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=13;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(170,"ABC");
@@ -358,6 +366,7 @@ bool BPTreeVariableInternalNodeTest::testInsert1(){
 	//Comparo bloque 13
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=0;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(200,"ABC");
@@ -379,6 +388,7 @@ bool BPTreeVariableInternalNodeTest::testInsert1(){
 	//Comparo bloque 14
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=15;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(15,"ABC");
@@ -400,6 +410,7 @@ bool BPTreeVariableInternalNodeTest::testInsert1(){
 	//Comparo bloque 15
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=6;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(17,"ABC");
@@ -574,6 +585,7 @@ bool BPTreeVariableInternalNodeTest::testRemove1(){
 	//Comparo bloque 5
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-6;
+	leafBlock->level=0;
 	leafBlock->next=8;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(2,"ABC");
@@ -592,6 +604,7 @@ bool BPTreeVariableInternalNodeTest::testRemove1(){
 	//Comparo bloque 8
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=9;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(92,"ABC");
@@ -613,6 +626,7 @@ bool BPTreeVariableInternalNodeTest::testRemove1(){
 	//Comparo bloque 9
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=10;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(120,"ABC");
@@ -633,6 +647,7 @@ bool BPTreeVariableInternalNodeTest::testRemove1(){
 	//Comparo bloque 10
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=11;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(130,"ABC");
@@ -653,6 +668,7 @@ bool BPTreeVariableInternalNodeTest::testRemove1(){
 	//Comparo bloque 11
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=12;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(160,"ABC");
@@ -673,6 +689,7 @@ bool BPTreeVariableInternalNodeTest::testRemove1(){
 	//Comparo bloque 12
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-6;
+	leafBlock->level=0;
 	leafBlock->next=13;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(200,"ABC");
@@ -690,6 +707,7 @@ bool BPTreeVariableInternalNodeTest::testRemove1(){
 	//Comparo bloque 13
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-6;
+	leafBlock->level=0;
 	leafBlock->next=0;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(210,"ABC");
@@ -794,6 +812,7 @@ void BPTreeVariableInternalNodeTest::arrenge1( File & file){
 	// Nodo 5 /////////////////////////////////////////////////////////////////////////
 	BPTreeVariableLeafBlock<25>* leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-18;
+	leafBlock->level=0;
 	leafBlock->next=6;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(2,"ABC");
@@ -810,6 +829,7 @@ void BPTreeVariableInternalNodeTest::arrenge1( File & file){
 	// Nodo 6 ///////////////////////////////////////////BPTreeVariableInternalNodeTest//////////////////////////////
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=7;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(40,"ABC");
@@ -823,6 +843,7 @@ void BPTreeVariableInternalNodeTest::arrenge1( File & file){
 	// Nodo 7 /////////////////////////////////////////////////////////////////////////
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=8;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(72,"ABC");
@@ -836,6 +857,7 @@ void BPTreeVariableInternalNodeTest::arrenge1( File & file){
 	// Nodo 8 /////////////////////////////////////////////////////////////////////////
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=9;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(92,"ABC");
@@ -849,6 +871,7 @@ void BPTreeVariableInternalNodeTest::arrenge1( File & file){
 	// Nodo 9 /////////////////////////////////////////////////////////////////////////
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=10;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(120,"ABC");
@@ -862,6 +885,7 @@ void BPTreeVariableInternalNodeTest::arrenge1( File & file){
 	// Nodo 10 /////////////////////////////////////////////////////////////////////////
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=11;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(130,"ABC");
@@ -875,6 +899,7 @@ void BPTreeVariableInternalNodeTest::arrenge1( File & file){
 	// Nodo 11 /////////////////////////////////////////////////////////////////////////
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=12;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(160,"ABC");
@@ -888,6 +913,7 @@ void BPTreeVariableInternalNodeTest::arrenge1( File & file){
 	// Nodo 12 /////////////////////////////////////////////////////////////////////////
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=13;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(170,"ABC");
@@ -901,6 +927,7 @@ void BPTreeVariableInternalNodeTest::arrenge1( File & file){
 	// Nodo 13 /////////////////////////////////////////////////////////////////////////
 	leafBlock=new BPTreeVariableLeafBlock<25>;
 	leafBlock->freeSpace=25-VARIABLE_LEAF_CONTROL_BYTES-12;
+	leafBlock->level=0;
 	leafBlock->next=0;
 	bytesPtr=leafBlock->bytes;
 	stRec= new StudentRecord(200,"ABC");

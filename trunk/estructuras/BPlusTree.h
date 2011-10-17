@@ -34,6 +34,7 @@ private:
     void handleNodeUnderflow();
     void loadInsert(const TRecord & rec,float);
 
+
 public:
 
     BPlusTree(const std::string & path);
@@ -46,6 +47,12 @@ public:
     const TRecord & next();
     void preOrderReport();
     void restructure();
+    virtual ~BPlusTree(){
+       	delete root;
+       	delete searchLeaf;
+       	delete file_;
+       	delete found;
+       }
 };
 
 
@@ -103,7 +110,14 @@ void BPlusTree<TRecord,blockSize>::load(){
 	delete searchLeaf;
 	file_=new File(dataPath,File::BIN|File::IO);
 
-	root=new BPTreeVariableLeaf<TRecord,blockSize>(*file_,1);
+	BPTreeVariableLeafBlock<blockSize> *block=new BPTreeVariableLeafBlock<blockSize>;
+	file_->seek(blockSize,File::BEG);
+	file_->read((char*)block,blockSize);
+	if(block->level==0)
+		root= new BPTreeVariableLeaf<TRecord,blockSize>(*file_,1);
+	else
+		root= new BPTreeVariableInternalNode<TRecord,blockSize>(*file_,1);
+
 
 }
 template<class TRecord,unsigned int blockSize>
@@ -217,6 +231,7 @@ void BPlusTree<TRecord,blockSize>::handleLeafOverflow(const TRecord & record){
 	delete rightLeaf;
 	delete leftLeaf;
 
+
 	delete root;
 
 	root=new BPTreeVariableInternalNode<TRecord,blockSize>();
@@ -269,10 +284,15 @@ void BPlusTree<TRecord,blockSize>::handleNodeOverflow(const TRecord & rec,NodeOv
 	leftNode->write();
 	rightNode->write();
 
+
+
+
 	unsigned int leftBlockNumber=leftNode->blockNumber();
 	unsigned int rightBlockNumber=rightNode->blockNumber();
 	delete leftNode;
 	delete rightNode;
+
+
 	unsigned int newLevel=root->level()+1;
 	delete root;
 
