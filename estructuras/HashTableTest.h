@@ -155,7 +155,7 @@ public:
 			assertTrue(recordFromFile.getDistrictName() == record->getDistrictName(),"testUpdate", "Los nombres de los distritos no son iguales");
 			assertTrue(recordFromFile.getFatherName() == record->getFatherName(), "testUpdate", "Los nombres de los padres no son iguales");
 		}catch (RecordNotFoundException & ex) {
-
+			cout << "Se lanzo la exception RecordNotFoundException" << endl;
 		}
 	}
 };
