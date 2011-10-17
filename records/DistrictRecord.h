@@ -35,8 +35,10 @@ public:
     void setKey(std::string k);
     void read(char ** input);
     void write(char ** output);
+    DistrictRecord(char ** input);
     DistrictRecord(const DistrictRecord &k);
     DistrictRecord(const DistrictRecord::Key &k);
+    DistrictRecord(const DistrictRecord &k);
     DistrictRecord(const std::string & district);
     DistrictRecord(const DistrictRecord::Key &k,const DistrictRecord::Key &kFather);
 	DistrictRecord(const std::string & district,const std::string & father);
