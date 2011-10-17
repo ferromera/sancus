@@ -19,6 +19,7 @@ private:
 public:
 
     static const bool isVariable=true;
+
     class Key : public Record::Key{
     private:
     	ChargeRecord::Key* charge;
@@ -26,6 +27,8 @@ public:
     	std::string stringKey_;
     	void updateString();
     public:
+    	static const bool isString=true;
+    	static const bool isVariable=true;
     	Key();
         Key(unsigned int date,const ChargeRecord::Key &);
         Key(char ** input);
@@ -65,6 +68,7 @@ public:
     const DistrictRecord::Key& getDistrict()const;
     const ChargeRecord::Key& getCharge()const;
     unsigned int getDate()const;
+    ElectionRecord& operator=(const ElectionRecord & rec);
     virtual ~ElectionRecord();
 
 };
