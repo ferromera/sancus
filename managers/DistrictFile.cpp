@@ -26,7 +26,7 @@ void DistrictFile::insert(const DistrictRecord & district) {
 	try {
 		table->insert(district);
 	} catch (RehashCountException & ex) {
-		//throw FileInsertException();
+		throw FileInsertException();
 	}
 }
 
@@ -34,7 +34,7 @@ void DistrictFile::remove(const DistrictRecord & district) {
 	try {
 		table->remove(district);
 	} catch (RecordNotFoundException & ex) {
-		//throw FileRemoveException();
+		throw FileRemoveException();
 	}
 }
 
@@ -42,7 +42,7 @@ void DistrictFile::update(const DistrictRecord & district) {
 	try {
 		table->update(district);
 	} catch (RecordNotFoundException & ex) {
-		//throw FileRemoveException();
+		throw FileUpdateException();
 	}
 }
 
