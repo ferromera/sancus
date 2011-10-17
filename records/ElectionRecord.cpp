@@ -7,6 +7,12 @@
 
 #include "ElectionRecord.h"
 
+
+ElectionRecord::ElectionRecord(char ** input){
+	key_= new ElectionRecord::Key(input);
+	district = new DistrictRecord::Key(input);
+ }
+
 ElectionRecord::ElectionRecord(const ElectionRecord::Key & k)
 {
 	key_= new ElectionRecord::Key(k);

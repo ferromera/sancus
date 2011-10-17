@@ -54,9 +54,10 @@ public:
 
     };
     unsigned int size()const;
+    ElectionRecord(char ** input);
 	ElectionRecord(const ElectionRecord & rec);
 	ElectionRecord(const ElectionRecord::Key & k);
-	ElectionRecord(unsigned int date, const ChargeRecord::Key& charge, const DistrictRecord::Key& district);
+	ElectionRecord(unsigned int date, const ChargeRecord::Key& charge, const DistrictRecord::Key& district=DistrictRecord::Key());
 	const ElectionRecord::Key & getKey()const;
     void setKey(const ElectionRecord::Key & k);
     void setKey(unsigned int date, const ChargeRecord::Key& charge);
