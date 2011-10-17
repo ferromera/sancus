@@ -24,6 +24,11 @@ public:
     public:
         Key(char ** input):StringKey(input){}
         Key(std::string key=" "):StringKey(key){}
+        Key(const Key & key):StringKey(key){}
+        Key& operator=(const Key & key){
+        	StringKey::operator=(key);
+        	return *this;
+        }
     };
     unsigned int size()const;
     void setKey(const DistrictRecord::Key & k);

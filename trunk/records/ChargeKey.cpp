@@ -72,6 +72,7 @@ const std::string & ChargeRecord::Key::getCharge()const{
 void ChargeRecord::Key::read(char ** input){
 	charge_->read(input);
 	district_->read(input);
+	updateString();
 }
 void ChargeRecord::Key::write(char ** output)const{
 	charge_->write(output);
@@ -110,9 +111,9 @@ ChargeRecord::Key::~Key(){
 }
 
 void ChargeRecord::Key::updateString(){
-	stringKey_="((";
+	stringKey_="(";
 	stringKey_.append(charge_->getString());
-	stringKey_.append(")");
+	stringKey_.append(")(");
 	stringKey_.append(district_->getString());
 	stringKey_.append(")");
 
