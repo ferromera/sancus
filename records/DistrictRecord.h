@@ -42,12 +42,13 @@ public:
 	void setFather(const DistrictRecord::Key & k);
 	DistrictRecord::Key & getFather()const;
 	bool hasFather()const;
-    bool operator <(const Record::Key &rk)const;
-    bool operator <=(const Record::Key &rk)const;
-    bool operator ==(const Record::Key &rk)const;
-    bool operator >(const Record::Key & rk)const;
-    bool operator >=(const Record::Key & rk)const;
-    bool operator !=(const Record::Key & rk)const;
+	//ESTOS OPERADOS YA SE SOBRECARGAN EN RECORD
+   // bool operator <(const Record::Key &rk)const;
+   // bool operator <=(const Record::Key &rk)const;
+   // bool operator ==(const Record::Key &rk)const;
+   // bool operator >(const Record::Key & rk)const;
+   // bool operator >=(const Record::Key & rk)const;
+   // bool operator !=(const Record::Key & rk)const;
     DistrictRecord & operator=(const DistrictRecord &rec);
 };
 class districtFatherNullException : public std::exception{};
