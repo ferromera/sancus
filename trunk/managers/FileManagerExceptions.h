@@ -8,6 +8,8 @@
 #ifndef FILEMANAGEREXCEPTIONS_H_
 #define FILEMANAGEREXCEPTIONS_H_
 
+#include <exception>
+
 class FileManagerException: public std::exception{};
 class FileInsertException: public FileManagerException{};
 class FileRemoveException: public FileManagerException{};

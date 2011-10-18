@@ -16,6 +16,7 @@ class PrimaryIndexRecord: public Record{
 public:
 	class Key: public primaryKey{
 	public:
+		Key():primaryKey(){}
 		Key(char** input):primaryKey(input){}
 		Key(const Key & k):primaryKey(k){}
 		Key(const primaryKey & k):primaryKey(k){}
@@ -120,6 +121,7 @@ PrimaryIndexRecord<primaryKey>& PrimaryIndexRecord<primaryKey>::operator=(const 
 		return *this;
 	setKey(rec.getKey());
 	blockNumber_=rec.blockNumber_;
+	return *this;
 }
 
 

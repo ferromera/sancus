@@ -11,6 +11,12 @@
 #include <list>
 #include <string>
 #include "../records/VoteCountingRecord.h"
+#include "FileManagerExceptions.h"
+#include "../estructuras/BPlusTree.h"
+#include "../estructuras/IndexedDataFile.h"
+#include "../records/SecondaryIndexRecord.h"
+#include "../records/PrimaryIndexRecord.h"
+
 
 
 #define VOTE_COUNTING_ELECTION_INDEX_PATH "./VoteCountingElectionIndex.bin"
@@ -52,10 +58,10 @@ public:
 	const VoteCountingRecord & searchByElection(const ElectionRecord::Key & election);
 	const VoteCountingRecord & searchByList(const ListRecord::Key & list);
 	const VoteCountingRecord & search(const VoteCountingRecord::Key & voteCounting);
-	const VoteCountingRecord & VoteCountingFile::nextDistrict();
-	const VoteCountingRecord & VoteCountingFile::nextElection();
-	const VoteCountingRecord & VoteCountingFile::nextList();
-	const VoteCountingRecord & VoteCountingFile::next();
+	const VoteCountingRecord & nextDistrict();
+	const VoteCountingRecord & nextElection();
+	const VoteCountingRecord & nextList();
+	const VoteCountingRecord & next();
 
 	virtual ~VoteCountingFile();
 

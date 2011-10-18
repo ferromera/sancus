@@ -11,6 +11,10 @@ VoteCountingRecord::VoteCountingRecord(const Key & k, unsigned int count){
 	key_=new Key(k);
 	count_=count;
 }
+VoteCountingRecord::VoteCountingRecord(const VoteCountingRecord::Key & k){
+	key_=new Key(k);
+	count_=0;
+}
 VoteCountingRecord::VoteCountingRecord(const ListRecord::Key & list, const DistrictRecord::Key & district, const ElectionRecord::Key & election, unsigned int block){
 	std::string listString=list.getString();
 	std::string districtString=district.getString();

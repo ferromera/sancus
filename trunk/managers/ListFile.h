@@ -14,7 +14,14 @@
 #define LIST_FILE_PRIMARY_INDEX_PATH "./ListFilePrimaryIndex.bin"
 #define LIST_FILE_DATA_PATH	"./ListFileData.bin"
 
-class ListFile {
+#include "FileManagerExceptions.h"
+#include "../estructuras/BPlusTree.h"
+#include "../estructuras/IndexedDataFile.h"
+#include "../records/SecondaryIndexRecord.h"
+#include "../records/PrimaryIndexRecord.h"
+#include "../records/ListRecord.h"
+
+class ListFile{
 	enum lastSearchEnum {ELECTION_SEARCH,NAME_SEARCH,PRIMARY_SEARCH,NO_SEARCH};
 	BPlusTree<SecondaryIndexRecord<ElectionRecord::Key,ListRecord::Key>,4096> * electionIndex;
 	BPlusTree<SecondaryIndexRecord<StringKey,ListRecord::Key>,4096> * nameIndex;
@@ -42,9 +49,9 @@ public:
 	const ListRecord & searchByElection(const ElectionRecord::Key & election);
 	const ListRecord & searchByName(const std::string & name);
 	const ListRecord & search(const ListRecord::Key & list);
-	const ListRecord & VoteCountingFile::nextElection();
-	const ListRecord & VoteCountingFile::nextName();
-	const ListRecord & VoteCountingFile::next();
+	const ListRecord & nextElection();
+	const ListRecord & nextName();
+	const ListRecord & next();
 
 	virtual ~ListFile();
 };
