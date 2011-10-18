@@ -16,6 +16,7 @@ class SecondaryIndexRecord: public Record{
 public:
 	class Key:public SecondaryIndexKey<attributeKey,primaryKey>{
 	public:
+		 Key():SecondaryIndexKey<attributeKey,primaryKey>(){}
 		 Key(char ** input):SecondaryIndexKey<attributeKey,primaryKey>(input){}
 		 Key(const attributeKey & at,const primaryKey &pr):
 			 SecondaryIndexKey<attributeKey,primaryKey>(at,pr){
@@ -119,6 +120,7 @@ SecondaryIndexRecord<attributeKey,primaryKey>& SecondaryIndexRecord<attributeKey
 	if(this==&rec)
 		return *this;
 	key_=new Key(*((Key*)rec.key_));
+	return *this;
 
 }
 

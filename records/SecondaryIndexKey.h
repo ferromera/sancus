@@ -18,7 +18,7 @@ class SecondaryIndexKey: public Record::Key{
 
 	void updateString();
 public:
-
+	SecondaryIndexKey();
 	SecondaryIndexKey(char ** input);
 	SecondaryIndexKey(const SecondaryIndexKey<attributeKey,primaryKey> &);
 	SecondaryIndexKey(const attributeKey & a,const primaryKey & p);
@@ -51,6 +51,12 @@ public:
 
 };
 
+template <class attributeKey, class primaryKey>
+SecondaryIndexKey<attributeKey,primaryKey>::SecondaryIndexKey(){
+	att=new attributeKey();
+	pri=new primaryKey();
+	updateString();
+}
 template <class attributeKey, class primaryKey>
 SecondaryIndexKey<attributeKey,primaryKey>::SecondaryIndexKey(char ** input):att(NULL),pri(NULL){
 	read(input);

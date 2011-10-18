@@ -82,7 +82,7 @@ void BPTreeVariableLeaf<TRecord,blockSize>::readRecords(BPTreeVariableLeafBlock<
 	char * currentPos=block->bytes;
 	unsigned int readSpace=0;
 	unsigned int usedSpace=blockSize - VARIABLE_LEAF_CONTROL_BYTES - freeSpace;
-	while(usedSpace!=readSpace){
+	while(usedSpace>readSpace){
 		TRecord * newRecord=new TRecord(& currentPos);
 		readSpace+=newRecord->size();
 		BPTreeLeaf<TRecord,blockSize>::records_.push_back(*newRecord);
@@ -127,7 +127,6 @@ void BPTreeVariableLeaf<TRecord,blockSize>::writeRecords(BPTreeVariableLeafBlock
 
 template<class TRecord,unsigned int blockSize>
 void BPTreeVariableLeaf<TRecord,blockSize>::insert(const TRecord & rec){
-
 	if(rec.size()>blockSize - VARIABLE_LEAF_CONTROL_BYTES)
 		throw BPTreeRecordSizeException();
 	if(rec.size()>freeSpace)

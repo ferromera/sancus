@@ -19,59 +19,62 @@ class IndexedDataFile {
 	bool underflow_;
 	bool fusion_;
 	unsigned int newBlock_;
-	TRecord::Key * newLastKey_;
+	typename TRecord::Key * newLastKey_;
 	BPTreeVariableLeaf<TRecord,blockSize> * searchBlock_;
 	File * file_;
 	TRecord * found_;
 	unsigned int lastBlock_;
+	std::string path_;
 
 	void handleOverflow(const TRecord &rec,BPTreeVariableLeaf<TRecord,blockSize> *block);
 	void handleUnderflow(BPTreeVariableLeaf<TRecord,blockSize> *block);
+	void create();
+	void load();
 public:
-	IndexedDataFile(const string & path,const string & creationMode="create");
+	IndexedDataFile(const string & path);
 	void insert(const TRecord & rec, unsigned int blockNumber);
 	void remove(const TRecord & rec, unsigned int blockNumber);
-	const TRecord & search(const TRecord & rec , unsigned int blockNumber);
+	const TRecord & search(const typename TRecord::Key & key , unsigned int blockNumber);
 	const TRecord & next();
 	void update(const TRecord &, unsigned int blockNumber);
-	const TRecord::Key & getNewKey(){return *newLastKey_;}
+	const typename TRecord::Key & getNewKey(){return *newLastKey_;}
 	unsigned int getNewBlock(){return newBlock_;}
 	bool overflow(){return overflow_;}
 	bool underflow(){return underflow_;}
+	bool fusion(){return fusion_;}
 	unsigned int append(const TRecord & rec);
  	virtual ~IndexedDataFile();
 };
 
 
 template<class TRecord,unsigned int blockSize>
-IndexedDataFile<TRecord,blockSize>::IndexedDataFile(const string & path,const string & creationMode)
-:overflow_(false),underflow_(false),fusion_(false),newBlock_(0),newLastKey_(NULL),lastKeyOfNewBlock_(NULL),searchBlock_(NULL),found_(NULL){
-	if(creationMode.compare("create")==0)
-		create();
-	else if(creationMode.compare("load")==0)
+IndexedDataFile<TRecord,blockSize>::IndexedDataFile(const string & path)
+:overflow_(false),underflow_(false),fusion_(false),newBlock_(0),newLastKey_(NULL),searchBlock_(NULL),found_(NULL),path_(path){
+	try{
 		load();
-	else
-		throw IndexedDataFileWrongCreationModeException();
+	}catch(OpenFileException){
+		create();
+	}
 }
 
 template<class TRecord,unsigned int blockSize>
 void IndexedDataFile<TRecord,blockSize>::create(){
-	file_= new File(path,File::NEW|File::BIN|File::IO);
+	file_= new File(path_,File::NEW|File::BIN|File::IO);
 	FreeSpaceStackBlock<blockSize>* fblock = new FreeSpaceStackBlock<blockSize>;
 	fblock->blockNumber=2;
-	fblock->infile=0;
+	fblock->inFile=0;
 	file_->write((char *)fblock,blockSize);
 	delete fblock;
 	BPTreeVariableLeafBlock<blockSize> * emptyBlock= new BPTreeVariableLeafBlock<blockSize>;
 	emptyBlock->freeSpace=blockSize-VARIABLE_LEAF_CONTROL_BYTES;
 	emptyBlock->next=0;
-	file_->write((char*)emptyBlock,blockSIze);
+	file_->write((char*)emptyBlock,blockSize);
 	delete emptyBlock;
 }
 
 template<class TRecord,unsigned int blockSize>
 void IndexedDataFile<TRecord,blockSize>::load(){
-	file_= new File(path,File::BIN|File::IO);
+	file_= new File(path_,File::BIN|File::IO);
 }
 
 template<class TRecord,unsigned int blockSize>
@@ -79,7 +82,7 @@ void IndexedDataFile<TRecord,blockSize>::insert(const TRecord & rec, unsigned in
 	overflow_=false;
 	delete searchBlock_;
 	searchBlock_=NULL;
-	BPTreeVariableLeaf<TRecord,blockSize> * block=BPTreeVariableLeaf<TRecord,blockSize>(*file_,blockNumber);
+	BPTreeVariableLeaf<TRecord,blockSize> * block=new BPTreeVariableLeaf<TRecord,blockSize>(*file_,blockNumber);
 	try{
 		block->insert(rec);
 		block->write();
@@ -99,9 +102,9 @@ void IndexedDataFile<TRecord,blockSize>::handleOverflow(const TRecord &rec,BPTre
 	delete newLastKey_;
 
 
-	BPTreeVariableLeaf<TRecord,blockSize> * newBlock = BPTreeVariableLeaf<TRecord,blockSize>(*file_);
-	typename std::list<TRecord> records = block->getRecords;
-	typename std::list<TRecord> recordsIt = records.begin();
+	BPTreeVariableLeaf<TRecord,blockSize> * newBlock = new BPTreeVariableLeaf<TRecord,blockSize>(*file_);
+	typename std::list<TRecord> records = block->getRecords();
+	typename std::list<TRecord>::iterator recordsIt = records.begin();
 
 	for( ;recordsIt != records.end();recordsIt++)
 		if((*recordsIt)>rec)
@@ -119,9 +122,9 @@ void IndexedDataFile<TRecord,blockSize>::handleOverflow(const TRecord &rec,BPTre
 		block->insert(*recordsIt);
 		freeSpace-=recordsIt->size();
 	}
-	newLastKey_=new TRecord::Key(recordsIt->getKey());
+	newLastKey_=new typename TRecord::Key(recordsIt->getKey());
 
-	for(;recordsIt!=recordsIt.end();recordsIt++)
+	for(;recordsIt!=records.end();recordsIt++)
 		newBlock->insert(*recordsIt);
 
 	newBlock->next(block->next());
@@ -147,7 +150,7 @@ void IndexedDataFile<TRecord,blockSize>::remove(const TRecord & rec, unsigned in
 	BPTreeVariableLeaf<TRecord,blockSize> * block=new BPTreeVariableLeaf<TRecord,blockSize>(*file_,blockNumber);
 	try{
 		block->remove(rec);
-		newLastKey_=new TRecord::Key(block->getLastRecord().getKey());
+		newLastKey_=new typename TRecord::Key(block->getLastRecord().getKey());
 		block->write();
 		delete block;
 	}catch(LeafUnderflowException e){
@@ -165,9 +168,9 @@ void IndexedDataFile<TRecord,blockSize>::handleUnderflow(BPTreeVariableLeaf<TRec
 	fusion_=false;
 	BPTreeVariableLeaf<TRecord,blockSize> * nextBlock ;
 	try{
-		nextBlock = block->nextLeaf();
+		nextBlock = (BPTreeVariableLeaf<TRecord,blockSize> *)block->nextLeaf();
 	}catch(ThereIsNoNextLeafException e){
-		newLastKey_=new TRecord::Key(block->getLastRecord().getKey());
+		newLastKey_=new typename TRecord::Key(block->getLastRecord().getKey());
 		block->write();
 		return;
 	}
@@ -178,7 +181,7 @@ void IndexedDataFile<TRecord,blockSize>::handleUnderflow(BPTreeVariableLeaf<TRec
 	mixedRecords.insert(mixedRecords.end(),nextRecords.begin(),nextRecords.end());
 
 
-	if(nextRecords->hasMinimumCapacity()){
+	if(nextBlock->hasMinimumCapacity()){
 		//fusion
 		fusion_=true;
 
@@ -190,7 +193,7 @@ void IndexedDataFile<TRecord,blockSize>::handleUnderflow(BPTreeVariableLeaf<TRec
 			block->insert(*itMixedRecords);
 		block->write();
 		itMixedRecords--;
-		newLastKey_=new TRecord::Key(itMixedRecods->getKey());
+		newLastKey_=new typename TRecord::Key(itMixedRecords->getKey());
 
 		delete block;
 		delete nextBlock;
@@ -211,7 +214,7 @@ void IndexedDataFile<TRecord,blockSize>::handleUnderflow(BPTreeVariableLeaf<TRec
 					itFront++;
 			}
 			else{
-					newBlock->insert(*itBack);
+				nextBlock->insert(*itBack);
 					newBlockBytes+=itBack->size();
 					itBack--;
 			}
@@ -220,32 +223,35 @@ void IndexedDataFile<TRecord,blockSize>::handleUnderflow(BPTreeVariableLeaf<TRec
 		if(blockBytes<=newBlockBytes)
 			block->insert(*itFront);
 		else
-			newBlock->insert(*itFront);
+			nextBlock->insert(*itFront);
 
 		block->write();
-		newBlock->write();
-		newLastKey_=new TRecord::Key(block->getFirstRecprd().getKey());
+		nextBlock->write();
+		newLastKey_=new typename TRecord::Key(block->getFirstRecord().getKey());
 		delete block;
-		delete newBlock;
+		delete nextBlock;
 		return;
 	}
 }
 
 template<class TRecord,unsigned int blockSize>
-const TRecord & IndexedDataFile<TRecord,blockSize>::search(const TRecord & rec , unsigned int blockNumber){
-	BPTreeVariableLeaf<TRecord,blockSize> * block=BPTreeVariableLeaf<TRecord,blockSize>(*file_,blockNumber);
+const TRecord & IndexedDataFile<TRecord,blockSize>::search(const typename TRecord::Key & key , unsigned int blockNumber){
+	TRecord* rec=new TRecord(key);
+	BPTreeVariableLeaf<TRecord,blockSize> * block=new BPTreeVariableLeaf<TRecord,blockSize>(*file_,blockNumber);
 	delete found_;
 	found_=NULL;
 	try{
-		found_=block->search(rec);
+		found_=block->search(*rec);
 		delete searchBlock_;
 		searchBlock_= new BPTreeVariableLeaf<TRecord,blockSize>(*block);
 		delete block;
+		delete rec;
 		return *found_;
 	}catch(LeafRecordNotFoundException e){
 		delete searchBlock_;
 		searchBlock_=NULL;
 		delete block;
+		delete rec;
 		throw IndexedDataRecordNotFoundException();
 	}
 }
@@ -270,7 +276,7 @@ const TRecord & IndexedDataFile<TRecord,blockSize>::next(){
 		delete oldSearchLeaf;
 		found_ = new TRecord(searchBlock_->getFirstRecord());
 
-		return *found;
+		return *found_;
 	}
 }
 
@@ -282,7 +288,7 @@ void IndexedDataFile<TRecord,blockSize>::update(const TRecord & rec, unsigned in
 	delete searchBlock_;
 	searchBlock_=NULL;
 	delete newLastKey_;
-	BPTreeVariableLeaf<TRecord,blockSize> * block=BPTreeVariableLeaf<TRecord,blockSize>(*file_,blockNumber);
+	BPTreeVariableLeaf<TRecord,blockSize> * block=new BPTreeVariableLeaf<TRecord,blockSize>(*file_,blockNumber);
 	try{
 		block->update(rec);
 		block->write();
@@ -296,8 +302,8 @@ void IndexedDataFile<TRecord,blockSize>::update(const TRecord & rec, unsigned in
 
 template<class TRecord,unsigned int blockSize>
 unsigned int IndexedDataFile<TRecord,blockSize>::append(const TRecord & rec){
-	BPTreeVariableLeaf<TRecord,blockSize> * lastBlock=BPTreeVariableLeaf<TRecord,blockSize>(*file_,lastBlock_);
-	BPTreeVariableLeaf<TRecord,blockSize> * newBlock=BPTreeVariableLeaf<TRecord,blockSize>(*file_);
+	BPTreeVariableLeaf<TRecord,blockSize> * lastBlock=new BPTreeVariableLeaf<TRecord,blockSize>(*file_,lastBlock_);
+	BPTreeVariableLeaf<TRecord,blockSize> * newBlock=new BPTreeVariableLeaf<TRecord,blockSize>(*file_);
 	lastBlock->next(newBlock->blockNumber());
 	lastBlock->write();
 	newBlock->next(0);
