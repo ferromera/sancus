@@ -34,6 +34,7 @@ public:
         Key(char ** input);
         Key(const Key & k);
         Key(const ListRecord::Key & , const DistrictRecord::Key & , const ElectionRecord::Key &);
+        void setHighValue();
         Key & operator=(const Key & k);
         const std::string & getString(){return getKey();}
         void setKey(const ListRecord::Key & , const DistrictRecord::Key & , const ElectionRecord::Key &);

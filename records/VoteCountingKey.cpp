@@ -34,6 +34,16 @@ VoteCountingRecord::Key::Key(const ListRecord::Key & list, const DistrictRecord:
 	election_=new ElectionRecord::Key(election);
 	updateString();
 }
+void VoteCountingRecord::Key::setHighValue(){
+	list_=new ListRecord::Key();
+	district_=new DistrictRecord::Key();
+	election_=new ElectionRecord::Key();
+	list_->setHighValue();
+	district_->setHighValue();
+	election_->setHighValue();
+	stringKey_="HighValue";
+}
+
 VoteCountingRecord::Key & VoteCountingRecord::Key::operator=(const Key & k){
 	if(this==&k)
 		return *this;

@@ -123,7 +123,7 @@ void ListFile::update(const ListRecord & record){
 		if(dataFile->overflow()){
 			ListRecord::Key newKey=dataFile->getNewKey();
 			PrimaryIndexRecord<ListRecord::Key> newIndexRecord(newKey,primaryIndexFound->getBlockNumber());
-			primaryIndex->insert(*primaryIndexFound);
+			primaryIndex->insert(newIndexRecord);
 			primaryIndexFound->setBlockNumber(dataFile->getNewBlock());
 			primaryIndex->update(*primaryIndexFound);
 		}else if(dataFile->underflow()){
@@ -184,18 +184,16 @@ const ListRecord & ListFile::searchByName(const std::string & name){
 	firstSecIndex=nameIndex->search(firstSecIndex);
 	if(firstSecIndex.getAttribute()!=(*nameSearched))
 		throw FileSearchException();
-	std::cout<<firstSecIndex.getPrimary().getKey()<<endl;
 	ListRecord::Key listKey=firstSecIndex.getPrimary();
 	PrimaryIndexRecord<ListRecord::Key> indexToFind(listKey,0);
 	indexToFind=primaryIndex->search(indexToFind);
-	std::cout<<indexToFind.getPrimary().getKey()<<endl;
 	return dataFile->search(firstSecIndex.getPrimary(),indexToFind.getBlockNumber());
 }
 const ListRecord & ListFile::search(const ListRecord::Key & list){
 	lastSearch=PRIMARY_SEARCH;
 	PrimaryIndexRecord<ListRecord::Key> indexToFind(list,0);
 	indexToFind=primaryIndex->search(indexToFind);
-	return dataFile->search(indexToFind.getPrimary(),indexToFind.getBlockNumber());
+	return dataFile->search(list,indexToFind.getBlockNumber());
 }
 const ListRecord & ListFile::nextElection(){
 	if(lastSearch!=ELECTION_SEARCH)
@@ -224,18 +222,9 @@ const ListRecord & ListFile::nextName(){
 		PrimaryIndexRecord<ListRecord::Key> indexToFind(listKey,0);
 		indexToFind=primaryIndex->search(indexToFind);
 		return dataFile->search(firstSecIndex.getPrimary(),indexToFind.getBlockNumber());
-	}catch(ThereIsNoNextLeafException<SecondaryIndexRecord<ElectionRecord::Key,ListRecord::Key> >){
+	}catch(ThereIsNoNextLeafException<SecondaryIndexRecord<StringKey,ListRecord::Key> >){
 		throw FileNextException();
 	}
-	/*try{
-		delete found;
-		found= new ListRecord(dataFile->next());
-		if(found->getName()!=(nameSearched->getKey()))
-			throw FileNextException();
-		return *found;
-	}catch(IndexedDataNextException e){
-		throw FileNextException();
-	}*/
 
 }
 const ListRecord & ListFile::next(){
