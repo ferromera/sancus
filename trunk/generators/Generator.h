@@ -58,7 +58,9 @@ private:
 	unsigned int currentDNI;
 
 public:
-
+	/**
+	 * @date en formato AAAAMMDD
+	 */
 	void GenerateElectionFor(unsigned int date) {
 		this->date = date;
 		this->currentDNI = DOCUMENTO_BASE;
@@ -75,6 +77,7 @@ public:
 		loadDistricts();
 	}
 
+private:
 	void loadDistricts() {
 		DistrictRecord * argentinaRecord = new DistrictRecord(ARGENTINA);
 		DistrictRecord * provinciaRecord;
