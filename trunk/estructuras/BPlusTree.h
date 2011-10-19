@@ -308,12 +308,23 @@ void BPlusTree<TRecord,blockSize>::handleNodeOverflow(const TRecord & rec,NodeOv
 template<class TRecord,unsigned int blockSize>
 void BPlusTree<TRecord,blockSize>::handleNodeUnderflow(){
 	BPTreeVariableInternalNode<TRecord,blockSize>* rootAsInternal = (BPTreeVariableInternalNode<TRecord,blockSize>*)root;
-	BPTreeVariableInternalNode<TRecord,blockSize>* leftNode=new BPTreeVariableInternalNode<TRecord,blockSize>(
+	if(root->level()==1){
+		BPTreeVariableLeaf<TRecord,blockSize>* leftLeaf=new BPTreeVariableLeaf<TRecord,blockSize>(
+										*file_, rootAsInternal->getFirstChild());
+		leftLeaf->becomeRoot();
+		leftLeaf->write();
+		delete root;
+		root=leftLeaf;
+
+	}
+	else{
+		BPTreeVariableInternalNode<TRecord,blockSize>* leftNode=new BPTreeVariableInternalNode<TRecord,blockSize>(
 								*file_, rootAsInternal->getFirstChild());
-	leftNode->becomeRoot();
-	leftNode->write();
-	delete root;
-	root=leftNode;
+		leftNode->becomeRoot();
+		leftNode->write();
+		delete root;
+		root=leftNode;
+	}
 }
 
 template<class TRecord,unsigned int blockSize>
