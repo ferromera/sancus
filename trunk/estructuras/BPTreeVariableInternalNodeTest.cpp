@@ -971,7 +971,7 @@ bool BPTreeVariableInternalNodeTest::testSearch1(){
 		delete stRec;
 		result=false;
 		delete found;
-	}catch(ThereIsNoGreaterRecordException e){
+	}catch(ThereIsNoNextLeafException<StudentRecord> &e){
 		delete stRec;
 	}
 

@@ -33,6 +33,7 @@ public:
         Key(unsigned int date,const ChargeRecord::Key &);
         Key(char ** input);
         Key(const Key & k);
+        void setHighValue();
         Key & operator=(const Key & k);
         const std::string & getString()const{return getKey();}
         const std::string & getKey()const;

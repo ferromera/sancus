@@ -19,6 +19,10 @@ ListFile::ListFile(){
 	electionIndex= new BPlusTree<SecondaryIndexRecord<ElectionRecord::Key,ListRecord::Key>,4096>(LIST_FILE_ELECTION_INDEX_PATH);
 	nameIndex= new BPlusTree<SecondaryIndexRecord<StringKey,ListRecord::Key>,4096>(LIST_FILE_NAME_INDEX_PATH);
 	primaryIndex= new BPlusTree<PrimaryIndexRecord<ListRecord::Key>,4096>(LIST_FILE_PRIMARY_INDEX_PATH);
+	ListRecord::Key highKey;
+	highKey.setHighValue();
+	PrimaryIndexRecord<ListRecord::Key> lastRecord(highKey,1);
+	primaryIndex->insert(lastRecord);
 	dataFile= new IndexedDataFile<ListRecord,8192>(LIST_FILE_DATA_PATH);
 	lastSearch= NO_SEARCH;
 	electionSearched=NULL;
@@ -35,13 +39,26 @@ void ListFile::insert(const ListRecord & record){
 		if(dataFile->overflow()){
 			ListRecord::Key newKey=dataFile->getNewKey();
 			PrimaryIndexRecord<ListRecord::Key> newIndexRecord(newKey,primaryIndexFound->getBlockNumber());
-			primaryIndex->insert(*primaryIndexFound);
+			primaryIndex->insert(newIndexRecord);
 			primaryIndexFound->setBlockNumber(dataFile->getNewBlock());
 			primaryIndex->update(*primaryIndexFound);
 		}
-	}catch(ThereIsNoGreaterRecordException e){
-		unsigned int block=dataFile->append(record);
-		PrimaryIndexRecord<ListRecord::Key> newIndexRecord(record.getKey(),block);
+	}catch(ThereIsNoNextLeafException<PrimaryIndexRecord<ListRecord::Key> > e){
+		dataFile->insert(record,e.rec.getBlockNumber());
+		if(dataFile->overflow()){
+			primaryIndex->remove(e.rec);
+			ListRecord::Key newKey=dataFile->getNewKey();
+			PrimaryIndexRecord<ListRecord::Key> newIndexRecord(newKey,e.rec.getBlockNumber());
+			primaryIndex->insert(newIndexRecord);
+			indexToFind.setBlockNumber(dataFile->getNewBlock());
+			primaryIndex->insert(indexToFind);
+		}
+		else{
+			primaryIndex->remove(e.rec);
+			ListRecord::Key newKey=dataFile->getNewKey();
+			indexToFind.setBlockNumber(e.rec.getBlockNumber());
+			primaryIndex->insert(indexToFind);
+		}
 	}
 	catch(IndexedDataRecordNotFoundException e){
 		throw FileInsertException();
@@ -78,7 +95,7 @@ void ListFile::remove(const ListRecord & record){
 				primaryIndex->insert(*primaryIndexFound);
 			}
 		}
-	}catch(ThereIsNoGreaterRecordException e ){
+	}catch(ThereIsNoNextLeafException<PrimaryIndexRecord<ListRecord::Key> > e ){
 		throw FileRemoveException();
 	}catch(IndexedDataRecordNotFoundException e){
 		throw FileRemoveException();
@@ -121,7 +138,7 @@ void ListFile::update(const ListRecord & record){
 				primaryIndex->insert(*primaryIndexFound);
 			}
 		}
-	}catch(ThereIsNoGreaterRecordException e ){
+	}catch(ThereIsNoNextLeafException<PrimaryIndexRecord<ListRecord::Key> > e ){
 		throw FileUpdateException();
 	}catch(IndexedDataRecordNotFoundException e){
 		throw FileUpdateException();
@@ -157,7 +174,7 @@ const ListRecord & ListFile::searchByElection(const ElectionRecord::Key & electi
 	ListRecord::Key listKey=firstSecIndex.getPrimary();
 	PrimaryIndexRecord<ListRecord::Key> indexToFind(listKey,0);
 	indexToFind=primaryIndex->search(indexToFind);
-	return dataFile->search(indexToFind.getPrimary(),indexToFind.getBlockNumber());
+	return dataFile->search(firstSecIndex.getPrimary(),indexToFind.getBlockNumber());
 }
 const ListRecord & ListFile::searchByName(const std::string & name){
 	lastSearch=NAME_SEARCH;
@@ -167,10 +184,12 @@ const ListRecord & ListFile::searchByName(const std::string & name){
 	firstSecIndex=nameIndex->search(firstSecIndex);
 	if(firstSecIndex.getAttribute()!=(*nameSearched))
 		throw FileSearchException();
+	std::cout<<firstSecIndex.getPrimary().getKey()<<endl;
 	ListRecord::Key listKey=firstSecIndex.getPrimary();
 	PrimaryIndexRecord<ListRecord::Key> indexToFind(listKey,0);
 	indexToFind=primaryIndex->search(indexToFind);
-	return dataFile->search(indexToFind.getPrimary(),indexToFind.getBlockNumber());
+	std::cout<<indexToFind.getPrimary().getKey()<<endl;
+	return dataFile->search(firstSecIndex.getPrimary(),indexToFind.getBlockNumber());
 }
 const ListRecord & ListFile::search(const ListRecord::Key & list){
 	lastSearch=PRIMARY_SEARCH;
@@ -182,27 +201,41 @@ const ListRecord & ListFile::nextElection(){
 	if(lastSearch!=ELECTION_SEARCH)
 		throw FileNextException();
 	try{
-		delete found;
-		found= new ListRecord(dataFile->next());
-		if(found->getElection()!=(*electionSearched))
-			throw FileNextException();
-		return *found;
-	}catch(IndexedDataNextException e){
+		SecondaryIndexRecord<ElectionRecord::Key,ListRecord::Key> firstSecIndex=electionIndex->next();
+		if(firstSecIndex.getAttribute()!=(*electionSearched))
+				throw FileNextException();
+		ListRecord::Key listKey=firstSecIndex.getPrimary();
+		PrimaryIndexRecord<ListRecord::Key> indexToFind(listKey,0);
+		indexToFind=primaryIndex->search(indexToFind);
+		return dataFile->search(firstSecIndex.getPrimary(),indexToFind.getBlockNumber());
+	}catch(ThereIsNoNextLeafException<SecondaryIndexRecord<ElectionRecord::Key,ListRecord::Key> >){
 		throw FileNextException();
 	}
+
 }
 const ListRecord & ListFile::nextName(){
 	if(lastSearch!=NAME_SEARCH)
 		throw FileNextException();
 	try{
+		SecondaryIndexRecord<StringKey,ListRecord::Key> firstSecIndex=nameIndex->next();
+		if(firstSecIndex.getAttribute()!=(*nameSearched))
+				throw FileNextException();
+		ListRecord::Key listKey=firstSecIndex.getPrimary();
+		PrimaryIndexRecord<ListRecord::Key> indexToFind(listKey,0);
+		indexToFind=primaryIndex->search(indexToFind);
+		return dataFile->search(firstSecIndex.getPrimary(),indexToFind.getBlockNumber());
+	}catch(ThereIsNoNextLeafException<SecondaryIndexRecord<ElectionRecord::Key,ListRecord::Key> >){
+		throw FileNextException();
+	}
+	/*try{
 		delete found;
 		found= new ListRecord(dataFile->next());
-		if(found->getElection()!=(*nameSearched))
+		if(found->getName()!=(nameSearched->getKey()))
 			throw FileNextException();
 		return *found;
 	}catch(IndexedDataNextException e){
 		throw FileNextException();
-	}
+	}*/
 
 }
 const ListRecord & ListFile::next(){
@@ -215,6 +248,12 @@ const ListRecord & ListFile::next(){
 	}catch(IndexedDataNextException e){
 		throw FileNextException();
 	}
+}
+
+void ListFile::report(){
+	nameIndex->preOrderReport();
+	electionIndex->preOrderReport();
+	primaryIndex->preOrderReport();
 }
 
 ListFile::~ListFile(){

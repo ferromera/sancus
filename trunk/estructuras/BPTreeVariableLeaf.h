@@ -177,7 +177,7 @@ void BPTreeVariableLeaf<TRecord,blockSize>::remove(const TRecord & rec){
 template<class TRecord,unsigned int blockSize>
 BPTreeLeaf<TRecord,blockSize>* BPTreeVariableLeaf<TRecord,blockSize>::nextLeaf( ){
 	if(BPTreeLeaf<TRecord,blockSize>::next_==0)
-		throw ThereIsNoNextLeafException();
+		throw ThereIsNoNextLeafException<TRecord>(BPTreeLeaf<TRecord,blockSize>::records_.back());
 
 	return new BPTreeVariableLeaf<TRecord,blockSize>(*BPTreeNode<TRecord,blockSize>::file_,
 											BPTreeLeaf<TRecord,blockSize>::next_);

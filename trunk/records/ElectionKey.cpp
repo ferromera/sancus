@@ -7,6 +7,7 @@
 
 #include "ElectionRecord.h"
 #include "../utils/StringUtils.h"
+#include <limits>
 
 ElectionRecord::Key::Key(){
 	charge=new ChargeRecord::Key();
@@ -30,6 +31,13 @@ ElectionRecord::Key::Key(unsigned int date_, const ChargeRecord::Key & charge){
 	date = date_;
 	this->charge = new ChargeRecord::Key(charge);
 	updateString();
+}
+void ElectionRecord::Key::setHighValue(){
+	date = std::numeric_limits<unsigned int>::max();
+	delete charge;
+	this->charge = new ChargeRecord::Key();
+	charge->setHighValue();
+	stringKey_="HighValue";
 }
 const std::string & ElectionRecord::Key::getKey()const{
 	return stringKey_;
@@ -68,7 +76,9 @@ unsigned int ElectionRecord::Key::size()const{
 void ElectionRecord::Key::updateString(){
 	stringKey_="(";
 	stringKey_.push_back('(');
-	stringKey_.append(StringUtils::intToString(date));
+	char str[32];
+	sprintf(str,"%u",date);
+	stringKey_.append(str);
 	stringKey_.push_back(')');
 	stringKey_.append(charge->getString());
 	stringKey_.append(")");

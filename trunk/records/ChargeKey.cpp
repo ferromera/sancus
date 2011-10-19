@@ -27,6 +27,13 @@ ChargeRecord::Key::Key(){
 	district_= new DistrictRecord::Key();
 	updateString();
 }
+void ChargeRecord::Key::setHighValue(){
+	charge_= new StringKey();
+	charge_->setHighValue();
+	district_= new DistrictRecord::Key();
+	district_->setHighValue();
+	stringKey_="HighValue";
+}
 ChargeRecord::Key::Key(const Key & key){
 	charge_= new StringKey(*key.charge_);
 	district_= new DistrictRecord::Key(*key.district_);

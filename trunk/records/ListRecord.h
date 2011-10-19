@@ -33,6 +33,7 @@ public:
         const std::string & getString()const{return getKey();}
         void setKey(const ElectionRecord::Key & , const std::string  &);
         void setKey(const Key & k);
+        void setHighValue();
         const std::string & getKey()const;
         void setElection(const ElectionRecord::Key &);
         void setName(const std::string &);
@@ -49,6 +50,7 @@ public:
         bool operator !=(const Record::Key & rk)const;
         ~Key();
     };
+    ListRecord(char ** input);
     ListRecord(const ListRecord::Key &);
     ListRecord(const ListRecord &);
     ListRecord(const ElectionRecord::Key& election,const std::string & listName);

@@ -34,6 +34,7 @@ public:
         Key(const std::string &,const DistrictRecord::Key &);
         Key();
         Key(const Key & key);
+        void setHighValue();
         Key & operator=(const Key & k);
         const std::string & getString()const{return getKey();}
         void setKey(const std::string &, const DistrictRecord::Key&);

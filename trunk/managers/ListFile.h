@@ -52,6 +52,7 @@ public:
 	const ListRecord & nextElection();
 	const ListRecord & nextName();
 	const ListRecord & next();
+	void report();
 
 	virtual ~ListFile();
 };

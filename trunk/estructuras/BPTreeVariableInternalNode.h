@@ -806,9 +806,9 @@ TRecord *  BPTreeVariableInternalNode<TRecord,blockSize>::search(const TRecord &
 					delete childLeaf;
 					delete nxtLeaf;
 					return found;
-				}catch(ThereIsNoNextLeafException){
+				}catch(ThereIsNoNextLeafException<TRecord> &){
 					delete childLeaf;
-					throw ThereIsNoGreaterRecordException();
+					throw ;
 				}
 			}
 	}else{
@@ -817,7 +817,7 @@ TRecord *  BPTreeVariableInternalNode<TRecord,blockSize>::search(const TRecord &
 				TRecord * found= childNode->search(rec,searchLeaf);
 				delete childNode;
 				return found;
-			}catch(ThereIsNoGreaterRecordException e){
+			}catch(ThereIsNoNextLeafException<TRecord> &e){
 				delete childNode;
 				throw;
 			}

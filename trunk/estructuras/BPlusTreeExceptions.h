@@ -28,8 +28,18 @@ class NodeUnderflowException:public BPlusTreeException{};
 class NodeKeyNotFoundException:public BPlusTreeException{};
 class ReadInAFreeNodeException:public BPlusTreeException{};
 class WriteInAFreeNodeException:public BPlusTreeException{};
-class ThereIsNoNextLeafException:public BPlusTreeException{};
-class ThereIsNoGreaterRecordException:public BPlusTreeException{};
+template<class TRecord>
+class ThereIsNoNextLeafException:public BPlusTreeException{
+
+public:
+	TRecord  rec;
+	ThereIsNoNextLeafException(const TRecord & r)throw()
+	:rec(r){}
+	~ThereIsNoNextLeafException()throw(){
+	}
+
+};
+//class ThereIsNoGreaterRecordException:public BPlusTreeException{};
 class BPTreeInvalidCreationModeException:public BPlusTreeException{};
 class BPlusTreeNextMustNotBeCalledAfterAModifyingMethodException :public BPlusTreeException{};
 #endif // BPLUSTREEEXCEPTIONS_H_INCLUDED
