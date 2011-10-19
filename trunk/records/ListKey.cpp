@@ -135,9 +135,8 @@ bool ListRecord::Key::operator !=(const Record::Key & rk)const{
 }
 void ListRecord::Key::updateString(){
 	stringKey_="(";
-	stringKey_.append("(");
 	stringKey_.append(name);
-	stringKey_.append(")");
+	stringKey_.append(")(");
 	stringKey_.append(election->getString());
 	stringKey_.append(")");
 }

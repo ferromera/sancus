@@ -92,15 +92,15 @@ void SecondaryIndexKey<attributeKey,primaryKey>::setKey(const SecondaryIndexKey<
 
 template <class attributeKey, class primaryKey>
 void  SecondaryIndexKey<attributeKey,primaryKey>::updateString(){
-
+	stringKey="(";
 	if(attributeKey::isString)
-		stringKey=att->getString();
+		stringKey.append(att->getString());
 	else{
 		char str [256];
 		sprintf(str,"%u",att->getUint());
-		stringKey=str;
+		stringKey.append(str);
 	}
-	stringKey.append("|");
+	stringKey.append(")|(");
 	if(primaryKey::isString)
 		stringKey.append(pri->getString());
 	else{
@@ -108,6 +108,7 @@ void  SecondaryIndexKey<attributeKey,primaryKey>::updateString(){
 		sprintf(str,"%u",pri->getUint());
 		stringKey.append(str);
 	}
+	stringKey.append(")");
 
 }
 

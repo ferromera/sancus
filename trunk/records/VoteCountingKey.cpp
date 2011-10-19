@@ -94,9 +94,6 @@ const DistrictRecord::Key& VoteCountingRecord::Key::getDistrict()const{
 	return *district_;
 }
 void VoteCountingRecord::Key::read(char ** input){
-	delete list_;
-	delete district_;
-	delete election_;
 	list_->read(input);
 	district_->read(input);
 	election_->read(input);
@@ -115,7 +112,9 @@ unsigned int VoteCountingRecord::Key::size()const{
 void VoteCountingRecord::Key::updateString(){
 	stringKey_="(";
 	stringKey_.append(list_->getString());
+	stringKey_.append(")(");
 	stringKey_.append(district_->getString());
+	stringKey_.append(")(");
 	stringKey_.append(election_->getString());
 	stringKey_.append(")");
 
@@ -125,7 +124,7 @@ bool VoteCountingRecord::Key::operator <(const Record::Key &rk)const{
 	const Key & k= (const Key & )rk;
 	if((*list_)<(*k.list_))
 		return true;
-	if((*list_)<(*k.list_))
+	if((*list_)>(*k.list_))
 		return false;
 	if((*district_)<(*k.district_))
 		return true;

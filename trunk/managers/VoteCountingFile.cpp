@@ -291,6 +291,13 @@ const VoteCountingRecord & VoteCountingFile::next(){
 	}
 }
 
+void VoteCountingFile::report(){
+	listIndex->preOrderReport();
+	electionIndex->preOrderReport();
+	districtIndex->preOrderReport();
+	primaryIndex->preOrderReport();
+}
+
 VoteCountingFile::~VoteCountingFile(){
 	delete electionIndex;
 	delete districtIndex;
