@@ -10,13 +10,13 @@
 AdministratorRecord::AdministratorRecord(const AdministratorRecord & ar) {
 	this->key_ = NULL;
 	this->setKey(ar.user);
-	this->userKey = ar.userKey;
+	this->password = ar.password;
 }
 
-AdministratorRecord::AdministratorRecord(const uint32_t & user, const std::string & userKey) {
+AdministratorRecord::AdministratorRecord(const uint32_t & user, const std::string & password) {
 	this->key_ = NULL;
 	this->setKey(user);
-	this->userKey = userKey;
+	this->password = password;
 }
 
 AdministratorRecord::AdministratorRecord(char** input) {
@@ -61,7 +61,7 @@ void AdministratorRecord::read(char** input) {
 	memcpy(c_str,*input,nameSize);
 	(*input)+=nameSize;
 	c_str[nameSize]='\0';
-	this->userKey = c_str;
+	this->password = c_str;
 
 	delete c_str;
 
@@ -73,8 +73,8 @@ void AdministratorRecord::write(char** output) {
 	key_->write(output);
 	(*output)+=nameSize;
 
-	nameSize = this->userKey.size();
-	memcpy(*output,&userKey,nameSize);
+	nameSize = this->password.size();
+	memcpy(*output,&password,nameSize);
 	(*output)+=nameSize;
 }
 
@@ -84,23 +84,23 @@ void AdministratorRecord::setUser(const uint32_t & userName) {
 	this->setKey(user);
 }
 
-void AdministratorRecord::setUserKey(const std::string & k) {
-	this->userKey = k;
+void AdministratorRecord::setPassword(const std::string & k) {
+	this->password = k;
 }
 
 const uint32_t & AdministratorRecord::getUser() const {
 	return ((Key*)key_)->getKey();
 }
 
-const std::string & AdministratorRecord::getUserKey() const {
-	return this->userKey;
+const std::string & AdministratorRecord::getPassword() const {
+	return this->password;
 }
 
 const AdministratorRecord & AdministratorRecord::operator =(const AdministratorRecord & k) {
 	if(this==&k)
 		return *this;
 
-	userKey = k.userKey;
+	password = k.password;
 	this->key_ = NULL;
 	this->setKey(k.user);
 	user = k.user;
@@ -108,7 +108,7 @@ const AdministratorRecord & AdministratorRecord::operator =(const AdministratorR
 }
 
 unsigned int AdministratorRecord::size() const {
-	return key_->size() + this->userKey.size() + 1;
+	return key_->size() + this->password.size() + 1;
 }
 
 AdministratorRecord::~AdministratorRecord() {
