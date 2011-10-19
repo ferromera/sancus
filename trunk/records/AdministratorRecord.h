@@ -16,9 +16,10 @@
 class AdministratorRecord : public Record {
 private:
 	uint32_t user;
-	std::string userKey;
+	std::string password;
 public:
 	 static const bool isVariable=true;
+	 static const bool isString=false;
 	 class Key: public Uint32Key {
 	  public:
 		  Key(char ** input):Uint32Key(input){}
@@ -29,7 +30,7 @@ public:
 
 	AdministratorRecord(const AdministratorRecord &);
 	AdministratorRecord(char** input);
-	AdministratorRecord(const uint32_t & user, const std::string & userKey);
+	AdministratorRecord(const uint32_t & user, const std::string & password);
 
 	const AdministratorRecord::Key & getKey()const;
 	void setKey(const AdministratorRecord::Key & k);
@@ -39,9 +40,9 @@ public:
 	unsigned int size()const;
 
 	void setUser(const uint32_t &);
-	void setUserKey (const std::string &);
+	void setPassword (const std::string &);
 	const uint32_t & getUser () const;
-	const std::string & getUserKey() const;
+	const std::string & getPassword() const;
 
 	const AdministratorRecord & operator=(const AdministratorRecord & k);
 	~AdministratorRecord();
