@@ -15,6 +15,10 @@ VoteCountingFile::VoteCountingFile(){
 	districtIndex= new BPlusTree<SecondaryIndexRecord<DistrictRecord::Key,VoteCountingRecord::Key>,4096>(VOTE_COUNTING_DISTRICT_INDEX_PATH);
 	listIndex= new BPlusTree<SecondaryIndexRecord<ListRecord::Key,VoteCountingRecord::Key>,4096>(VOTE_COUNTING_LIST_INDEX_PATH);
 	primaryIndex= new BPlusTree<PrimaryIndexRecord<VoteCountingRecord::Key>,4096>(VOTE_COUNTING_PRIMARY_INDEX_PATH);
+	VoteCountingRecord::Key highKey;
+	highKey.setHighValue();
+	PrimaryIndexRecord<VoteCountingRecord::Key> lastRecord(highKey,1);
+	primaryIndex->insert(lastRecord);
 	dataFile= new IndexedDataFile<VoteCountingRecord,8192>(VOTE_COUNTING_DATA_PATH);
 	lastSearch= NO_SEARCH;
 	electionSearched=NULL;
@@ -38,13 +42,26 @@ void VoteCountingFile::insert(const VoteCountingRecord & record){
 		if(dataFile->overflow()){
 			VoteCountingRecord::Key newKey=dataFile->getNewKey();
 			PrimaryIndexRecord<VoteCountingRecord::Key> newIndexRecord(newKey,primaryIndexFound->getBlockNumber());
-			primaryIndex->insert(*primaryIndexFound);
+			primaryIndex->insert(newIndexRecord);
 			primaryIndexFound->setBlockNumber(dataFile->getNewBlock());
 			primaryIndex->update(*primaryIndexFound);
 		}
-	}catch(ThereIsNoGreaterRecordException e){
-		unsigned int block=dataFile->append(record);
-		PrimaryIndexRecord<VoteCountingRecord::Key> newIndexRecord(record.getKey(),block);
+	}catch(ThereIsNoNextLeafException<PrimaryIndexRecord<VoteCountingRecord::Key> > e){
+		dataFile->insert(record,e.rec.getBlockNumber());
+		if(dataFile->overflow()){
+			primaryIndex->remove(e.rec);
+			VoteCountingRecord::Key newKey=dataFile->getNewKey();
+			PrimaryIndexRecord<VoteCountingRecord::Key> newIndexRecord(newKey,e.rec.getBlockNumber());
+			primaryIndex->insert(newIndexRecord);
+			indexToFind.setBlockNumber(dataFile->getNewBlock());
+			primaryIndex->insert(indexToFind);
+		}
+		else{
+			primaryIndex->remove(e.rec);
+			VoteCountingRecord::Key newKey=dataFile->getNewKey();
+			indexToFind.setBlockNumber(e.rec.getBlockNumber());
+			primaryIndex->insert(indexToFind);
+		}
 	}
 	catch(IndexedDataRecordNotFoundException e){
 				throw FileInsertException();
@@ -85,7 +102,7 @@ void VoteCountingFile::remove(const VoteCountingRecord & record){
 				primaryIndex->insert(*primaryIndexFound);
 			}
 		}
-	}catch(ThereIsNoGreaterRecordException e ){
+	}catch(ThereIsNoNextLeafException<PrimaryIndexRecord<VoteCountingRecord::Key> > e ){
 		throw FileRemoveException();
 	}catch(IndexedDataRecordNotFoundException e){
 		throw FileRemoveException();
@@ -104,6 +121,8 @@ void VoteCountingFile::remove(const VoteCountingRecord & record){
 	delete deletedDistrict;
 	delete deletedList;
 	delete deletedRecord;
+
+
 }
 
 void VoteCountingFile::update(const VoteCountingRecord & record){
@@ -117,7 +136,7 @@ void VoteCountingFile::update(const VoteCountingRecord & record){
 		if(dataFile->overflow()){
 			VoteCountingRecord::Key newKey=dataFile->getNewKey();
 			PrimaryIndexRecord<VoteCountingRecord::Key> newIndexRecord(newKey,primaryIndexFound->getBlockNumber());
-			primaryIndex->insert(*primaryIndexFound);
+			primaryIndex->insert(newIndexRecord);
 			primaryIndexFound->setBlockNumber(dataFile->getNewBlock());
 			primaryIndex->update(*primaryIndexFound);
 		}else if(dataFile->underflow()){
@@ -132,7 +151,7 @@ void VoteCountingFile::update(const VoteCountingRecord & record){
 				primaryIndex->insert(*primaryIndexFound);
 			}
 		}
-	}catch(ThereIsNoGreaterRecordException e ){
+	}catch(ThereIsNoNextLeafException<PrimaryIndexRecord<VoteCountingRecord::Key> > e ){
 		throw FileUpdateException();
 	}catch(IndexedDataRecordNotFoundException e){
 		throw FileUpdateException();
@@ -174,7 +193,9 @@ const VoteCountingRecord & VoteCountingFile::searchByDistrict(const DistrictReco
 	VoteCountingRecord::Key voteCountKey=firstSecIndex.getPrimary();
 	PrimaryIndexRecord<VoteCountingRecord::Key> indexToFind(voteCountKey,0);
 	indexToFind=primaryIndex->search(indexToFind);
-	return dataFile->search(indexToFind.getPrimary(),indexToFind.getBlockNumber());
+	return dataFile->search(firstSecIndex.getPrimary(),indexToFind.getBlockNumber());
+
+
 }
 
 const VoteCountingRecord & VoteCountingFile::searchByElection(const ElectionRecord::Key & election){
@@ -188,10 +209,9 @@ const VoteCountingRecord & VoteCountingFile::searchByElection(const ElectionReco
 	VoteCountingRecord::Key voteCountKey=firstSecIndex.getPrimary();
 	PrimaryIndexRecord<VoteCountingRecord::Key> indexToFind(voteCountKey,0);
 	indexToFind=primaryIndex->search(indexToFind);
-	return dataFile->search(indexToFind.getPrimary(),indexToFind.getBlockNumber());
+	return dataFile->search(firstSecIndex.getPrimary(),indexToFind.getBlockNumber());
+
 }
-
-
 
 const VoteCountingRecord & VoteCountingFile::searchByList(const ListRecord::Key & list){
 	lastSearch=LIST_SEARCH;
@@ -204,40 +224,45 @@ const VoteCountingRecord & VoteCountingFile::searchByList(const ListRecord::Key 
 	VoteCountingRecord::Key voteCountKey=firstSecIndex.getPrimary();
 	PrimaryIndexRecord<VoteCountingRecord::Key> indexToFind(voteCountKey,0);
 	indexToFind=primaryIndex->search(indexToFind);
-	return dataFile->search(indexToFind.getPrimary(),indexToFind.getBlockNumber());
+	return dataFile->search(firstSecIndex.getPrimary(),indexToFind.getBlockNumber());
 }
 
 const VoteCountingRecord & VoteCountingFile::search(const VoteCountingRecord::Key & voteCountKey){
 	lastSearch=PRIMARY_SEARCH;
 	PrimaryIndexRecord<VoteCountingRecord::Key> indexToFind(voteCountKey,0);
 	indexToFind=primaryIndex->search(indexToFind);
-	return dataFile->search(indexToFind.getPrimary(),indexToFind.getBlockNumber());
+	return dataFile->search(voteCountKey,indexToFind.getBlockNumber());
 }
 
 const VoteCountingRecord & VoteCountingFile::nextDistrict(){
 	if(lastSearch!=DISTRICT_SEARCH)
 		throw FileNextException();
 	try{
-		delete found;
-		found= new VoteCountingRecord(dataFile->next());
-		if(found->getDistrict()!=(*districtSearched))
+		SecondaryIndexRecord<DistrictRecord::Key,VoteCountingRecord::Key> firstSecIndex=districtIndex->next();
+		if(firstSecIndex.getAttribute()!=(*districtSearched))
 			throw FileNextException();
-		return *found;
-	}catch(IndexedDataNextException e){
+		VoteCountingRecord::Key voteKey=firstSecIndex.getPrimary();
+		PrimaryIndexRecord<VoteCountingRecord::Key> indexToFind(voteKey,0);
+		indexToFind=primaryIndex->search(indexToFind);
+		return dataFile->search(firstSecIndex.getPrimary(),indexToFind.getBlockNumber());
+	}catch(ThereIsNoNextLeafException<SecondaryIndexRecord<DistrictRecord::Key,ListRecord::Key> >){
 		throw FileNextException();
 	}
+
 }
 
 const VoteCountingRecord & VoteCountingFile::nextElection(){
 	if(lastSearch!=ELECTION_SEARCH)
 		throw FileNextException();
 	try{
-		delete found;
-		found= new VoteCountingRecord(dataFile->next());
-		if(found->getElection()!=(*electionSearched))
+		SecondaryIndexRecord<ElectionRecord::Key,VoteCountingRecord::Key> firstSecIndex=electionIndex->next();
+		if(firstSecIndex.getAttribute()!=(*electionSearched))
 			throw FileNextException();
-		return *found;
-	}catch(IndexedDataNextException e){
+		VoteCountingRecord::Key voteKey=firstSecIndex.getPrimary();
+		PrimaryIndexRecord<VoteCountingRecord::Key> indexToFind(voteKey,0);
+		indexToFind=primaryIndex->search(indexToFind);
+		return dataFile->search(firstSecIndex.getPrimary(),indexToFind.getBlockNumber());
+	}catch(ThereIsNoNextLeafException<SecondaryIndexRecord<ElectionRecord::Key,ListRecord::Key> >){
 		throw FileNextException();
 	}
 }
@@ -245,12 +270,14 @@ const VoteCountingRecord & VoteCountingFile::nextList(){
 	if(lastSearch!=LIST_SEARCH)
 		throw FileNextException();
 	try{
-		delete found;
-		found= new VoteCountingRecord(dataFile->next());
-		if(found->getList()!=(*listSearched))
+		SecondaryIndexRecord<ListRecord::Key,VoteCountingRecord::Key> firstSecIndex=listIndex->next();
+		if(firstSecIndex.getAttribute()!=(*listSearched))
 			throw FileNextException();
-		return *found;
-	}catch(IndexedDataNextException e){
+		VoteCountingRecord::Key voteKey=firstSecIndex.getPrimary();
+		PrimaryIndexRecord<VoteCountingRecord::Key> indexToFind(voteKey,0);
+		indexToFind=primaryIndex->search(indexToFind);
+		return dataFile->search(firstSecIndex.getPrimary(),indexToFind.getBlockNumber());
+	}catch(ThereIsNoNextLeafException<SecondaryIndexRecord<ListRecord::Key,ListRecord::Key> >){
 		throw FileNextException();
 	}
 }
@@ -275,5 +302,6 @@ VoteCountingFile::~VoteCountingFile(){
 	delete listSearched;
 	delete found;
 }
+
 
 
