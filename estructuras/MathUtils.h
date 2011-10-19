@@ -34,5 +34,9 @@ public:
 
 		return true;
 	}
+
+	static int randomNumber(unsigned int base, unsigned int max){
+			return rand() % (max - base + 1) + base;
+		}
 };
 #endif /* MATHUTILS_H_ */
