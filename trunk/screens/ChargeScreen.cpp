@@ -134,72 +134,37 @@ char ChargeScreen::chargeVoter(){
 	std::cout<<"Ingrese la Contraseña y presione ENTER"<<std::endl;
 	std::cout<<""<<std::endl;
 	clave = IstreamUtils::getString();
-	// Busco si existe el Distrito
+	std::cout<<""<<std::endl;
 
-//	std::list<DistrictRecord> listaDeDistritos;
+	// Busco si existe el Distrito
 	std::list<ElectionRecord::Key> listaDeElecciones;
-//	DistrictFile* dFile = DistrictFile::getInstance();R
-//	ElectionFile* eFile = Election::getInstance();
 	DistrictRecord::Key dRecordKey = DistrictRecord::Key(distrito);
-/*
+
+	DistrictFile* dFile = DistrictFile::getInstance();
 	try
 	{
-		DistrictRecord dRecordReturned = dFile->search(dRecordKey);
-	}
-	catch(FileSearchException e)
+		DistrictRecord record = dFile->search(dRecordKey);
+	}catch(FileSearchException &e)
 	{
-		std::cout<<"No se pude Insertar el Registro por que no existe el Distrito elegido"<<std::endl;
+		std::cout<<"Error el Distrito elegido no existe"<<std::endl;
 		std::cout<<""<<std::endl;
 		std::cout<<"Quiere agregar otro registro al archivo de Votantes S/N"<<std::endl;
 		return doQuestion();
 	}
-		//Busco los distritos siguientes
-		while(dRecordReturned.hasFather())
-		{
-			listaDeDistritos.push_back(dRecordReturned);
-			dRecordReturned = dFile->search(dRecordReturned.getFather());
-		}
-		listaDeDistritos.push_back(dRecordReturned);
-		//Busco elecciones
-		std::list<DistrictRecord>::iterator itDist = listaDeDistritos.begin();
-		for(int i = 0; i < listaDeDistritos.size();i++,itDist++)
-		{
-			try
-			{
-				ElectionRecord recElection = eFile->searchByDistrict((*itDist).getKey());
-				while(true)
-				{
-					if(recElection.getDate() > Time::getCurrentDate())
-						listaDeElecciones.push_back(recElection.getKey());
-					try
-					{
-						recElection = eFile->nextDistrict();
-					}
-					catch(FileNextException e)
-					{
-						break;
-					}
-				}
-			}
-			catch(FileSearchException e)
-			{
-				break;
-			}
-		}
-	*/
 
-		VoterRecord record = VoterRecord(name,dni,domicilio,clave,dRecordKey,listaDeElecciones);
-		VoterFile* vFile = VoterFile::getInstance();
-		try
-		{
+
+	VoterRecord record = VoterRecord(name,dni,domicilio,clave,dRecordKey,listaDeElecciones);
+	VoterFile* vFile = VoterFile::getInstance();
+	try
+	{
 			vFile->insert(record);
-		}catch(FileInsertException e)
-		{
-			std::cout<<"Error el Registro ya existe"<<std::endl;
-			std::cout<<""<<std::endl;
-			std::cout<<"Quiere agregar otro registro al archivo de Votantes S/N"<<std::endl;
-			return doQuestion();
-		}
+	}catch(FileInsertException e)
+	{
+		std::cout<<"Error el Registro ya existe"<<std::endl;
+		std::cout<<""<<std::endl;
+		std::cout<<"Quiere agregar otro registro al archivo de Votantes S/N"<<std::endl;
+		return doQuestion();
+	}
 
 	std::cout<<"Se inserto correctamente el siguiente Registo votante: ";
 	std::cout<<record.getKey().getUint()<<std::endl;

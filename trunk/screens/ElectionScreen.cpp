@@ -22,23 +22,66 @@ void ElectionScreen::draw()
 /*
 	//VoterRecord user = app->getUserLogin();
 
-	std::list<ElectionRecord::Key> keysOfElection = user.getElectionList();
-	std::list<ElectionRecord::Key>::iterator itElect = keysOfElection.begin();
+	std::list<DistrictRecord::Key> keysOfDistrict;
+	std::list<ElectionRecord> keysOfElection;
+	DistrictRecord distRecord;
+	DistrictFile* dFile = DistrictFile::getInstance();
 	ElectionFile* electionFile = ElectionFile::getInstance();
+	try
+	{
+		distRecord = dFile->search(user->getDistrict());
+	}
+	catch(FileSearchException &e)
+	{
+	}
+	while(distRecord.hasFather())
+	{
+		keysOfDistrict.push_back(distRecord.getKey());
+			try
+			{
+				distRecord = dFile->search(distRecord->getFather());
+			}
+			catch(FileSearchException &e)
+			{
+			}
+	}
+	keysOfDistrict.push_back(distRecord.getKey());
+
+	std::list<DistrictRecord::Key>::iterator itDistrict = keysOfDistrict.begin();
+	while(itDistrict != keysOfElection.end())
+	{
+		ElectionRecord record;
+			try
+			{
+				record = electionFile->searchByDistrict(*itDistrict);
+			}
+			catch(FileSearchException &e)
+			{
+				break;
+			}
+			if(isAValidElection(record)
+				keysOfElection.push_back(record);
+			while(true)
+			{
+				try
+				{
+					record = electionFile->nextByDistrict();
+				}
+				catch(FileNextException &e)
+				{
+					break;
+				}
+				if(isAValidElection(record)
+					keysOfElection.push_back(record);
+			}
+			itDistrict++;
+	}
+
+	std::list<ElectionRecord>::iterator itElect = keysOfElection.begin();
 
 	for(int i = 0 ; i < keysOfElection.size();i++,itElect++)
 	{
-		int number = i+1;
-		ElectionRecord record = ElectionRecord((*itElect));
-		try
-		{
-			record = electionFile->search(record);
-		}
-		catch(FileSearchException e)
-		{
-			break;
-		}
-		elections.push_back(record);
+		ElectionRecord record = *itElect;
 		std::cout<<number<<" - Cargo: "<<record.getCharge()<< " Fecha: " << record.getDate() <<std::endl;
 	}
 	std::cout<< "Eliga una eleccion a votar y presione ENTER"<<std::endl;
@@ -73,5 +116,21 @@ std::list<ElectionRecord>::iterator ElectionScreen::getElectionNumber(unsigned i
 
 
 	return itList;
+}
+
+bool ElectionScreen::isAValidElection(ElectionRecord election)
+{
+	VoteApp* app = VoteApp::getInstance();
+	VoterRecord user = app->getUserLogin();
+	std::list<ElectionRecord::Key> elList = user.getElections();
+	std::list<ElectionRecord::Key>::iterator itList =  elList.begin();
+	while(itList != elList.end())
+	{
+		if(*itList == election.getKey())
+			return false;
+
+		itList++;
+	}
+	return true;
 }
 */

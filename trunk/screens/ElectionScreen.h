@@ -19,6 +19,7 @@ public:
 private:
 	//std::list<ElectionRecord> elections;
 	//std::list<ElectionRecord>::iterator getElectionNumber(unsigned int);
+	//bool isAValidElection(ElectionRecord);
 };
 
 #endif /* ELECTIONSCREEN_H_ */
