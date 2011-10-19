@@ -26,6 +26,9 @@ private:
 	const unsigned int NUMERO_DE_PROVINCIAS = 23;
 	const unsigned int NUMERO_DE_MUNICIPIOS = 50;
 	const unsigned int NUMERO_DE_VOTANTES = 10000;
+
+	const unsigned int DOCUMENTO_BASE = 20000000;
+
 	const string NOMBRE_BASE_PROVINCIAS = "Provincia";
 	const string NOMBRE_BASE_MUNICIPIOS = "Municipio";
 	const string PRESIDENTE = "Presidente";
@@ -40,6 +43,8 @@ private:
 	const string CONSEJAL = "Consejal";
 
 	unsigned int date;
+	unsigned int currentDNI;
+
 public:
 
 	void Generator(unsigned int date) {
@@ -47,6 +52,7 @@ public:
 		this->chargesGenerator = new ChargeGenerator(date);
 		this->districts = new DistrictFile();
 		this->voters = new VoterFile();
+		this->currentDNI = DOCUMENTO_BASE;
 	}
 
 	void loadDistricts() {
@@ -76,9 +82,12 @@ public:
 				string municipio = NOMBRE_BASE_MUNICIPIOS + j + "-" + provincia;
 				municipioRecord = new DistrictRecord(retiro, provincia);
 				string chargesMunicipales [] = { INTENDENTE, VICEINTENDENTE, CONSEJAL };
+
 				loadCharges(chargesMunicipales,3,municipioRecord);
 
-				delete (municipio);
+				loadVoters(municipioRecord);
+
+				delete (municipioRecord);
 			}
 		}
 	}
@@ -117,7 +126,17 @@ public:
 	}
 
 	void loadVoters(DistrictRecord * district){
-		//VoterRecord * voter = new VoterRecord()
+		string voterName = "";
+		string address = "";
+		string voterKey = "";
+		unsigned int dni = currentDNI++;
+		list<ElectionRecord::Key> & elections;
+
+		VoterRecord * voter = new VoterRecord(voterName,dni,address,voterKey, district->getKey(),elections);
+
+		voters->insert(*voter);
+
+		delete(voter);
 	}
 
 };
