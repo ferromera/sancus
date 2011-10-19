@@ -15,9 +15,16 @@ VoterFile * VoterFile::getInstance(){
 	return instance;
 }
 
-VoterFile::VoterFile() {
-	this->table = new HashTable<VoterRecord, 4096> (VOTER_FILE_DATA_PATH,
-				VOTER_FILE_RECORDS_PER_BUCKET, VOTER_FILE_MAX_NUMBER_OF_RECORDS);
+VoterFile::VoterFile()
+{
+	try
+	{
+		this->table = new HashTable<VoterRecord, 4096> (VOTER_FILE_DATA_PATH);
+	}catch(OpenFileException & e)
+	{
+		this-> table = new HashTable<VoterRecord, 4096> (VOTER_FILE_DATA_PATH,
+					VOTER_FILE_RECORDS_PER_BUCKET, VOTER_FILE_MAX_NUMBER_OF_RECORDS);
+	}
 }
 
 
