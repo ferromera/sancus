@@ -11,7 +11,7 @@
 #include "BPTreeVariableLeaf.h"
 #include "FreeSpaceStackBlock.h"
 #include "IndexedDataFileExceptions.h"
-#include "IndexedDataControlBlock.h"
+
 
 template<class TRecord,unsigned int blockSize>
 class IndexedDataFile {
@@ -23,15 +23,13 @@ class IndexedDataFile {
 	BPTreeVariableLeaf<TRecord,blockSize> * searchBlock_;
 	File * file_;
 	TRecord * found_;
-	//unsigned int lastBlock_;
 	std::string path_;
 
 	void handleOverflow(const TRecord &rec,BPTreeVariableLeaf<TRecord,blockSize> *block);
 	void handleUnderflow(BPTreeVariableLeaf<TRecord,blockSize> *block);
 	void create();
 	void load();
-//	void readControlBlock();
-	//void writeControlBlock();
+
 public:
 	IndexedDataFile(const string & path);
 	void insert(const TRecord & rec, unsigned int blockNumber);
@@ -44,7 +42,6 @@ public:
 	bool overflow(){return overflow_;}
 	bool underflow(){return underflow_;}
 	bool fusion(){return fusion_;}
-	//unsigned int append(const TRecord & rec);
  	virtual ~IndexedDataFile();
 };
 
@@ -67,11 +64,6 @@ void IndexedDataFile<TRecord,blockSize>::create(){
 	fblock->inFile=0;
 	file_->write((char *)fblock,blockSize);
 	delete fblock;
-	/*IndexedDataControlBlock<blockSize>* cBlock = new IndexedDataControlBlock<blockSize>;
-	cBlock->lastBlock=1; // Indica que no hay ningun bloque en el archivo.
-	lastBlock_=1;
-	file_->write((char *)cBlock,blockSize);
-	delete cBlock;*/
 	BPTreeVariableLeaf<TRecord,blockSize>* emptyBlock=new BPTreeVariableLeaf<TRecord,blockSize>(*file_);
 	emptyBlock->write();
 	delete emptyBlock;
@@ -83,24 +75,7 @@ template<class TRecord,unsigned int blockSize>
 void IndexedDataFile<TRecord,blockSize>::load(){
 	file_= new File(path_,File::BIN|File::IO);
 }
-/*
-template<class TRecord,unsigned int blockSize>
-void IndexedDataFile<TRecord,blockSize>::writeControlBlock(){
-	IndexedDataControlBlock<blockSize>* cBlock = new IndexedDataControlBlock<blockSize>;
-	cBlock->lastBlock=lastBlock_;
-	file_->seek(blockSize,File::BEG);
-	file_->write((char *)cBlock,blockSize);
 
-}
-template<class TRecord,unsigned int blockSize>
-void IndexedDataFile<TRecord,blockSize>::readControlBlock(){
-	IndexedDataControlBlock<blockSize>* cBlock = new IndexedDataControlBlock<blockSize>;
-	file_->seek(blockSize,File::BEG);
-	file_->read((char *)cBlock,blockSize);
-	lastBlock_=cBlock->lastBlock;
-
-}
-*/
 template<class TRecord,unsigned int blockSize>
 void IndexedDataFile<TRecord,blockSize>::insert(const TRecord & rec, unsigned int blockNumber){
 	overflow_=false;
@@ -155,11 +130,6 @@ void IndexedDataFile<TRecord,blockSize>::handleOverflow(const TRecord &rec,BPTre
 
 	newBlock->next(block->next());
 	block->next(newBlock->blockNumber());
-	/*
-	if(newBlock->next()==0){
-		lastBlock_=newBlock->blockNumber();
-		writeControlBlock();
-	}*/
 
 	newBlock->write();
 	block->write();
@@ -217,11 +187,7 @@ void IndexedDataFile<TRecord,blockSize>::handleUnderflow(BPTreeVariableLeaf<TRec
 		fusion_=true;
 
 		block->next(nextBlock->next());
-		/*
-		if(nextBlock->next()==0){
-			lastBlock_=block->blockNumber();
-			writeControlBlock();
-		}*/
+
 		nextBlock->free();
 		block->clear();
 		typename std::list<TRecord>::iterator itMixedRecords=mixedRecords.begin();
@@ -339,35 +305,6 @@ void IndexedDataFile<TRecord,blockSize>::update(const TRecord & rec, unsigned in
 		handleOverflow(rec,block);
 	}
 }
-/*
-template<class TRecord,unsigned int blockSize>
-unsigned int IndexedDataFile<TRecord,blockSize>::append(const TRecord & rec){
-	if(lastBlock_==1){
-		BPTreeVariableLeaf<TRecord,blockSize> * newBlock=new BPTreeVariableLeaf<TRecord,blockSize>(*file_);
-		newBlock->next(0);
-		newBlock->insert(rec);
-		newBlock->write();
-		unsigned int blockNumber=newBlock->blockNumber();
-		lastBlock_=blockNumber;
-		writeControlBlock();
-		delete newBlock;
-		return blockNumber;
-	}else{
-		BPTreeVariableLeaf<TRecord,blockSize> * lastBlock=new BPTreeVariableLeaf<TRecord,blockSize>(*file_,lastBlock_);
-		BPTreeVariableLeaf<TRecord,blockSize> * newBlock=new BPTreeVariableLeaf<TRecord,blockSize>(*file_);
-		lastBlock->next(newBlock->blockNumber());
-		lastBlock->write();
-		newBlock->next(0);
-		newBlock->insert(rec);
-		newBlock->write();
-		unsigned int blockNumber=newBlock->blockNumber();
-		lastBlock_=blockNumber;
-		writeControlBlock();
-		delete newBlock;
-		delete lastBlock;
-		return blockNumber;
-	}
-}*/
 
 template<class TRecord,unsigned int blockSize>
 IndexedDataFile<TRecord,blockSize>::~IndexedDataFile(){
