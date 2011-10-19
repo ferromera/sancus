@@ -1,10 +1,12 @@
 /*
- * DistrictGenerator.h
+ * Generator.h
+ *
+ * Esta herramienta genera los archivos necesarios para verificar el comportamiento del sistema
+ * durante una eleccion en una fecha dada
  *
  * @author Alfredo Scoppa
  * @since OCt 18, 2011
  */
-
 #ifndef GENERATOR_H_
 #define GENERATOR_H_
 
@@ -14,7 +16,7 @@
 #include "../managers/ListFile.h"
 #include "../managers/VoteCountingFile.h"
 #include "../managers/CandidateFile.h"
-#include "../records/ChargeRecord.h"
+#include "../managers/ChargeFile.h"
 #include "../utils/StringUtils.h"
 
 using namespace std;
@@ -26,6 +28,7 @@ private:
 	ListFile * lists;
 	VoteCountingFile * voteCountings;
 	CandidateFile * candidates;
+	ChargeFile * charges;
 
 	const string ARGENTINA = "Argentina";
 
@@ -37,6 +40,9 @@ private:
 
 	const string NOMBRE_BASE_PROVINCIAS = "Provincia";
 	const string NOMBRE_BASE_MUNICIPIOS = "Municipio";
+	const string NOMBRE_BASE_LISTA = "Lista";
+	const string NOMBRE_BASE_VOTANTE = "Votante";
+
 	const string PRESIDENTE = "Presidente";
 	const string VICEPRESIDENTE = "Vicepresidente";
 	const string SENADOR = "Senador";
@@ -47,23 +53,22 @@ private:
 	const string INTENDENTE = "Intendente";
 	const string VICEINTENDENTE = "ViceIntendente";
 	const string CONSEJAL = "Consejal";
-	const string LISTA_NOMBRE_BASE = "Lista";
 
 	unsigned int date;
 	unsigned int currentDNI;
 
 public:
 
-	void Generator(unsigned int date) {
+	void GenerateElectionFor(unsigned int date) {
 		this->date = date;
 		this->currentDNI = DOCUMENTO_BASE;
-
 
 		this->districts = DistrictFile::getInstance();
 		this->voters = VoterFile::getInstance();
 		this->lists = ListFile::getInstance();
 		this->voteCountings = VoteCountingFile::getInstance();
 		this->candidates = CandidateFile::getInstance();
+		this->charges = ChargeFile::getInstance();
 	}
 
 	void generate() {
@@ -84,7 +89,7 @@ public:
 		delete (argentinaRecord);
 
 		for (unsigned int i = 0; i < NUMERO_DE_PROVINCIAS; i++) {
-			string provincia = NOMBRE_BASE_PROVINCIAS + i;
+			string provincia = NOMBRE_BASE_PROVINCIAS + StringUtils::intToString(i);
 			provinciaRecord = new DistrictRecord(provincia, argentina);
 
 			districts->insert(*provinciaRecord);
@@ -94,7 +99,7 @@ public:
 			delete (provinciaRecord);
 
 			for (unsigned int j = 0; j < NUMERO_DE_MUNICIPIOS; j++) {
-				string municipio = NOMBRE_BASE_MUNICIPIOS + j + "-" + provincia;
+				string municipio = NOMBRE_BASE_MUNICIPIOS + StringUtils::intToString(j) + "-"+ provincia;
 				municipioRecord = new DistrictRecord(retiro, provincia);
 				string chargesMunicipales[] = { INTENDENTE, VICEINTENDENTE, CONSEJAL };
 
@@ -112,7 +117,7 @@ public:
 		ChargeRecord * fatherRecord = new ChargeRecord(charges[0], district->getDistrictName());
 		chargeFile->insert(*fatherRecord);
 
-		loadElection(fatherRecord, district);
+		ElectionRecord * election = loadElection(fatherRecord, district);
 
 		ChargeRecord * childRecord;
 
@@ -122,15 +127,16 @@ public:
 
 			chargeFile->insert(*childRecord);
 
-			loadElection(childRecord, district);
+			loadList(election);
 
 			delete (childRecord);
 		}
 
 		delete (fatherRecord);
+		delete (election);
 	}
 
-	void loadElection(ChargeRecord * charge, DistrictRecord * district) {
+	ElectionRecord * loadElection(ChargeRecord * charge, DistrictRecord * district) {
 		ElectionRecord * election = new ElectionRecord(this->date, charge->getKey(),
 						district->getKey());
 
@@ -138,15 +144,15 @@ public:
 
 		loadList(election);
 
-		delete (election);
+		return election;
 	}
 
 	void loadList(ElectionRecord * election) {
 		ListRecord * listRecord;
 
 		for (unsigned int i = 0; i < NUMERO_DE_LISTAS_POR_ELECCION; i++) {
-			string list = LISTA_NOMBRE_BASE + i;
-			listRecord = new ListRecord(election->getKey(), LISTA_NOMBRE_BASE);
+			string list = NOMBRE_BASE_LISTA + i;
+			listRecord = new ListRecord(election->getKey(), NOMBRE_BASE_LISTA);
 
 			lists->insert(listRecord);
 
@@ -176,10 +182,10 @@ public:
 	void loadVoters(DistrictRecord * district) {
 
 		for (unsigned int i = 0; i < NUMERO_DE_VOTANTES; i++) {
-			string voterName = "";
 			string address = "";
 			unsigned int dni = currentDNI++;
-			string voterKey = StringUtils::intToString(dni);
+			string voterName = NOMBRE_BASE_VOTANTE + StringUtils::intToString(dni);
+			string voterKey = "password";
 			list<ElectionRecord::Key> & elections;
 
 			VoterRecord * voterRecord = new VoterRecord(voterName, dni, address, voterKey,
@@ -190,7 +196,5 @@ public:
 			delete (voter);
 		}
 	}
-
 };
-
 #endif /* GENERATOR_H_ */
