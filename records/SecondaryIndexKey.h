@@ -94,7 +94,7 @@ template <class attributeKey, class primaryKey>
 void  SecondaryIndexKey<attributeKey,primaryKey>::updateString(){
 
 	if(attributeKey::isString)
-		stringKey="att->getString";
+		stringKey=att->getString();
 	else{
 		char str [256];
 		sprintf(str,"%u",att->getUint());

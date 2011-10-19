@@ -7,6 +7,10 @@
 
 #include "ListRecord.h"
 
+
+ListRecord::ListRecord(char ** input){
+	key_= new ListRecord::Key(input);
+}
 ListRecord::ListRecord(const ListRecord::Key & k){
 	key_= new ListRecord::Key(k);
 }
@@ -51,6 +55,7 @@ const ElectionRecord::Key & ListRecord::getElection()const{
 ListRecord & ListRecord::operator=(const ListRecord &rec){
 	if(this==&rec)
 		return *this;
+	delete key_;
 	key_= new ListRecord::Key(rec.getKey());
 	return *this;
 

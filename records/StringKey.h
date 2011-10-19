@@ -21,6 +21,7 @@ public:
     StringKey(char ** input); //Load the key from input.
     StringKey(const std::string & key="");
     StringKey(const StringKey &);
+    void setHighValue();
     void setKey(std::string  string);
     void setKey(const Record::Key & rk);
     const std::string & getKey()const;

@@ -59,6 +59,7 @@ PrimaryIndexRecord<primaryKey>::PrimaryIndexRecord(char ** input){
 template<class primaryKey>
 PrimaryIndexRecord<primaryKey>::PrimaryIndexRecord(const PrimaryIndexRecord<primaryKey> & rec){
 	key_=new Key(rec.getKey());
+	blockNumber_=rec.blockNumber_;
 }
 template<class primaryKey>
 PrimaryIndexRecord<primaryKey>::PrimaryIndexRecord(const primaryKey& key, unsigned int block){

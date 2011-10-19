@@ -31,6 +31,9 @@ void StringKey::setKey(const Record::Key & rk)
     const StringKey & sk= dynamic_cast<const StringKey &>(rk);
     dataString=sk.dataString;
 }
+void StringKey::setHighValue(){
+	dataString.push_back(255);
+}
 const std::string & StringKey::getKey()const
 {
 	return dataString;
@@ -40,11 +43,12 @@ void StringKey::read(char ** input)
 	uint8_t sizeStr;
 	memcpy(&sizeStr,*input,1);
     (*input)+=1;
-    char *myChar = new char[sizeStr + 1];
+    char myChar[256];
     memcpy(myChar,*input,sizeStr);
     (*input)+=sizeStr;
     myChar[sizeStr] = '\0';
     dataString = myChar;
+
 
 }
 void StringKey::write(char ** output)const
@@ -58,10 +62,10 @@ void StringKey::write(char ** output)const
 bool StringKey::operator <(const Record::Key &r)const
 {
 	const StringKey & key = (const StringKey &) r;
-	if(dataString.compare(key.dataString) > 0)
-		return false;
-	else
+	if(dataString.compare(key.dataString) < 0)
 		return true;
+	else
+		return false;
 }
 bool StringKey::operator ==(const Record::Key &r)const
 {

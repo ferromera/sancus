@@ -446,9 +446,10 @@ const TRecord & BPlusTree<TRecord,blockSize>::search(const TRecord & rec){
 			searchLeaf= new BPTreeVariableLeaf<TRecord,blockSize>(*rootAsLeaf);
 			return *found;
 		}catch(LeafRecordNotFoundException e){
-			throw ThereIsNoGreaterRecordException();
-		}catch(ThereIsNoNextLeafException){
-			throw ThereIsNoGreaterRecordException();
+			rootAsLeaf->nextLeaf();//Lanza excepcion ThereIsNoNextLeafException<TRecord>;
+			throw;
+		}catch(ThereIsNoNextLeafException<TRecord>&){
+			throw;
 		}
 	}else{
 		found= ((BPTreeVariableInternalNode<TRecord,blockSize>*)root)->search(rec,&searchLeaf);
@@ -466,8 +467,13 @@ const TRecord & BPlusTree<TRecord,blockSize>::next(){
 		return *found;
 	}catch(LeafRecordNotFoundException e){
 		BPTreeVariableLeaf<TRecord,blockSize> * oldSearchLeaf=searchLeaf;
-		searchLeaf=(BPTreeVariableLeaf<TRecord,blockSize> *)searchLeaf->nextLeaf();
-		delete oldSearchLeaf;
+		try{
+			searchLeaf=(BPTreeVariableLeaf<TRecord,blockSize> *)searchLeaf->nextLeaf();
+			delete oldSearchLeaf;
+		}catch(ThereIsNoNextLeafException<TRecord>&){
+			delete oldSearchLeaf;
+			throw;
+		}
 		found = new TRecord(searchLeaf->getFirstRecord());
 
 		return *found;

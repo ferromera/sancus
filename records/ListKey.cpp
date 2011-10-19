@@ -10,20 +10,37 @@
 
 ListRecord::Key::Key(){
 	election=new ElectionRecord::Key();
-	updateString();
+	//updateString();
 }
 ListRecord::Key::Key(char ** input){
-	read(input);
+	election= new ElectionRecord::Key(input);
+	uint8_t stringSize;
+	memcpy(&stringSize,*input,1);
+	(*input)+=1;
+	char str[256];
+	memcpy(str,*input,stringSize);
+	(*input)+=stringSize;
+	str[stringSize]='\0';
+	name=str;
+	updateString();
 }
 ListRecord::Key::Key(const Key & k){
 	election= new ElectionRecord::Key(*k.election);
 	name=k.name;
-	updateString();
+	stringKey_=k.stringKey_;
 }
 ListRecord::Key::Key(const ElectionRecord::Key & elect, const std::string & listName){
 	election= new ElectionRecord::Key(elect);
 	name=listName;
 	updateString();
+}
+void ListRecord::Key::setHighValue(){
+	delete election;
+	election= new ElectionRecord::Key();
+	election->setHighValue();
+	name.push_back(255);
+	stringKey_="HighValue";
+
 }
 ListRecord::Key & ListRecord::Key::operator=(const Key & k){
 	if(this==&k)
@@ -62,8 +79,8 @@ void ListRecord::Key::read(char ** input){
 	election->read(input);
 	uint8_t stringSize;
 	memcpy(&stringSize,*input,1);
-	(*input)++;
-	char str[257];
+	(*input)+=1;
+	char str[256];
 	memcpy(str,*input,stringSize);
 	(*input)+=stringSize;
 	str[stringSize]='\0';
@@ -75,14 +92,14 @@ void ListRecord::Key::write(char ** output)const{
 	election->write(output);
 	uint8_t stringSize=name.size();
 	memcpy(*output,&stringSize,1);
-	(*output)++;
+	(*output)+=1;
 	memcpy(*output,name.c_str(),stringSize);
 	(*output)+=stringSize;
 
 
 }
 unsigned int ListRecord::Key::size()const{
-	return election->size()+name.size();
+	return election->size()+name.size()+1;
 }
 bool ListRecord::Key::operator <(const Record::Key &rk)const{
 	const Key & k= (const Key & )rk;
