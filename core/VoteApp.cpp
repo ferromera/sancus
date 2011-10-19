@@ -36,7 +36,7 @@ VoteApp::VoteApp() {
 	this->screens.push_back(scr7);
 	this->screens.push_back(scr8);
 
-	actualScreen = ALTA_SCREEN;
+	actualScreen = LOGIN_SCREEN;
 
 }
 VoteApp* VoteApp::getInstance()

@@ -7,6 +7,7 @@
 
 #include "LoginScreen.h"
 #include "../core/VoteApp.h"
+#include "../utils/OstreamUtils.h"
 
 LoginScreen::LoginScreen() {
 }
@@ -19,6 +20,7 @@ void  LoginScreen::draw()
 	uint32_t dni;
 	std::string clave;
 	char respuesta;
+
 	std::cout<<"/////////////////////////////////////////"<<std::endl;
 	std::cout<<"/////////////////////////////////////////"<<std::endl;
 	std::cout<<"/////////////////////////////////////////"<<std::endl;
@@ -29,6 +31,7 @@ void  LoginScreen::draw()
 	std::cout<<""<<std::endl;
 	std::cout<<""<<std::endl;
 	std::cout<<""<<std::endl;
+
 
 	bool incorrectUser = true;
 	bool userAdmin = false;
