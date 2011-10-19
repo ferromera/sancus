@@ -74,12 +74,12 @@ unsigned int ElectionRecord::Key::size()const{
 }
 
 void ElectionRecord::Key::updateString(){
-	stringKey_="(";
-	stringKey_.push_back('(');
+	stringKey_="";
+	stringKey_.append("(");
 	char str[32];
 	sprintf(str,"%u",date);
 	stringKey_.append(str);
-	stringKey_.push_back(')');
+	stringKey_.append(")(");
 	stringKey_.append(charge->getString());
 	stringKey_.append(")");
 

@@ -62,6 +62,7 @@ public:
 	VoteCountingRecord(const ListRecord::Key & , const DistrictRecord::Key & , const ElectionRecord::Key & , unsigned int);
 	VoteCountingRecord(const VoteCountingRecord &);
 	VoteCountingRecord(const VoteCountingRecord::Key &);
+	VoteCountingRecord(char ** input);
 	const ListRecord::Key & getList()const;
 	const ElectionRecord::Key& getElection()const;
 	const DistrictRecord::Key& getDistrict()const;
