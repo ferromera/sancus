@@ -17,9 +17,15 @@ CandidateFile * CandidateFile::getInstance(){
 }
 
 CandidateFile::CandidateFile() {
-	this->table = new HashTable<CandidateRecord, 4096> (CANDIDATE_FILE_DATA_PATH,
-			CANDIDATE_FILE_RECORDS_PER_BUCKET,
-			CANDIDATE_FILE_MAX_NUMBER_OF_RECORDS);
+	try
+	{
+	this->table = new HashTable<CandidateRecord, 4096> (CANDIDATE_FILE_DATA_PATH);
+	}catch(OpenFileException &e)
+	{
+		this->table = new HashTable<CandidateRecord, 4096> (CANDIDATE_FILE_DATA_PATH,
+				CANDIDATE_FILE_RECORDS_PER_BUCKET,
+				CANDIDATE_FILE_MAX_NUMBER_OF_RECORDS);
+	}
 }
 
 void CandidateFile::insert(const CandidateRecord & candidate) {

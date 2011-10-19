@@ -17,9 +17,15 @@ AdministratorFile * AdministratorFile::getInstance(){
 }
 
 AdministratorFile::AdministratorFile() {
-	this->table = new HashTable<AdministratorRecord, 4096> (ADMINISTRATOR_FILE_DATA_PATH,
-			ADMINISTRATOR_FILE_RECORDS_PER_BUCKET,
-			ADMINISTRATOR_FILE_MAX_NUMBER_OF_RECORDS);
+	try
+	{
+		this->table = new HashTable<AdministratorRecord, 4096> (ADMINISTRATOR_FILE_DATA_PATH);
+	}catch(OpenFileException &e)
+	{
+		this->table = new HashTable<AdministratorRecord, 4096> (ADMINISTRATOR_FILE_DATA_PATH,
+				ADMINISTRATOR_FILE_RECORDS_PER_BUCKET,
+				ADMINISTRATOR_FILE_MAX_NUMBER_OF_RECORDS);
+	}
 }
 
 void AdministratorFile::insert(const AdministratorRecord & Administrator) {
