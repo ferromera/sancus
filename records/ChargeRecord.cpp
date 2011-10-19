@@ -99,7 +99,7 @@ void ChargeRecord::setChargeFather(const ChargeRecord::Key & k){
 const ChargeRecord::Key & ChargeRecord::getChargeFather()const{
 	if(!hasFather())
 		throw chargeFatherNullException();
-	return *((ChargeRecord::Key*)chargeFather);
+	return *chargeFather;
 }
 const ChargeRecord::Key & ChargeRecord::getKey()const{
 	return *((Key*)key_);

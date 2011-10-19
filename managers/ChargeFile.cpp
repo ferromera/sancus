@@ -250,9 +250,10 @@ const ChargeRecord & ChargeFile::next(){
 }
 
 void ChargeFile::report(){
-	fatherIndex->preOrderReport();
+
 	districtIndex->preOrderReport();
 	primaryIndex->preOrderReport();
+	fatherIndex->preOrderReport();
 }
 
 ChargeFile::~ChargeFile(){
