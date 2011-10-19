@@ -9,12 +9,13 @@
 #define MATHUTILS_H_
 
 #include <math.h>
+#include <stdlib.h>
 
 class MathUtils {
 
 public:
 	static int nextPrime(unsigned int number) {
-		while(!isPrime(number)){
+		while (!isPrime(number)) {
 			number++;
 		}
 
@@ -35,8 +36,8 @@ public:
 		return true;
 	}
 
-	static int randomNumber(unsigned int base, unsigned int max){
-			return rand() % (max - base + 1) + base;
-		}
+	static int randomNumber(unsigned int base, unsigned int max) {
+		return rand() % (max - base + 1) + base;
+	}
 };
 #endif /* MATHUTILS_H_ */
