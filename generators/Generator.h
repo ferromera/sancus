@@ -23,7 +23,7 @@ class Generator {
 private:
 	DistrictFile * districts;
 	VoterFile * voters;
-	//ListFile * lists;
+	ListFile * lists;
 	VoteCountingFile * voteCountings;
 	CandidateFile * candidates;
 
@@ -58,9 +58,10 @@ public:
 		this->date = date;
 		this->currentDNI = DOCUMENTO_BASE;
 
+
 		this->districts = DistrictFile::getInstance();
 		this->voters = VoterFile::getInstance();
-		//this->lists = ListFile::getInstance();
+		this->lists = ListFile::getInstance();
 		this->voteCountings = VoteCountingFile::getInstance();
 		this->candidates = CandidateFile::getInstance();
 	}
@@ -146,7 +147,8 @@ public:
 		for (unsigned int i = 0; i < NUMERO_DE_LISTAS_POR_ELECCION; i++) {
 			string list = LISTA_NOMBRE_BASE + i;
 			listRecord = new ListRecord(election->getKey(), LISTA_NOMBRE_BASE);
-			//lists->insert(listRecord);
+
+			lists->insert(listRecord);
 
 			loadVoteCountings(listRecord);
 
