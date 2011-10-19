@@ -128,11 +128,9 @@ private:
 
 		for (unsigned int i = 1; i < numberOfCharges; i++) {
 			childRecord = new ChargeRecord(chargesArray[i], district->getDistrictName(),
-							chargesArray[0], district->getFatherName());
+							chargesArray[0], district->getDistrictName());
 
 			charges->insert(*childRecord);
-
-			loadList(election);
 
 			delete (childRecord);
 		}
@@ -156,7 +154,7 @@ private:
 		ListRecord * listRecord;
 
 		for (unsigned int i = 0; i < NUMERO_DE_LISTAS_POR_ELECCION; i++) {
-			string list = NOMBRE_BASE_LISTA + i;
+			string list = NOMBRE_BASE_LISTA + StringUtils::intToString(i);
 			listRecord = new ListRecord(election->getKey(), NOMBRE_BASE_LISTA);
 
 			lists->insert(*listRecord);
@@ -172,6 +170,17 @@ private:
 						list->getElection().getCharge().getDistrict(), list->getElection(), 0);
 
 		voteCountings->insert(*voteCountingRecord);
+
+		std::list<DistrictRecord> disList;
+		disList.push_back(districts->search(DistrictRecord::Key()));
+		while(disList.back().hasFather()){
+		disList.push_back(districts->search(disList.back().getFather()));
+		}
+
+
+		while(true){
+
+		}
 
 		delete (voteCountingRecord);
 	}
