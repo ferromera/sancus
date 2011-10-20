@@ -177,24 +177,30 @@ void VoterRecord::read(char** in){
 
 void VoterRecord::write(char** out){
 	uint8_t nameSize;
-
-	nameSize = this->voterName.size();
 	key_->write(out);
-	memcpy(*out,&voterName,nameSize);
+
+	nameSize = voterName.size();
+	memcpy(*out,&nameSize,1);
+	(*out)+=1;
+
+	memcpy(*out,voterName.c_str(),nameSize);
 	(*out)+=nameSize;
 
-	key_->write(out);
 	memcpy(*out,&dni,4);
 	(*out)+=4;
 
 	nameSize = this->address.size();
-	key_->write(out);
-	memcpy(*out,&address,nameSize);
+	memcpy(*out,&nameSize,1);
+	(*out)+=1;
+
+	memcpy(*out,address.c_str(),nameSize);
 	(*out)+=nameSize;
 
 	nameSize = this->voterKey.size();
-	key_->write(out);
-	memcpy(*out,&voterKey,nameSize);
+	memcpy(*out,&nameSize,1);
+	(*out)+=1;
+
+	memcpy(*out,voterKey.c_str(),nameSize);
 	(*out)+=nameSize;
 
 	this->voterDistrict->write(out);

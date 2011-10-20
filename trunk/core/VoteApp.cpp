@@ -14,6 +14,7 @@
 #include "../screens/ChargeScreen.h"
 #include "../screens/ResultScreen.h"
 
+
 VoteApp* VoteApp::voteApp = NULL;
 
 VoteApp::VoteApp() {
@@ -70,7 +71,7 @@ std::list<Drawable*>::iterator VoteApp::getToScreen(unsigned int screenNumber)
 void VoteApp::setActualScreen(unsigned int number){
 	actualScreen = number;
 }
-/*
+
 void VoteApp::setUserLogin(VoterRecord user)
 {
 	userLogin = user;
@@ -87,5 +88,5 @@ ElectionRecord VoteApp::getChooseElection()
 {
 	return chooseElection;
 }
-*/
+
 

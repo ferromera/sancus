@@ -30,7 +30,12 @@ public:
 	  public:
 	      Key(char ** input):Uint32Key(input){}
 	      Key(uint32_t key=0):Uint32Key(key){}
-	     unsigned int getUint() const {return getKey();}
+	      Key(const Key &k):Uint32Key(k){}
+	      unsigned int getUint() const {return getKey();}
+	       Key& operator=(const Key & key){
+	        	Uint32Key::operator=(key);
+	        	return *this;
+	        }
 
 	 };
 	const VoterRecord::Key & getKey()const;
