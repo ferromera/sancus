@@ -75,7 +75,7 @@ void Logger::error(std::string  message){
 	if(_ERROR_) Logger::insert(key,message);
 }
 
-void Logger::insert(std::string& key, std::string& value){
+void Logger::insert(const std::string& key, const std::string& value){
 	if (ioFile.good()) {
 		if(!_PROD_){
 			if(_DATE_)
