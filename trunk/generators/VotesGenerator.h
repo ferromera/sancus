@@ -21,8 +21,8 @@ private:
 	DistrictFile * districts;
 	ElectionFile * elections;
 	ListFile * lists;
-
-	void VotesGenerator(){
+public:
+	VotesGenerator(){
 		voters = VoterFile::getInstance();
 		districts = DistrictFile::getInstance();
 		elections = ElectionFile::getInstance();
@@ -30,8 +30,8 @@ private:
 	}
 
 	void vote(unsigned int documento) {
-		VoterRecord::Key key = new VoterRecord::Key(documento);
-		VoterRecord voter = voters->search(key);
+		VoterRecord::Key * key = new VoterRecord::Key(documento);
+		VoterRecord voter = voters->search(*key);
 
 		DistrictRecord::Key localidad = voter.getDistrict();
 		DistrictRecord::Key provincia;
@@ -41,9 +41,9 @@ private:
 		ElectionRecord elecccionProvincial = elections->searchByDistrict(provincia);
 		ElectionRecord elecccionNacional = elections->searchByDistrict(pais);
 
-		lists->searchByElection(elecccionMunicipal);
-		lists->searchByElection(elecccionProvincial);
-		lists->searchByElection(elecccionNacional);
+		lists->searchByElection(elecccionMunicipal.getKey());
+		lists->searchByElection(elecccionProvincial.getKey());
+		lists->searchByElection(elecccionNacional.getKey());
 
 	}
 };
