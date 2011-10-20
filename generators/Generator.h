@@ -18,6 +18,7 @@
 #include "../managers/VoteCountingFile.h"
 #include "../managers/CandidateFile.h"
 #include "../managers/ChargeFile.h"
+#include "../managers/ElectionFile.h"
 #include "../utils/StringUtils.h"
 
 using namespace std;
@@ -54,6 +55,7 @@ private:
 	VoteCountingFile * voteCountings;
 	CandidateFile * candidates;
 	ChargeFile * charges;
+	ElectionFile * elections;
 
 	unsigned int date;
 	unsigned int currentDNI;
@@ -72,6 +74,7 @@ public:
 		this->voteCountings = VoteCountingFile::getInstance();
 		this->candidates = CandidateFile::getInstance();
 		this->charges = ChargeFile::getInstance();
+		this->elections = ElectionFile::getInstance();
 	}
 
 	void generate() {
@@ -192,7 +195,7 @@ private:
 	ElectionRecord * loadElection(ChargeRecord * charge, DistrictRecord & district) {
 		ElectionRecord * election = new ElectionRecord(this->date, charge->getKey(), district.getKey());
 
-		//elections->insert(*election);
+		elections->insert(*election);
 
 		loadList(election);
 
