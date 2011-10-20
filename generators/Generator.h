@@ -64,7 +64,7 @@ public:
 	/**
 	 * @date en formato AAAAMMDD
 	 */
-	void GenerateElectionFor(unsigned int date) {
+	Generator(unsigned int date) {
 		this->date = date;
 		this->currentDNI = DOCUMENTO_BASE;
 
@@ -77,12 +77,10 @@ public:
 		this->elections = ElectionFile::getInstance();
 	}
 
-	void generate() {
+	void GenerateElection() {
 		loadDistricts();
 		loadCharges();
 	}
-
-private:
 
 	//GENERA DISTRITOS Y VOTANTES
 	void loadDistricts() {
@@ -113,7 +111,7 @@ private:
 		}
 	}
 
-	void loadCharge() {
+	void loadCharges() {
 		string chargesNacionales[] = { PRESIDENTE, VICEPRESIDENTE, SENADOR, DIPUTADO };
 		string chargesProvinciales[] = { GOBERNADOR, VICEGOBERNADOR, LEGISLADOR };
 		string chargesMunicipales[] = { INTENDENTE, VICEINTENDENTE, CONSEJAL };
@@ -239,7 +237,7 @@ private:
 		while (true) {
 			DistrictRecord::Key lastSearched = disList.front().getKey();
 			disList.clear();
-			districts.search(lastSearched);
+			districts->search(lastSearched);
 			try {
 				disList.push_back(districts->next());
 				while (disList.back().hasFather()) {
