@@ -472,7 +472,7 @@ template<class TRecord,unsigned int blockSize>
 const TRecord & BPlusTree<TRecord,blockSize>::next(){
 	delete found;
 	if(searchLeaf==NULL)
-		throw BPlusTreeNextMustNotBeCalledAfterAModifyingMethodException();
+		throw BPlusTreeNextException();
 	try{
 		found=searchLeaf->nextRecord();
 		return *found;
