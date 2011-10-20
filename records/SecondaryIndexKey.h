@@ -24,7 +24,7 @@ public:
 	SecondaryIndexKey(const attributeKey & a,const primaryKey & p);
 	static const bool isVariable=true;
 	static const bool isString=true;
-	const std::string & getString(){return getKey();}
+	const std::string & getString()const{return getKey();}
 	void setKey(const attributeKey & a,const primaryKey & p);
 	void setKey(const SecondaryIndexKey<attributeKey,primaryKey> & secKey);
 	const std::string & getKey()const;

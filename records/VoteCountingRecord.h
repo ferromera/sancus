@@ -36,7 +36,7 @@ public:
         Key(const ListRecord::Key & , const DistrictRecord::Key & , const ElectionRecord::Key &);
         void setHighValue();
         Key & operator=(const Key & k);
-        const std::string & getString(){return getKey();}
+        const std::string & getString()const{return getKey();}
         void setKey(const ListRecord::Key & , const DistrictRecord::Key & , const ElectionRecord::Key &);
         void setKey(const Key & k);
         const std::string & getKey()const;
