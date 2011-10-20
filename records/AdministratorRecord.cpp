@@ -52,6 +52,7 @@ void AdministratorRecord::read(char** input) {
 	uint8_t nameSize;
 
 	key_->read(input);
+
 	memcpy(&user,*input,4);
 	(*input)+=4;
 
@@ -69,12 +70,14 @@ void AdministratorRecord::read(char** input) {
 
 void AdministratorRecord::write(char** output) {
 	uint8_t nameSize;
-	nameSize = sizeof(this->user);
 	key_->write(output);
-	(*output)+=nameSize;
 
+	memcpy(*output,&user,4);
+	(*output)+=4;
 	nameSize = this->password.size();
-	memcpy(*output,&password,nameSize);
+	memcpy(*output,&nameSize,1);
+	(*output)+=1;
+	memcpy(*output,password.c_str(),nameSize);
 	(*output)+=nameSize;
 }
 
@@ -108,7 +111,7 @@ const AdministratorRecord & AdministratorRecord::operator =(const AdministratorR
 }
 
 unsigned int AdministratorRecord::size() const {
-	return key_->size() + this->password.size() + 1;
+	return key_->size() + 4 + this->password.size() + 1;
 }
 
 AdministratorRecord::~AdministratorRecord() {

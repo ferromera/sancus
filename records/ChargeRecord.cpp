@@ -2,7 +2,11 @@
 #include "ChargeRecord.h"
 #include "stdint.h"
 
-
+ChargeRecord::ChargeRecord():Record()
+{
+	key_ = NULL;
+	chargeFather = NULL;
+}
 ChargeRecord::ChargeRecord(char ** input){
 	key_=new ChargeRecord::Key(input);
 	uint8_t flag;

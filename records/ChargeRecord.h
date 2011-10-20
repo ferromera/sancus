@@ -56,7 +56,7 @@ private:
 public:
 	static const bool isVariable=true;
 
-	ChargeRecord():Record(){}
+	ChargeRecord();
     ChargeRecord(char ** input);
     ChargeRecord(const ChargeRecord & rec);
     ChargeRecord(const ChargeRecord::Key &k);

@@ -9,6 +9,10 @@
 #include "stdint.h"
 #include <cstring>
 
+DistrictRecord::DistrictRecord(){
+	key_ = NULL;
+	districtFather = NULL;
+}
 DistrictRecord::DistrictRecord(const DistrictRecord::Key &k)
 {
 	key_ = new DistrictRecord::Key(k);
