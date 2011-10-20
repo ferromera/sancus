@@ -17,24 +17,29 @@
 #include "../records/SecondaryIndexRecord.h"
 #include "../records/PrimaryIndexRecord.h"
 
-
-
 #define VOTE_COUNTING_ELECTION_INDEX_PATH "./VoteCountingElectionIndex.bin"
 #define VOTE_COUNTING_DISTRICT_INDEX_PATH "./VoteCountingDistrictIndex.bin"
 #define VOTE_COUNTING_LIST_INDEX_PATH "./VoteCountingListIndex.bin"
 #define VOTE_COUNTING_PRIMARY_INDEX_PATH	"./VoteCountingPrimaryIndex.bin"
 #define VOTE_COUNTING_DATA_PATH	"./VoteCountingData.bin"
 
-
+#define VOTE_COUNTING_FILE__SEC_INDEX_BLOCK_SIZE 1024
+#define VOTE_COUNTING_FILE__PRI_INDEX_BLOCK_SIZE 512
+#define VOTE_COUNTING_FILE_DATA_BLOCK_SIZE 1024
 
 class VoteCountingFile {
-	enum lastSearchEnum {ELECTION_SEARCH,DISTRICT_SEARCH,LIST_SEARCH,PRIMARY_SEARCH,NO_SEARCH};
+	enum lastSearchEnum {
+		ELECTION_SEARCH, DISTRICT_SEARCH, LIST_SEARCH, PRIMARY_SEARCH, NO_SEARCH
+	};
 
-	BPlusTree<SecondaryIndexRecord<ElectionRecord::Key,VoteCountingRecord::Key>,4096> * electionIndex;
-	BPlusTree<SecondaryIndexRecord<DistrictRecord::Key,VoteCountingRecord::Key>,4096> * districtIndex;
-	BPlusTree<SecondaryIndexRecord<ListRecord::Key,VoteCountingRecord::Key>,4096> * listIndex;
-	BPlusTree<PrimaryIndexRecord<VoteCountingRecord::Key>,4096> * primaryIndex;
-	IndexedDataFile<VoteCountingRecord,8192> * dataFile;
+	BPlusTree<SecondaryIndexRecord<ElectionRecord::Key, VoteCountingRecord::Key> ,
+			VOTE_COUNTING_FILE__SEC_INDEX_BLOCK_SIZE> * electionIndex;
+	BPlusTree<SecondaryIndexRecord<DistrictRecord::Key, VoteCountingRecord::Key> ,
+			VOTE_COUNTING_FILE__SEC_INDEX_BLOCK_SIZE> * districtIndex;
+	BPlusTree<SecondaryIndexRecord<ListRecord::Key, VoteCountingRecord::Key> ,
+			VOTE_COUNTING_FILE__SEC_INDEX_BLOCK_SIZE>* listIndex;
+	BPlusTree<PrimaryIndexRecord<VoteCountingRecord::Key> , VOTE_COUNTING_FILE__PRI_INDEX_BLOCK_SIZE> * primaryIndex;
+	IndexedDataFile<VoteCountingRecord, VOTE_COUNTING_FILE_DATA_BLOCK_SIZE> * dataFile;
 	enum lastSearchEnum lastSearch;
 
 	ElectionRecord::Key * electionSearched;
@@ -47,7 +52,6 @@ class VoteCountingFile {
 public:
 
 	static VoteCountingFile * getInstance();
-
 
 	VoteCountingFile();
 

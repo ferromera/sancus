@@ -14,7 +14,7 @@
 #define ELECTION_FILE_PRIMARY_INDEX_PATH "./ElectionFilePrimaryIndex.bin"
 #define ELECTION_FILE_DATA_PATH	"./ElectionFileData.bin"
 #define ELECTION_FILE__SEC_INDEX_BLOCK_SIZE 1024
-#define ELECTION_FILE__PRI_INDEX_BLOCK_SIZE 1024
+#define ELECTION_FILE__PRI_INDEX_BLOCK_SIZE 512
 #define ELECTION_FILE_DATA_BLOCK_SIZE 1024
 
 #include "FileManagerExceptions.h"
