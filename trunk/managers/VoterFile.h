@@ -18,19 +18,22 @@
 
 class VoterFile {
 private:
-	HashTable<VoterRecord,4096> * table;
+	HashTable<VoterRecord, 4096> * table;
 	static VoterFile * instance;
 public:
 	static VoterFile * getInstance();
+	static void deleteInstance() {
+		delete instance;
+		instance = NULL;
+	}
 
 	VoterFile();
 
-    virtual ~VoterFile();
+	virtual ~VoterFile();
 	void insert(const VoterRecord &);
 	void remove(const VoterRecord &);
 	void update(const VoterRecord &);
-	const VoterRecord & search (const VoterRecord::Key &);
+	const VoterRecord & search(const VoterRecord::Key &);
 };
-
 
 #endif /* VOTERFILE_H_ */

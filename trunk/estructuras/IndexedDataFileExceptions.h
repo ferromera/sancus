@@ -12,4 +12,5 @@ class IndexedDataException:public std::exception{};
 class IndexedDataRecordNotFoundException:public IndexedDataException{};
 class IndexedDataNoMoreRecordsInBlockException:public IndexedDataException{};
 class IndexedDataNextException : public IndexedDataException{};
+class IndexedDataInsertException : public IndexedDataException{};
 #endif /* INDEXEDDATAFILEEXCEPTIONS_H_ */

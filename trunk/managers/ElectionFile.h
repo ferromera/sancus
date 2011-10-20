@@ -26,13 +26,17 @@
 #include "../estructuras/Uint32Key.h"
 
 class ElectionFile {
-	enum lastSearchEnum {DATE_SEARCH,DISTRICT_SEARCH,CHARGE_SEARCH,PRIMARY_SEARCH,NO_SEARCH};
-	BPlusTree<SecondaryIndexRecord<Uint32Key,ElectionRecord::Key>,ELECTION_FILE__SEC_INDEX_BLOCK_SIZE> * dateIndex;
-	BPlusTree<SecondaryIndexRecord<ChargeRecord::Key,ElectionRecord::Key>,ELECTION_FILE__SEC_INDEX_BLOCK_SIZE> * chargeIndex;
-	BPlusTree<SecondaryIndexRecord<DistrictRecord::Key,ElectionRecord::Key>,ELECTION_FILE__SEC_INDEX_BLOCK_SIZE> * districtIndex;
+	enum lastSearchEnum {
+		DATE_SEARCH, DISTRICT_SEARCH, CHARGE_SEARCH, PRIMARY_SEARCH, NO_SEARCH
+	};
+	BPlusTree<SecondaryIndexRecord<Uint32Key, ElectionRecord::Key> , ELECTION_FILE__SEC_INDEX_BLOCK_SIZE> * dateIndex;
+	BPlusTree<SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key> , ELECTION_FILE__SEC_INDEX_BLOCK_SIZE>
+			* chargeIndex;
+	BPlusTree<SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> , ELECTION_FILE__SEC_INDEX_BLOCK_SIZE>
+			* districtIndex;
 
-	BPlusTree<PrimaryIndexRecord<ElectionRecord::Key>,ELECTION_FILE__PRI_INDEX_BLOCK_SIZE> * primaryIndex;
-	IndexedDataFile<ElectionRecord,ELECTION_FILE_DATA_BLOCK_SIZE> * dataFile;
+	BPlusTree<PrimaryIndexRecord<ElectionRecord::Key> , ELECTION_FILE__PRI_INDEX_BLOCK_SIZE> * primaryIndex;
+	IndexedDataFile<ElectionRecord, ELECTION_FILE_DATA_BLOCK_SIZE> * dataFile;
 	enum lastSearchEnum lastSearch;
 
 	Uint32Key * dateSearched;
@@ -46,6 +50,10 @@ public:
 	ElectionFile();
 
 	static ElectionFile * getInstance();
+	static void deleteInstance() {
+		delete instance;
+		instance = NULL;
+	}
 
 	void insert(const ElectionRecord &);
 	void remove(const ElectionRecord &);

@@ -10,14 +10,21 @@
 ElectionFile* ElectionFile::instance = NULL;
 
 ElectionFile::ElectionFile() {
-	dateIndex = new BPlusTree<SecondaryIndexRecord<Uint32Key, ElectionRecord::Key> , ELECTION_FILE__SEC_INDEX_BLOCK_SIZE> (ELECTION_FILE_DATE_INDEX_PATH);
-	districtIndex = new BPlusTree<SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> , ELECTION_FILE__SEC_INDEX_BLOCK_SIZE> (ELECTION_FILE_DISTRICT_INDEX_PATH);
-	chargeIndex = new BPlusTree<SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key> , ELECTION_FILE__SEC_INDEX_BLOCK_SIZE> (ELECTION_FILE_CHARGE_INDEX_PATH);
-	primaryIndex = new BPlusTree<PrimaryIndexRecord<ElectionRecord::Key> , ELECTION_FILE__PRI_INDEX_BLOCK_SIZE> (ELECTION_FILE_PRIMARY_INDEX_PATH);
+	dateIndex = new BPlusTree<SecondaryIndexRecord<Uint32Key, ElectionRecord::Key> ,
+			ELECTION_FILE__SEC_INDEX_BLOCK_SIZE> (ELECTION_FILE_DATE_INDEX_PATH);
+	districtIndex = new BPlusTree<SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> ,
+			ELECTION_FILE__SEC_INDEX_BLOCK_SIZE> (ELECTION_FILE_DISTRICT_INDEX_PATH);
+	chargeIndex = new BPlusTree<SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key> ,
+			ELECTION_FILE__SEC_INDEX_BLOCK_SIZE> (ELECTION_FILE_CHARGE_INDEX_PATH);
+	primaryIndex = new BPlusTree<PrimaryIndexRecord<ElectionRecord::Key> , ELECTION_FILE__PRI_INDEX_BLOCK_SIZE> (
+			ELECTION_FILE_PRIMARY_INDEX_PATH);
 	ElectionRecord::Key highKey;
 	highKey.setHighValue();
 	PrimaryIndexRecord<ElectionRecord::Key> lastRecord(highKey, 1);
-	primaryIndex->insert(lastRecord);
+	try {
+		primaryIndex->insert(lastRecord);
+	} catch (LeafUnicityException) {
+	}
 	dataFile = new IndexedDataFile<ElectionRecord, ELECTION_FILE_DATA_BLOCK_SIZE> (ELECTION_FILE_DATA_PATH);
 	lastSearch = NO_SEARCH;
 	dateSearched = NULL;
@@ -62,12 +69,15 @@ void ElectionFile::insert(const ElectionRecord & record) {
 		}
 	} catch (IndexedDataRecordNotFoundException e) {
 		throw FileInsertException();
+	} catch (IndexedDataInsertException e) {
+		throw FileInsertException();
 	}
 	delete primaryIndexFound;
 	SecondaryIndexRecord<Uint32Key, ElectionRecord::Key>* newDate;
 	SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key>* newDistrict;
 	SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key>* newCharge;
-	newDistrict = new SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> (record.getDistrict(), record.getKey());
+	newDistrict = new SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> (record.getDistrict(),
+			record.getKey());
 	newCharge = new SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key> (record.getCharge(), record.getKey());
 	Uint32Key dateKey = record.getDate();
 	newDate = new SecondaryIndexRecord<Uint32Key, ElectionRecord::Key> (dateKey, record.getKey());
@@ -108,10 +118,12 @@ void ElectionFile::remove(const ElectionRecord & record) {
 	SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> * deletedDistrict;
 	SecondaryIndexRecord<Uint32Key, ElectionRecord::Key>* deletedDate;
 	SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key>* deletedCharge;
-	deletedDistrict = new SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> (deletedRecord->getDistrict(), deletedRecord->getKey());
+	deletedDistrict = new SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> (deletedRecord->getDistrict(),
+			deletedRecord->getKey());
 	Uint32Key dateKey = deletedRecord->getDate();
 	deletedDate = new SecondaryIndexRecord<Uint32Key, ElectionRecord::Key> (dateKey, deletedRecord->getKey());
-	deletedCharge = new SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key> (deletedRecord->getCharge(), deletedRecord->getKey());
+	deletedCharge = new SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key> (deletedRecord->getCharge(),
+			deletedRecord->getKey());
 
 	districtIndex->remove(*deletedDistrict);
 	dateIndex->remove(*deletedDate);
@@ -150,17 +162,22 @@ void ElectionFile::update(const ElectionRecord & record) {
 		throw FileUpdateException();
 	} catch (IndexedDataRecordNotFoundException e) {
 		throw FileUpdateException();
+	} catch (IndexedDataInsertException e) {
+		throw FileUpdateException();
 	}
 	delete primaryIndexFound;
 	SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key>* oldDistrict, *newDistrict;
 	SecondaryIndexRecord<Uint32Key, ElectionRecord::Key>* oldDate, *newDate;
 	SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key>* oldCharge, *newCharge;
-	oldDistrict = new SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> (oldRecord->getDistrict(), oldRecord->getKey());
+	oldDistrict = new SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> (oldRecord->getDistrict(),
+			oldRecord->getKey());
 	Uint32Key oldDateKey(oldRecord->getDate());
 	oldDate = new SecondaryIndexRecord<Uint32Key, ElectionRecord::Key> (oldDateKey, oldRecord->getKey());
-	oldCharge = new SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key> (oldRecord->getCharge(), oldRecord->getKey());
+	oldCharge = new SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key> (oldRecord->getCharge(),
+			oldRecord->getKey());
 
-	newDistrict = new SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> (record.getDistrict(), record.getKey());
+	newDistrict = new SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> (record.getDistrict(),
+			record.getKey());
 	Uint32Key newDateKey(record.getDate());
 	newDate = new SecondaryIndexRecord<Uint32Key, ElectionRecord::Key> (newDateKey, record.getKey());
 	newCharge = new SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key> (record.getCharge(), record.getKey());
@@ -221,9 +238,9 @@ const ElectionRecord & ElectionFile::searchByDistrict(const DistrictRecord::Key 
 const ElectionRecord & ElectionFile::search(const ElectionRecord::Key & election) {
 	lastSearch = PRIMARY_SEARCH;
 	PrimaryIndexRecord<ElectionRecord::Key> indexToFind(election, 0);
-	std::cout<<indexToFind.getKey().getKey()<<endl;
+	std::cout << indexToFind.getKey().getKey() << endl;
 	indexToFind = primaryIndex->search(indexToFind);
-	std::cout<<indexToFind.getKey().getKey()<<endl;
+	std::cout << indexToFind.getKey().getKey() << endl;
 	return dataFile->search(election, indexToFind.getBlockNumber());
 }
 const ElectionRecord & ElectionFile::nextDate() {
@@ -291,9 +308,7 @@ void ElectionFile::report() {
 	primaryIndex->preOrderReport();
 }
 
-
-
- ElectionFile::~ElectionFile() {
+ElectionFile::~ElectionFile() {
 	delete dateIndex;
 	delete districtIndex;
 	delete chargeIndex;

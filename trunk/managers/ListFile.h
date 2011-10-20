@@ -45,6 +45,10 @@ class ListFile {
 public:
 
 	static ListFile * getInstance();
+	static void deleteInstance() {
+		delete instance;
+		instance = NULL;
+	}
 
 	ListFile();
 

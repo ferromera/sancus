@@ -25,7 +25,10 @@ ListFile::ListFile() {
 	ListRecord::Key highKey;
 	highKey.setHighValue();
 	PrimaryIndexRecord<ListRecord::Key> lastRecord(highKey, 1);
-	primaryIndex->insert(lastRecord);
+	try {
+		primaryIndex->insert(lastRecord);
+	} catch (LeafUnicityException) {
+	}
 	dataFile = new IndexedDataFile<ListRecord, LIST_FILE_DATA_BLOCK_SIZE> (LIST_FILE_DATA_PATH);
 	lastSearch = NO_SEARCH;
 	electionSearched = NULL;
@@ -62,6 +65,8 @@ void ListFile::insert(const ListRecord & record) {
 			primaryIndex->insert(indexToFind);
 		}
 	} catch (IndexedDataRecordNotFoundException e) {
+		throw FileInsertException();
+	} catch (IndexedDataInsertException e) {
 		throw FileInsertException();
 	}
 	delete primaryIndexFound;
@@ -144,6 +149,8 @@ void ListFile::update(const ListRecord & record) {
 	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ListRecord::Key> > e) {
 		throw FileUpdateException();
 	} catch (IndexedDataRecordNotFoundException e) {
+		throw FileUpdateException();
+	} catch (IndexedDataInsertException e) {
 		throw FileUpdateException();
 	}
 	delete primaryIndexFound;

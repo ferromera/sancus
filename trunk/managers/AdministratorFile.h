@@ -20,7 +20,10 @@ private:
 	static AdministratorFile * instance;
 public:
 	static AdministratorFile * getInstance();
-
+	static void deleteInstance(){
+		delete instance;
+		instance=NULL;
+	}
 	AdministratorFile();
 
 	void insert(const AdministratorRecord &);

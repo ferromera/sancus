@@ -21,24 +21,29 @@
 #include "../records/ChargeRecord.h"
 
 class ChargeFile {
-	enum lastSearchEnum {FATHER_SEARCH,DISTRICT_SEARCH,PRIMARY_SEARCH,NO_SEARCH};
-		BPlusTree<SecondaryIndexRecord<ChargeRecord::Key,ChargeRecord::Key>,4096> * fatherIndex;
-		BPlusTree<SecondaryIndexRecord<DistrictRecord::Key,ChargeRecord::Key>,4096> * districtIndex;
+	enum lastSearchEnum {
+		FATHER_SEARCH, DISTRICT_SEARCH, PRIMARY_SEARCH, NO_SEARCH
+	};
+	BPlusTree<SecondaryIndexRecord<ChargeRecord::Key, ChargeRecord::Key> , 4096> * fatherIndex;
+	BPlusTree<SecondaryIndexRecord<DistrictRecord::Key, ChargeRecord::Key> , 4096> * districtIndex;
 
-		BPlusTree<PrimaryIndexRecord<ChargeRecord::Key>,4096> * primaryIndex;
-		IndexedDataFile<ChargeRecord,8192> * dataFile;
-		enum lastSearchEnum lastSearch;
+	BPlusTree<PrimaryIndexRecord<ChargeRecord::Key> , 4096> * primaryIndex;
+	IndexedDataFile<ChargeRecord, 8192> * dataFile;
+	enum lastSearchEnum lastSearch;
 
-		ChargeRecord::Key * fatherSearched;
-		DistrictRecord::Key * districtSearched;
-		ChargeRecord * found;
+	ChargeRecord::Key * fatherSearched;
+	DistrictRecord::Key * districtSearched;
+	ChargeRecord * found;
 
-
-		static ChargeFile * instance;
+	static ChargeFile * instance;
 
 public:
 	ChargeFile();
 	static ChargeFile * getInstance();
+	static void deleteInstance() {
+		delete instance;
+		instance = NULL;
+	}
 
 	void insert(const ChargeRecord &);
 	void remove(const ChargeRecord &);
