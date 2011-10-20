@@ -20,15 +20,16 @@
 #include "../managers/ChargeFile.h"
 #include "../managers/ElectionFile.h"
 #include "../utils/StringUtils.h"
+#include "../utils/Logger.h"
 
 using namespace std;
 
 #define ARGENTINA "Argentina"
 
-#define NUMERO_DE_PROVINCIAS  23
-#define NUMERO_DE_MUNICIPIOS  50
-#define NUMERO_DE_VOTANTES_POR_MUNICIPIO  10000
-#define NUMERO_DE_LISTAS_POR_ELECCION  10000
+#define NUMERO_DE_PROVINCIAS  2
+#define NUMERO_DE_MUNICIPIOS  2
+#define NUMERO_DE_VOTANTES_POR_MUNICIPIO  10
+#define NUMERO_DE_LISTAS_POR_ELECCION  10
 #define DOCUMENTO_BASE  20000000
 
 #define NOMBRE_BASE_PROVINCIAS  "Provincia"
@@ -78,8 +79,21 @@ public:
 	}
 
 	void GenerateElection() {
+		Logger::getInstance()->info("SE CARGAN LOS DISTRITOS");
+		Logger::getInstance()->info("*************************************************************************");
+
 		loadDistricts();
+
+		Logger::getInstance()->info("SE TERMINO DE CARGAR LOS DISTRITOS");
+		Logger::getInstance()->info("*************************************************************************");
+
+		Logger::getInstance()->info("SE CARGAN LOS CARGOS");
+		Logger::getInstance()->info("*************************************************************************");
+
 		loadCharges();
+
+		Logger::getInstance()->info("*************************************************************************");
+
 	}
 
 	//GENERA DISTRITOS Y VOTANTES
@@ -105,6 +119,8 @@ public:
 				municipioRecord = new DistrictRecord(municipio, provincia);
 
 				loadVoters(municipioRecord);
+
+				districts->insert(*municipioRecord);
 
 				delete (municipioRecord);
 			}
@@ -166,6 +182,8 @@ public:
 
 	//CARGA elecciones, listas ,cargos, conteo, candidatos para un distrito
 	void loadChargeForDistrict(string chargesArray[], unsigned int numberOfCharges, DistrictRecord & district) {
+		Logger::getInstance()->info("SE CARGAN LOS CARGOS PARA EL DISTRITO "+ district.getKey().getString());
+		Logger::getInstance()->info("*************************************************************************");
 
 		ChargeRecord * fatherRecord = new ChargeRecord(chargesArray[0], district.getDistrictName());
 		charges->insert(*fatherRecord);
@@ -182,6 +200,9 @@ public:
 
 			charges->insert(*childRecord);
 
+			Logger::getInstance()->info("SE CARGAN LOS CANDIDATOS PARA EL CARGO "+ chargesArray[i]);
+			Logger::getInstance()->info("*************************************************************************");
+
 			loadCandidates(election, childRecord);
 
 			delete (childRecord);
@@ -192,6 +213,9 @@ public:
 	}
 
 	ElectionRecord * loadElection(ChargeRecord * charge, DistrictRecord & district) {
+		Logger::getInstance()->info("SE CARGA LA ELECCION PARA EL CARGO "+ charge->getKey().getString() + " Y DISTRITO: "+ district.getDistrictName());
+		Logger::getInstance()->info("*************************************************************************");
+
 		ElectionRecord * election = new ElectionRecord(this->date, charge->getKey(), district.getKey());
 
 		elections->insert(*election);
@@ -204,8 +228,11 @@ public:
 	void loadList(ElectionRecord * election) {
 		ListRecord * listRecord;
 
+		Logger::getInstance()->info("SE CARGAN LISTAS PARA LA ELECCION ");
+		Logger::getInstance()->info("*************************************************************************");
+
 		for (unsigned int i = 0; i < NUMERO_DE_LISTAS_POR_ELECCION; i++) {
-			string list = NOMBRE_BASE_LISTA + StringUtils::intToString(i);
+			string list = NOMBRE_BASE_LISTA + election->getCharge().getString() + StringUtils::intToString(i);
 			listRecord = new ListRecord(election->getKey(), NOMBRE_BASE_LISTA);
 
 			lists->insert(*listRecord);

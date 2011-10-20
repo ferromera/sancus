@@ -6,7 +6,7 @@
 #include "Logger.h"
 Logger* Logger::logger = NULL;
 #define _PROD_ true
-#define _DATE_ false
+#define _DATE_ true
 #define _INFO_ true
 #define _WARN_ true
 #define _ERROR_ true
