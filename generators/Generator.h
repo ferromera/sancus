@@ -79,6 +79,7 @@ public:
 
 	void generate() {
 		loadDistricts();
+		loadCharges();
 	}
 
 private:
@@ -141,7 +142,7 @@ private:
 			disList.clear();
 			districts->search(lastSearched);
 			try {
-				//disList.push_back(districts->next());
+				disList.push_back(districts->next());
 				while (disList.back().hasFather()) {
 					disList.push_back(districts->search(disList.back().getFather()));
 				}
@@ -238,9 +239,9 @@ private:
 		while (true) {
 			DistrictRecord::Key lastSearched = disList.front().getKey();
 			disList.clear();
-			//districts.search(lastSearched);
+			districts.search(lastSearched);
 			try {
-				//disList.push_back(districts->next());
+				disList.push_back(districts->next());
 				while (disList.back().hasFather()) {
 					disList.push_back(districts->search(disList.back().getFather()));
 				}
