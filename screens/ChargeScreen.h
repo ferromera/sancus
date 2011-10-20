@@ -23,6 +23,7 @@ private:
 	char chargeCandidate();
 	char chargeCharge();
 	char chargeCounting();
+	char chargeAdministrator();
 	char doQuestion();
 	bool validateDNI(uint32_t dni);
 };

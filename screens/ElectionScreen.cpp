@@ -18,19 +18,23 @@ void ElectionScreen::draw()
 	VoteApp* app = VoteApp::getInstance();
 	VoterRecord user = app->getUserLogin();
 	std::cout<<"Bienvenido "<< user.getName() <<" al sistema de voto electronico."<<std::endl;
+	std::cout<<"Ciudad " <<user.getDistrict().getString()<< " Domicilio" <<user.getAddress()<<std::endl;
 	std::cout<<"Abajo observara la elecciones en las cual debe votar"<<std::endl;
 
 	std::list<DistrictRecord::Key> keysOfDistrict;
 	std::list<ElectionRecord> keysOfElection;
 	DistrictRecord distRecord;
 	DistrictFile* dFile = DistrictFile::getInstance();
+	DistrictRecord::Key dKey = DistrictRecord::Key(user.getDistrict().getString());
 	ElectionFile* electionFile = ElectionFile::getInstance();
 	try
 	{
-		distRecord = dFile->search(user.getDistrict());
+		distRecord = dFile->search(dKey);
+		//std::cout<<"Distrito "<< distRecord.getKey().getKey()<<std::endl;
 	}
 	catch(FileSearchException &e)
 	{
+		std::cout<<"Distrito "<<std::endl;
 	}
 	while(distRecord.hasFather())
 	{
@@ -43,7 +47,8 @@ void ElectionScreen::draw()
 			{
 			}
 	}
-	keysOfDistrict.push_back(distRecord.getKey());
+	//keysOfDistrict.push_back(distRecord.getKey());
+	//std::cout<<"Distrito "<< distRecord.getDistrictName()<<std::endl;
 
 	std::list<DistrictRecord::Key>::iterator itDistrict = keysOfDistrict.begin();
 	while(itDistrict != keysOfDistrict.end())

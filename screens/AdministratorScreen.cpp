@@ -23,6 +23,7 @@ void AdministratorScreen::draw()
 	std::cout<<"2- Modificación de Datos"<<std::endl;
 	std::cout<<"3- Baja de Datos"<<std::endl;
 	std::cout<<"4- Consulta de Datos"<<std::endl;
+	std::cout<<"5- Salir del sistema"<<std::endl;
 	std::cout<<""<<std::endl;
 	while(true)
 	{
@@ -33,6 +34,7 @@ void AdministratorScreen::draw()
 				case 2: app->setActualScreen(MOD_SCREEN);return;
 				case 3: app->setActualScreen(BAJA_SCREEN);return;
 				case 4: app->setActualScreen(CONSULTA_SCREEN);return;
+				case 5: app->setActualScreen(LOGIN_SCREEN);return;
 				default:std::cout<<"Opcion Incorrecta, eliga nuevamente"<<std::endl;
 		}
 	}
