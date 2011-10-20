@@ -10,15 +10,15 @@
 ElectionFile* ElectionFile::instance = NULL;
 
 ElectionFile::ElectionFile() {
-	dateIndex = new BPlusTree<SecondaryIndexRecord<Uint32Key, ElectionRecord::Key> , 4096> (ELECTION_FILE_DATE_INDEX_PATH);
-	districtIndex = new BPlusTree<SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> , 4096> (ELECTION_FILE_DISTRICT_INDEX_PATH);
-	chargeIndex = new BPlusTree<SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key> , 4096> (ELECTION_FILE_CHARGE_INDEX_PATH);
-	primaryIndex = new BPlusTree<PrimaryIndexRecord<ElectionRecord::Key> , 4096> (ELECTION_FILE_PRIMARY_INDEX_PATH);
+	dateIndex = new BPlusTree<SecondaryIndexRecord<Uint32Key, ElectionRecord::Key> , ELECTION_FILE__SEC_INDEX_BLOCK_SIZE> (ELECTION_FILE_DATE_INDEX_PATH);
+	districtIndex = new BPlusTree<SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> , ELECTION_FILE__SEC_INDEX_BLOCK_SIZE> (ELECTION_FILE_DISTRICT_INDEX_PATH);
+	chargeIndex = new BPlusTree<SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key> , ELECTION_FILE__SEC_INDEX_BLOCK_SIZE> (ELECTION_FILE_CHARGE_INDEX_PATH);
+	primaryIndex = new BPlusTree<PrimaryIndexRecord<ElectionRecord::Key> , ELECTION_FILE__PRI_INDEX_BLOCK_SIZE> (ELECTION_FILE_PRIMARY_INDEX_PATH);
 	ElectionRecord::Key highKey;
 	highKey.setHighValue();
 	PrimaryIndexRecord<ElectionRecord::Key> lastRecord(highKey, 1);
 	primaryIndex->insert(lastRecord);
-	dataFile = new IndexedDataFile<ElectionRecord, 8192> (ELECTION_FILE_DATA_PATH);
+	dataFile = new IndexedDataFile<ElectionRecord, ELECTION_FILE_DATA_BLOCK_SIZE> (ELECTION_FILE_DATA_PATH);
 	lastSearch = NO_SEARCH;
 	dateSearched = NULL;
 	districtSearched = NULL;

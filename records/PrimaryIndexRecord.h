@@ -52,8 +52,9 @@ public:
 
 template<class primaryKey>
 PrimaryIndexRecord<primaryKey>::PrimaryIndexRecord(char ** input){
-	key_=NULL;
-	read(input);
+	key_= new Key(input);
+	memcpy(&blockNumber_,*input,4);
+	(*input)+=4;
 }
 
 template<class primaryKey>
