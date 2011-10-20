@@ -40,8 +40,7 @@ public:
 
 		table = new HashTable<StudentRecord, 512> (path, 20, 1000);
 
-		assertTrue(MathUtils::isPrime(table->getSize()), "testCreate",
-				"El tamaño de la tabla debe ser primo");
+		assertTrue(MathUtils::isPrime(table->getSize()), "testCreate", "El tamaño de la tabla debe ser primo");
 	}
 
 	void testLoad() {
@@ -53,8 +52,7 @@ public:
 		StudentRecord::Key * k = new StudentRecord::Key(id);
 		StudentRecord record = table->get(*k);
 		cout << "Se recupero el student con id: " << record.idNumber() << endl;
-		assertTrue(record.idNumber() == id, "testGet",
-				"No se encontrol el student");
+		assertTrue(record.idNumber() == id, "testGet", "No se encontrol el student");
 	}
 
 	void testInsertAndGet() {
@@ -66,8 +64,7 @@ public:
 
 		StudentRecord record2 = table->get(record->getKey());
 
-		assertTrue((*record) == (record2), "testInsertAndGet",
-				"Los records no son iguales");
+		assertTrue((*record) == (record2), "testInsertAndGet", "Los records no son iguales");
 	}
 
 	void testRemoveRecord() {
@@ -135,8 +132,7 @@ public:
 			for (int i = 1; i < 1000; i++) {
 				StudentRecord::Key * k = new StudentRecord::Key(i);
 				StudentRecord record = table->get(*k);
-				cout << "Se recupero el student con id: " << record.idNumber()
-						<< endl;
+				cout << "Se recupero el student con id: " << record.idNumber() << endl;
 				delete (k);
 			}
 		} catch (RecordNotFoundException & ex) {
@@ -144,29 +140,45 @@ public:
 		}
 	}
 
-	void testUpdate(){
-		table2 = new HashTable<DistrictRecord, 4096>("DistrictFileHashTable", 40, 400);
+	void testUpdate() {
+		table2 = new HashTable<DistrictRecord, 4096> ("DistrictFileHashTable.bin", 40, 400);
 
-		try{
+		try {
 			DistrictRecord * record = new DistrictRecord("Pacheco", "Buenos Aires");
 			table2->insert(*record);
 
 			DistrictRecord recordFromFile = table2->get(record->getKey());
-			assertTrue(recordFromFile.getDistrictName() == record->getDistrictName(),"testGet", "Los nombres de los distritos no son iguales");
-			assertTrue(recordFromFile.getFatherName() == record->getFatherName(), "testGet", "Los nombres de los padres no son iguales");
+			assertTrue(recordFromFile.getDistrictName() == record->getDistrictName(), "testGet",
+							"Los nombres de los distritos no son iguales");
+			assertTrue(recordFromFile.getFatherName() == record->getFatherName(), "testGet",
+							"Los nombres de los padres no son iguales");
 
 			recordFromFile.setFatherName("Catamarca");
 
 			table2->update(recordFromFile);
 
-			DistrictRecord updatedRecord  = table2->get(recordFromFile.getKey());
+			DistrictRecord updatedRecord = table2->get(recordFromFile.getKey());
 
-			assertTrue(recordFromFile.getDistrictName() == updatedRecord.getDistrictName(),"testUpdate", "Los nombres de los distritos no son iguales");
-			assertTrue(recordFromFile.getFatherName() == updatedRecord.getFatherName(), "testUpdate", "Los nombres de los padres no son iguales");
+			assertTrue(recordFromFile.getDistrictName() == updatedRecord.getDistrictName(), "testUpdate",
+							"Los nombres de los distritos no son iguales");
+			assertTrue(recordFromFile.getFatherName() == updatedRecord.getFatherName(), "testUpdate",
+							"Los nombres de los padres no son iguales");
 
-		}catch (RecordNotFoundException & ex) {
+		} catch (RecordNotFoundException & ex) {
 			cout << "Se lanzo la exception RecordNotFoundException" << endl;
 		}
+	}
+
+	void testDistrictLoad() {
+		string path = "DistrictFileHashTable.bin";
+
+		this->table2 = new HashTable<DistrictRecord, 4096> ("DistrictFileHashTable");
+
+		std::string id = "Pacheco";
+		DistrictRecord::Key * k = new DistrictRecord::Key(id);
+		DistrictRecord record = table2->get(*k);
+		std::cout << "Se recupero el district con id: " << record.getDistrictName() << endl;
+		assertTrue(record.getDistrictName() == id, "testGet", "No se encontrol el district");
 	}
 };
 
