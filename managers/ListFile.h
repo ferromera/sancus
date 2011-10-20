@@ -8,7 +8,6 @@
 #ifndef LISTFILE_H_
 #define LISTFILE_H_
 
-
 #define LIST_FILE_NAME_INDEX_PATH "./ListFileNameIndex.bin"
 #define LIST_FILE_ELECTION_INDEX_PATH "./ListFileElectionIndex.bin"
 #define LIST_FILE_PRIMARY_INDEX_PATH "./ListFilePrimaryIndex.bin"
@@ -21,19 +20,25 @@
 #include "../records/PrimaryIndexRecord.h"
 #include "../records/ListRecord.h"
 
-class ListFile{
-	enum lastSearchEnum {ELECTION_SEARCH,NAME_SEARCH,PRIMARY_SEARCH,NO_SEARCH};
-	BPlusTree<SecondaryIndexRecord<ElectionRecord::Key,ListRecord::Key>,4096> * electionIndex;
-	BPlusTree<SecondaryIndexRecord<StringKey,ListRecord::Key>,4096> * nameIndex;
+#define LIST_FILE__SEC_INDEX_BLOCK_SIZE 1024
+#define LIST_FILE__PRI_INDEX_BLOCK_SIZE 512
+#define LIST_FILE_DATA_BLOCK_SIZE 1024
 
-	BPlusTree<PrimaryIndexRecord<ListRecord::Key>,4096> * primaryIndex;
-	IndexedDataFile<ListRecord,8192> * dataFile;
+class ListFile {
+	enum lastSearchEnum {
+		ELECTION_SEARCH, NAME_SEARCH, PRIMARY_SEARCH, NO_SEARCH
+	};
+	BPlusTree<SecondaryIndexRecord<ElectionRecord::Key, ListRecord::Key> , LIST_FILE__SEC_INDEX_BLOCK_SIZE>
+			* electionIndex;
+	BPlusTree<SecondaryIndexRecord<StringKey, ListRecord::Key> , LIST_FILE__SEC_INDEX_BLOCK_SIZE> * nameIndex;
+
+	BPlusTree<PrimaryIndexRecord<ListRecord::Key> , LIST_FILE__PRI_INDEX_BLOCK_SIZE> * primaryIndex;
+	IndexedDataFile<ListRecord, LIST_FILE_DATA_BLOCK_SIZE> * dataFile;
 	enum lastSearchEnum lastSearch;
 
 	ElectionRecord::Key * electionSearched;
 	StringKey * nameSearched;
 	ListRecord * found;
-
 
 	static ListFile * instance;
 
@@ -58,5 +63,4 @@ public:
 };
 
 #endif /* LISTFILE_H_ */
-
 

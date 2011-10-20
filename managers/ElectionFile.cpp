@@ -221,7 +221,9 @@ const ElectionRecord & ElectionFile::searchByDistrict(const DistrictRecord::Key 
 const ElectionRecord & ElectionFile::search(const ElectionRecord::Key & election) {
 	lastSearch = PRIMARY_SEARCH;
 	PrimaryIndexRecord<ElectionRecord::Key> indexToFind(election, 0);
+	std::cout<<indexToFind.getKey().getKey()<<endl;
 	indexToFind = primaryIndex->search(indexToFind);
+	std::cout<<indexToFind.getKey().getKey()<<endl;
 	return dataFile->search(election, indexToFind.getBlockNumber());
 }
 const ElectionRecord & ElectionFile::nextDate() {
