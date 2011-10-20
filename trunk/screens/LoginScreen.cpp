@@ -63,6 +63,9 @@ void  LoginScreen::draw()
 	bool incorrectPassword = true;
 	std::cout<<""<<std::endl;
 
+	//std::cout<<"Usuario " << adminUser.getUser() <<std::endl;
+	//std::cout<<"Contraseña " << adminUser.getPassword() <<std::endl;
+
 	while(incorrectPassword)
 	{
 		std::cout<<"Porfavor ingrese contraseña y presione enter"<<std::endl;

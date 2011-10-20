@@ -16,6 +16,8 @@
 #include "../records/ChargeRecord.h"
 #include "../managers/ElectionFile.h"
 #include "../managers/ChargeFile.h"
+#include "../managers/AdministratorFile.h"
+#include "../records/AdministratorRecord.h"
 #include <cstdio>
 
 ChargeScreen::ChargeScreen() {
@@ -35,7 +37,8 @@ void ChargeScreen::draw()
 	std::cout<<"5- Archivo de Listas"<<std::endl;
 	std::cout<<"6- Archivo de Cargos"<<std::endl;
 	std::cout<<"7- Archivo de Conteo"<<std::endl;
-	std::cout<<"8- Volver a pantalla anterior"<<std::endl;
+	std::cout<<"8- Archivo de Administrador"<<std::endl;
+	std::cout<<"10- Volver a pantalla anterior"<<std::endl;
 	std::cout<<""<<std::endl;
 	while(true)
 	{
@@ -49,7 +52,8 @@ void ChargeScreen::draw()
 				case 5: while(chargeList() == 'S'){};return;
 				case 6: while(chargeCharge() == 'S'){};return;
 				case 7: while(chargeCounting() == 'S'){};return;
-				case 8: app->setActualScreen(ADM_SCREEN);return;
+				case 8: while(chargeAdministrator() == 'S'){};return;
+				case 9: app->setActualScreen(ADM_SCREEN);return;
 				default:std::cout<<"Opcion Incorrecta, eliga nuevamente"<<std::endl;
 		}
 	}
@@ -80,6 +84,8 @@ char ChargeScreen::chargeDistrict()
 		try
 		{
 			DistrictRecord dRecordReturned = dFile->search(keyFather);
+			if(dRecordReturned.getKey() != keyFather)
+				throw FileSearchException();
 		}
 		catch(FileSearchException e)
 		{
@@ -215,6 +221,8 @@ char ChargeScreen::chargeElection()
 	try
 	{
 		cRecord = cFile->search(chargeKey);
+		if(cRecord.getKey() != chargeKey)
+			throw FileSearchException();
 	}catch(FileSearchException e)
 	{
 		std::cout<<"Error el Cargo "<<cargo<<" con el distrito "<< distrito<<" no existe en el archivo de Cargos "<<std::endl;
@@ -236,7 +244,7 @@ char ChargeScreen::chargeElection()
 	}
 
 	std::cout<<"Se inserto correctamente el siguiente Registo eleccion: ";
-	std::cout<<record.getKey().getString()<<std::endl;
+	std::cout<<record.getKey().getDate()<<"/"<<record.getKey().getCharge().getCharge()<<"/"<<record.getKey().getCharge().getDistrict().getString()<<std::endl;
 
 
 	std::cout<<""<<std::endl;
@@ -428,18 +436,21 @@ char ChargeScreen::chargeCharge()
 	DistrictFile* dFile = DistrictFile::getInstance();
 	ChargeFile* cFile = ChargeFile::getInstance();
 	ChargeRecord::Key chargeKeyFather;
-	DistrictRecord dRecord = DistrictRecord(distrito);
+	DistrictRecord dRecord;
+	DistrictRecord::Key dKey = DistrictRecord::Key(distrito);
 	ChargeRecord chargeFatherRecord;
 	ChargeRecord record;
 	try
 	{
-		DistrictRecord distritRecord = dFile->search(dRecord.getKey());
+		dRecord = dFile->search(dKey);
+		if(dRecord.getKey() != dKey)
+			throw FileSearchException();
 	}
 	catch(FileSearchException e)
 	{
 		std::cout<<"Error el distrito ingresado es inexistente"<<std::endl;
 		std::cout<<""<<std::endl;
-		std::cout<<"Quiere agregar otro registro al archivo de Distritos S/N"<<std::endl;
+		std::cout<<"Quiere agregar otro registro al archivo de Cargos S/N"<<std::endl;
 		return doQuestion();
 	}
 
@@ -449,12 +460,14 @@ char ChargeScreen::chargeCharge()
 		try
 		{
 			chargeFatherRecord = cFile->search(chargeKeyFather);
+			if(chargeFatherRecord.getKey() != chargeKeyFather)
+				throw FileSearchException();
 		}
 		catch(FileSearchException e)
 		{
 			std::cout<<"Error el cargo padre ingresado es inexistente"<<std::endl;
 			std::cout<<""<<std::endl;
-			std::cout<<"Quiere agregar otro registro al archivo de Distritos S/N"<<std::endl;
+			std::cout<<"Quiere agregar otro registro al archivo de Cargos S/N"<<std::endl;
 			return doQuestion();
 		}
 		record = ChargeRecord(charge,dRecord.getKey(),chargeFatherRecord.getChargeName(),chargeFatherRecord.getDistrict());
@@ -583,6 +596,42 @@ char ChargeScreen::chargeCounting()
 	std::cout<<"Quiere agregar otro registro al archivo de Listas S/N"<<std::endl;
 	return doQuestion();
 
+}
+char ChargeScreen::chargeAdministrator()
+{
+	uint32_t usuario;
+	std::string password;
+
+	system("clear");
+	std::cout<<"Alta de un registro del Archivo de Administrador"<<std::endl;
+	std::cout<<""<<std::endl;
+	std::cout<<"Ingrese el codigo de ususario y presione ENTER"<<std::endl;
+	std::cout<<""<<std::endl;
+	usuario = IstreamUtils::getUint();
+	std::cout<<""<<std::endl;
+	std::cout<<"Ingrese la contraseña y presione ENTER"<<std::endl;
+	std::cout<<""<<std::endl;
+	password = IstreamUtils::getString();
+
+	AdministratorFile *aFile = AdministratorFile::getInstance();
+	AdministratorRecord record = AdministratorRecord(usuario,password);
+	try
+	{
+		aFile->insert(record);
+	}catch(FileInsertException)
+	{
+		std::cout<<"Error el Registro ya existe"<<std::endl;
+		std::cout<<""<<std::endl;
+		std::cout<<"Quiere agregar otro registro al archivo de Administrador S/N"<<std::endl;
+		return doQuestion();
+	}
+	std::cout<<"Se inserto correctamente el siguiente Registo Administrador: ";
+	std::cout<<record.getKey().getUint()<<std::endl;
+
+
+	std::cout<<""<<std::endl;
+	std::cout<<"Quiere agregar otro registro al archivo de Administrador S/N"<<std::endl;
+	return doQuestion();
 }
 char ChargeScreen::doQuestion()
 {
