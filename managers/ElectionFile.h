@@ -61,38 +61,3 @@ public:
 };
 
 #endif /* ELECTIONFILE_H_ */
-
-
-
-class ChargeFile {
-	enum lastSearchEnum {FATHER_SEARCH,DISTRICT_SEARCH,PRIMARY_SEARCH,NO_SEARCH};
-		BPlusTree<SecondaryIndexRecord<ChargeRecord::Key,ChargeRecord::Key>,4096> * fatherIndex;
-		BPlusTree<SecondaryIndexRecord<DistrictRecord::Key,ChargeRecord::Key>,4096> * districtIndex;
-
-		BPlusTree<PrimaryIndexRecord<ChargeRecord::Key>,4096> * primaryIndex;
-		IndexedDataFile<ChargeRecord,8192> * dataFile;
-		enum lastSearchEnum lastSearch;
-
-		ChargeRecord::Key * fatherSearched;
-		DistrictRecord::Key * districtSearched;
-		ChargeRecord * found;
-
-
-		static ChargeFile * instance;
-
-public:
-	ChargeFile();
-	static ChargeFile * getInstance();
-
-	void insert(const ChargeRecord &);
-	void remove(const ChargeRecord &);
-	void update(const ChargeRecord &);
-	const ChargeRecord & searchByFather(const ChargeRecord::Key & father);
-	const ChargeRecord & searchByDistrict(const DistrictRecord::Key & district);
-	const ChargeRecord & search(const ChargeRecord::Key & charge);
-	const ChargeRecord & nextFather();
-	const ChargeRecord & nextDistrict();
-	const ChargeRecord & next();
-	void report();
-	virtual ~ChargeFile();
-};

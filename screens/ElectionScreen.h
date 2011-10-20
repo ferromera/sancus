@@ -9,6 +9,7 @@
 #define ELECTIONSCREEN_H_
 
 #include "Drawable.h"
+#include "../core/VoteApp.h"
 //#include "../records/ElectionRecord.h"
 #include <list>
 
@@ -17,9 +18,9 @@ public:
 	ElectionScreen();
 	void draw();
 private:
-	//std::list<ElectionRecord> elections;
-	//std::list<ElectionRecord>::iterator getElectionNumber(unsigned int);
-	//bool isAValidElection(ElectionRecord);
+	std::list<ElectionRecord> elections;
+	std::list<ElectionRecord>::iterator getElectionNumber(unsigned int);
+	bool isAValidElection(ElectionRecord);
 };
 
 #endif /* ELECTIONSCREEN_H_ */

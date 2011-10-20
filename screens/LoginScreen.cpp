@@ -61,11 +61,7 @@ void  LoginScreen::draw()
 		}
 	}
 	bool incorrectPassword = true;
-
 	std::cout<<""<<std::endl;
-
-	std::cout<<""<<std::endl;
-	std::cout<<"la clave del usuario es "<<user.getDni()<< std::endl;
 
 	while(incorrectPassword)
 	{

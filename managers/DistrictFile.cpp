@@ -7,6 +7,7 @@
 
 #include "DistrictFile.h"
 #include "FileManagerExceptions.h"
+#include "../estructuras/IndexedDataFileExceptions.h"
 
 DistrictFile* DistrictFile::instance = NULL;
 
@@ -18,10 +19,15 @@ DistrictFile * DistrictFile::getInstance(){
 
 DistrictFile::DistrictFile() {
 	//TODO: AGREGAR VALIDACION DE SI EXISTE EL FILE O NO.
-
-	this->table = new HashTable<DistrictRecord, 4096> (DISTRICT_FILE_DATA_PATH,
-			DISTRICT_FILE_RECORDS_PER_BUCKET,
-			DISTRICT_FILE_MAX_NUMBER_OF_RECORDS);
+	try
+	{
+		this->table = new HashTable<DistrictRecord, 4096> (DISTRICT_FILE_DATA_PATH);
+	}catch(OpenFileException e)
+	{
+		this->table = new HashTable<DistrictRecord, 4096> (DISTRICT_FILE_DATA_PATH,
+				DISTRICT_FILE_RECORDS_PER_BUCKET,
+				DISTRICT_FILE_MAX_NUMBER_OF_RECORDS);
+	}
 }
 
 void DistrictFile::insert(const DistrictRecord & district) {
