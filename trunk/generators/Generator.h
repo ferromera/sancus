@@ -233,7 +233,7 @@ public:
 
 		for (unsigned int i = 0; i < NUMERO_DE_LISTAS_POR_ELECCION; i++) {
 			string list = NOMBRE_BASE_LISTA + election->getCharge().getString() + StringUtils::intToString(i);
-			listRecord = new ListRecord(election->getKey(), NOMBRE_BASE_LISTA);
+			listRecord = new ListRecord(election->getKey(), list);
 
 			lists->insert(*listRecord);
 
