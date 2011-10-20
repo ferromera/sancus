@@ -7,7 +7,6 @@ class BPlusTreeException: public std::exception{};
 class LeafOverflowException:public BPlusTreeException{};
 class LeafUnderflowException:public BPlusTreeException{};
 class LeafUnicityException:public BPlusTreeException{};
-class LeafNotFoundException:public BPlusTreeException{};
 class BPTreeRecordSizeException: public BPlusTreeException{};
 class LeafRecordNotFoundException: public BPlusTreeException{};
 template<class TKey>
@@ -41,5 +40,5 @@ public:
 };
 //class ThereIsNoGreaterRecordException:public BPlusTreeException{};
 class BPTreeInvalidCreationModeException:public BPlusTreeException{};
-class BPlusTreeNextMustNotBeCalledAfterAModifyingMethodException :public BPlusTreeException{};
+class BPlusTreeNextException :public BPlusTreeException{};
 #endif // BPLUSTREEEXCEPTIONS_H_INCLUDED
