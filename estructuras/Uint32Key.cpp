@@ -30,12 +30,12 @@ void Uint32Key::setKey(const Record::Key & rk){
 
 }
 void Uint32Key::read(char ** input){
-    memcpy(&buffer,*input,2);
-    (*input)+=2;
+    memcpy(&buffer,*input,4);
+    (*input)+=4;
 }
 void Uint32Key::write(char ** output)const{
-    memcpy(*output,&buffer,2);
-    (*output)+=2;
+    memcpy(*output,&buffer,4);
+    (*output)+=4;
 }
 bool Uint32Key::operator <(const Record::Key &rk)const{
     const Uint32Key & ik= dynamic_cast<const Uint32Key &>(rk);

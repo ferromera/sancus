@@ -15,7 +15,6 @@ class Uint32Key: public Record::Key{
         uint32_t buffer;
     public:
         static const bool isVariable=false;
-        static const unsigned int fixedSize=2;
         static const bool isString=false;
         Uint32Key(char ** input); //Load the key from input.
         Uint32Key(uint32_t key=0);
@@ -37,7 +36,7 @@ class Uint32Key: public Record::Key{
         Record::Key & operator=(const Record::Key & rk);
         Uint32Key & operator=(const Uint32Key & rk);
         Uint32Key & operator=(uint32_t i);
-        unsigned int size()const{ return 2; }
+        unsigned int size()const{ return 4; }
         ~Uint32Key(){}
     };
 
