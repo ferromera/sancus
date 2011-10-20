@@ -13,9 +13,9 @@ Logger* Logger::logger = NULL;
 #define _DEB_ true
 
 Logger::Logger() {
-	ioFile.open("parser.log", std::ios_base::in);
+	ioFile.open("votantes.log", std::ios_base::in);
 	ioFile.close();
-	ioFile.open("parser.log", std::ios_base::out);
+	ioFile.open("votantes.log", std::ios_base::out);
 }
 
 Logger* Logger::getInstance(){
