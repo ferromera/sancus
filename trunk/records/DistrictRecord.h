@@ -40,6 +40,7 @@ public:
 	void setKey(std::string k);
 	void read(char ** input);
 	void write(char ** output);
+	DistrictRecord():Record(){}
 	DistrictRecord(char ** input);
 	DistrictRecord(const DistrictRecord &k);
 	DistrictRecord(const DistrictRecord::Key &k);
