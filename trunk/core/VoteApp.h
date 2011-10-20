@@ -14,6 +14,8 @@
 #include "../utils/Time.h"
 #include "../managers/VoterFile.h"
 #include "../managers/AdministratorFile.h"
+#include "../managers/DistrictFile.h"
+#include "../managers/ElectionFile.h"
 #include "../records/ElectionRecord.h"
 #include "../screens/Drawable.h"
 #define LOGIN_SCREEN 0

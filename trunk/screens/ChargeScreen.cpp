@@ -12,7 +12,10 @@
 //#include "../records/DistrictRecord.h"
 #include "../managers/VoterFile.h"
 #include "../records/VoterRecord.h"
-//#include "../records/ElectionRecord.h"
+#include "../records/ElectionRecord.h"
+#include "../records/ChargeRecord.h"
+#include "../managers/ElectionFile.h"
+#include "../managers/ChargeFile.h"
 #include <cstdio>
 
 ChargeScreen::ChargeScreen() {
@@ -205,12 +208,13 @@ char ChargeScreen::chargeElection()
 	std::cout<<""<<std::endl;
 	distrito = IstreamUtils::getString();
 	std::cout<<""<<std::endl;
-	/*
+
 	ChargeRecord::Key chargeKey = ChargeRecord::Key(cargo,distrito);
 	ChargeFile* cFile = ChargeFile::getInstance();
+	ChargeRecord  cRecord;
 	try
 	{
-		ChargeRecord  cRecord = cFile->search(chargeKey);
+		cRecord = cFile->search(chargeKey);
 	}catch(FileSearchException e)
 	{
 		std::cout<<"Error el Cargo "<<cargo<<" con el distrito "<< distrito<<" no existe en el archivo de Cargos "<<std::endl;
@@ -220,10 +224,10 @@ char ChargeScreen::chargeElection()
 	}
 
 	ElectionFile* eFile = ElectionFile::getInstance();
-	ElectionRecord record = ElectionRecord(fecha,cRecord.getKey(),c.getDistrict());
+	ElectionRecord record = ElectionRecord(fecha,cRecord.getKey(),cRecord.getDistrict());
 	try{
 		eFile->insert(record);
-	}catch(DuplicateRecordException)
+	}catch(FileInsertException)
 	{
 		std::cout<<"Error el Registro ya existe"<<std::endl;
 		std::cout<<""<<std::endl;
@@ -233,7 +237,6 @@ char ChargeScreen::chargeElection()
 
 	std::cout<<"Se inserto correctamente el siguiente Registo eleccion: ";
 	std::cout<<record.getKey().getString()<<std::endl;
-	*/
 
 
 	std::cout<<""<<std::endl;
@@ -421,11 +424,13 @@ char ChargeScreen::chargeCharge()
 	std::cout<<""<<std::endl;
 	father = IstreamUtils::getString();
 	std::cout<<""<<std::endl;
-	/*
+
 	DistrictFile* dFile = DistrictFile::getInstance();
 	ChargeFile* cFile = ChargeFile::getInstance();
 	ChargeRecord::Key chargeKeyFather;
 	DistrictRecord dRecord = DistrictRecord(distrito);
+	ChargeRecord chargeFatherRecord;
+	ChargeRecord record;
 	try
 	{
 		DistrictRecord distritRecord = dFile->search(dRecord.getKey());
@@ -437,13 +442,13 @@ char ChargeScreen::chargeCharge()
 		std::cout<<"Quiere agregar otro registro al archivo de Distritos S/N"<<std::endl;
 		return doQuestion();
 	}
-	ChargeRecord record;
+
 	if(father.compare("") != 0)
 	{
-		chargeKeyFather = ChargeRecord::Key(father);
+		chargeKeyFather = ChargeRecord::Key(father,dRecord.getKey());
 		try
 		{
-			ChargeRecord chargeFatherRecord = cFile->search(chargeKeyFather);
+			chargeFatherRecord = cFile->search(chargeKeyFather);
 		}
 		catch(FileSearchException e)
 		{
@@ -452,18 +457,18 @@ char ChargeScreen::chargeCharge()
 			std::cout<<"Quiere agregar otro registro al archivo de Distritos S/N"<<std::endl;
 			return doQuestion();
 		}
-		record = ChargeRecord(charge,district,father);
+		record = ChargeRecord(charge,dRecord.getKey(),chargeFatherRecord.getChargeName(),chargeFatherRecord.getDistrict());
 	}
 	else
 	{
-		record = ChargeRecord(charge,district);
+		record = ChargeRecord(charge,distrito);
 	}
 
 	try
 	{
 		cFile->insert(record);
 	}
-	catch(DuplicateRecordException)
+	catch(FileInsertException)
 	{
 		std::cout<<"Error el Registro ya existe"<<std::endl;
 		std::cout<<""<<std::endl;
@@ -472,7 +477,7 @@ char ChargeScreen::chargeCharge()
 	}
 	std::cout<<"Se inserto correctamente el siguiente Registo cargo: ";
 	std::cout<<record.getKey().getString()<<std::endl;
-	*/
+
 	std::cout<<""<<std::endl;
 	std::cout<<"Quiere agregar otro registro al archivo de Distritos S/N"<<std::endl;
 	return doQuestion();
