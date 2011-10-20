@@ -55,6 +55,7 @@ public:
 
     };
     unsigned int size()const;
+    ElectionRecord(){}
     ElectionRecord(char ** input);
 	ElectionRecord(const ElectionRecord & rec);
 	ElectionRecord(const ElectionRecord::Key & k);

@@ -6,8 +6,6 @@
  */
 
 #include "LoginScreen.h"
-#include "../core/VoteApp.h"
-#include "../utils/OstreamUtils.h"
 
 LoginScreen::LoginScreen() {
 }
@@ -15,7 +13,7 @@ LoginScreen::LoginScreen() {
 void  LoginScreen::draw()
 {
 	system("clear");
-	//VoterFile* voteFile = VoterFile::getInstance();
+	VoterFile* voteFile = VoterFile::getInstance();
 	VoteApp* app = VoteApp::getInstance();
 	uint32_t dni;
 	std::string clave;
@@ -43,17 +41,17 @@ void  LoginScreen::draw()
 		dni = IstreamUtils::getUint();
 		std::cout<<""<<std::endl;
 
-		if(true)//if(!validateDNI(dni))
+		if(!validateDNI(dni))
 		{
-			if(true)//if(validateAdmin(dni))
+			if(validateAdmin(dni))
 			{
 				incorrectUser = false;
 				userAdmin = true;
 			}
 			else
 			{
-				std::cout<<""<<std::endl;
 				std::cout<<"Usuario Inexistente ingrese nuevamente"<<std::endl;
+				std::cout<<""<<std::endl;
 			}
 
 		}
@@ -67,6 +65,7 @@ void  LoginScreen::draw()
 	std::cout<<""<<std::endl;
 
 	std::cout<<""<<std::endl;
+	std::cout<<"la clave del usuario es "<<user.getDni()<< std::endl;
 
 	while(incorrectPassword)
 	{
@@ -74,9 +73,9 @@ void  LoginScreen::draw()
 		std::cout<<""<<std::endl;
 		clave =  IstreamUtils::getString();
 		std::cout<<""<<std::endl;
-		if(false)
-		/*if( (!userAdmin && clave.compare(record->getPassword()) != 0)
-				|| (userAdmin && clave.compare(adminUser.getPassword != 0)) )*/
+
+		if( (!userAdmin && clave.compare(user.getUserKey()) != 0)
+				|| (userAdmin && clave.compare(adminUser.getPassword()) != 0))
 		{
 			std::cout<<""<<std::endl;
 			std::cout<<"Contraseña incorrecta"<<std::endl;
@@ -98,8 +97,8 @@ void  LoginScreen::draw()
 			}
 		}
 		else
-		{	//if(!userAdmin)
-			//app->setUserLogin(user);
+		{	if(!userAdmin)
+				app->setUserLogin(user);
 			incorrectPassword = false;
 		}
 	}
@@ -109,34 +108,30 @@ void  LoginScreen::draw()
 		app->setActualScreen(ELECTION_SCREEN);
 	return;
 }
-/*
+
 bool LoginScreen::validateDNI(uint32_t dni)
 {
 	VoterFile* voteFile = VoterFile::getInstance();
-	user = new VoterRecord(dni);
+	VoterRecord::Key voterKey = VoterRecord::Key(dni);
 	try{
-		*user  = voteFile.search(*record);
-		if(user->getDNI() == dni)
-			return true;
-		else
-			return false;
-	}catch(FileSearchException e)
-	{
-		return false;
-	}
-}
-*/
-/*
-bool LoginScreen::validateAdmin(uint32_t user)
-{
-	AdminFile* adminFile = AdminFile::getInstance();
-	AdminRecord::Key adminKey = AdminRecord(user);
-	try{
-		adminUser = adminFile.search(adminKey);
+		 user  = voteFile->search(voterKey);
 	}catch(FileSearchException e)
 	{
 		return false;
 	}
 	return true;
 }
-*/
+
+bool LoginScreen::validateAdmin(uint32_t user)
+{
+	AdministratorFile* adminFile = AdministratorFile::getInstance();
+	AdministratorRecord::Key adminKey = AdministratorRecord::Key(user);
+	try{
+		adminUser = adminFile->search(adminKey);
+	}catch(FileSearchException e)
+	{
+		return false;
+	}
+	return true;
+}
+

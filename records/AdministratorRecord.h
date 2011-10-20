@@ -27,7 +27,7 @@ public:
 		  unsigned int getUint() const {return getKey();}
 
 	 };
-
+	AdministratorRecord(){}
 	AdministratorRecord(const AdministratorRecord &);
 	AdministratorRecord(char** input);
 	AdministratorRecord(const uint32_t & user, const std::string & password);

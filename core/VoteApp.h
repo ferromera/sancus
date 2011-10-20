@@ -12,8 +12,9 @@
 #include "Runable.h"
 #include "stdint.h"
 #include "../utils/Time.h"
-//#include "../records/VoterRecord.h"
-//#include "../records/ElectionRecord.h"
+#include "../managers/VoterFile.h"
+#include "../managers/AdministratorFile.h"
+#include "../records/ElectionRecord.h"
 #include "../screens/Drawable.h"
 #define LOGIN_SCREEN 0
 #define ELECTION_SCREEN 1
@@ -31,21 +32,21 @@ public:
 	void setActualScreen(unsigned int);
 	uint32_t dni;
 	static VoteApp* getInstance();
-	/*
+
 	void setUserLogin(VoterRecord);
 	void setChooseElection(ElectionRecord);
 	VoterRecord getUserLogin();
 	ElectionRecord getChooseElection();
-	*/
+
 private:
 	std::list<Drawable*> screens;
 	std::list<Drawable*>::iterator getToScreen(unsigned int);
 	unsigned int actualScreen;
 	static VoteApp* voteApp;
-	/*
+
 	VoterRecord userLogin;
 	ElectionRecord chooseElection;
-	*/
+
 
 };
 
