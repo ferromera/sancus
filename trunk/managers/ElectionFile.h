@@ -13,6 +13,9 @@
 #define ELECTION_FILE_DISTRICT_INDEX_PATH "./ElectionFileDistrictIndex.bin"
 #define ELECTION_FILE_PRIMARY_INDEX_PATH "./ElectionFilePrimaryIndex.bin"
 #define ELECTION_FILE_DATA_PATH	"./ElectionFileData.bin"
+#define ELECTION_FILE__SEC_INDEX_BLOCK_SIZE 1024
+#define ELECTION_FILE__PRI_INDEX_BLOCK_SIZE 1024
+#define ELECTION_FILE_DATA_BLOCK_SIZE 1024
 
 #include "FileManagerExceptions.h"
 #include "../estructuras/BPlusTree.h"
@@ -24,12 +27,12 @@
 
 class ElectionFile {
 	enum lastSearchEnum {DATE_SEARCH,DISTRICT_SEARCH,CHARGE_SEARCH,PRIMARY_SEARCH,NO_SEARCH};
-	BPlusTree<SecondaryIndexRecord<Uint32Key,ElectionRecord::Key>,4096> * dateIndex;
-	BPlusTree<SecondaryIndexRecord<ChargeRecord::Key,ElectionRecord::Key>,4096> * chargeIndex;
-	BPlusTree<SecondaryIndexRecord<DistrictRecord::Key,ElectionRecord::Key>,4096> * districtIndex;
+	BPlusTree<SecondaryIndexRecord<Uint32Key,ElectionRecord::Key>,ELECTION_FILE__SEC_INDEX_BLOCK_SIZE> * dateIndex;
+	BPlusTree<SecondaryIndexRecord<ChargeRecord::Key,ElectionRecord::Key>,ELECTION_FILE__SEC_INDEX_BLOCK_SIZE> * chargeIndex;
+	BPlusTree<SecondaryIndexRecord<DistrictRecord::Key,ElectionRecord::Key>,ELECTION_FILE__SEC_INDEX_BLOCK_SIZE> * districtIndex;
 
-	BPlusTree<PrimaryIndexRecord<ElectionRecord::Key>,4096> * primaryIndex;
-	IndexedDataFile<ElectionRecord,8192> * dataFile;
+	BPlusTree<PrimaryIndexRecord<ElectionRecord::Key>,ELECTION_FILE__PRI_INDEX_BLOCK_SIZE> * primaryIndex;
+	IndexedDataFile<ElectionRecord,ELECTION_FILE_DATA_BLOCK_SIZE> * dataFile;
 	enum lastSearchEnum lastSearch;
 
 	Uint32Key * dateSearched;

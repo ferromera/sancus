@@ -21,6 +21,7 @@ class Uint32Key: public Record::Key{
         Uint32Key(const Uint32Key &);
         void setKey(uint32_t  i);
         void setKey(const Record::Key & rk);
+        unsigned int getUint()const{return getKey();}
         const uint32_t & getKey()const;
 
         void read(char ** input);
