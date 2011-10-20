@@ -18,13 +18,16 @@
 #define DISTRICT_FILE_DATA_PATH	"DistrictFileData.bin"
 #define DISTRICT_FILE_BLOCKSIZE 1024
 
-
 class DistrictFile {
 private:
-	BPlusTree<DistrictRecord,DISTRICT_FILE_BLOCKSIZE> * tree;
+	BPlusTree<DistrictRecord, DISTRICT_FILE_BLOCKSIZE> * tree;
 	static DistrictFile * instance;
 public:
 	static DistrictFile * getInstance();
+	static void deleteInstance() {
+		delete instance;
+		instance = NULL;
+	}
 
 	DistrictFile();
 
@@ -65,8 +68,5 @@ public:
 	virtual ~DistrictFile();
 };
 
-
-
 #endif  // DISTRICT_FILE_BPLUS
-
 #endif /* DISTRICTFILE_H_ */

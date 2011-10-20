@@ -16,10 +16,14 @@
 
 class CandidateFile {
 private:
-	HashTable<CandidateRecord,4096> * table;
+	HashTable<CandidateRecord, 4096> * table;
 	static CandidateFile * instance;
 public:
 	static CandidateFile * getInstance();
+	static void deleteInstance() {
+		delete instance;
+		instance = NULL;
+	}
 
 	CandidateFile();
 
@@ -30,6 +34,5 @@ public:
 
 	virtual ~CandidateFile();
 };
-
 
 #endif /* CANDIDATEFILE_H_ */

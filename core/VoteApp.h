@@ -16,6 +16,10 @@
 #include "../managers/AdministratorFile.h"
 #include "../managers/DistrictFile.h"
 #include "../managers/ElectionFile.h"
+#include "../managers/CandidateFile.h"
+#include "../managers/ChargeFile.h"
+#include "../managers/ListFile.h"
+#include "../managers/VoteCountingFile.h"
 #include "../records/ElectionRecord.h"
 #include "../screens/Drawable.h"
 #define LOGIN_SCREEN 0
@@ -39,8 +43,11 @@ public:
 	void setChooseElection(ElectionRecord);
 	VoterRecord getUserLogin();
 	ElectionRecord getChooseElection();
+    bool getQuit() const;
+    void setQuit(bool quit);
 
 private:
+	bool quit;
 	std::list<Drawable*> screens;
 	std::list<Drawable*>::iterator getToScreen(unsigned int);
 	unsigned int actualScreen;

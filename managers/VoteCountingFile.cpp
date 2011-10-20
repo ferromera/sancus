@@ -23,7 +23,10 @@ VoteCountingFile::VoteCountingFile() {
 	VoteCountingRecord::Key highKey;
 	highKey.setHighValue();
 	PrimaryIndexRecord<VoteCountingRecord::Key> lastRecord(highKey, 1);
-	primaryIndex->insert(lastRecord);
+	try {
+		primaryIndex->insert(lastRecord);
+	} catch (LeafUnicityException) {
+	}
 	dataFile = new IndexedDataFile<VoteCountingRecord, VOTE_COUNTING_FILE_DATA_BLOCK_SIZE> (VOTE_COUNTING_DATA_PATH);
 	lastSearch = NO_SEARCH;
 	electionSearched = NULL;
@@ -67,6 +70,8 @@ void VoteCountingFile::insert(const VoteCountingRecord & record) {
 			primaryIndex->insert(indexToFind);
 		}
 	} catch (IndexedDataRecordNotFoundException e) {
+		throw FileInsertException();
+	} catch (IndexedDataInsertException e) {
 		throw FileInsertException();
 	}
 	delete primaryIndexFound;
@@ -161,6 +166,8 @@ void VoteCountingFile::update(const VoteCountingRecord & record) {
 	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<VoteCountingRecord::Key> > e) {
 		throw FileUpdateException();
 	} catch (IndexedDataRecordNotFoundException e) {
+		throw FileUpdateException();
+	} catch (IndexedDataInsertException e) {
 		throw FileUpdateException();
 	}
 	delete primaryIndexFound;

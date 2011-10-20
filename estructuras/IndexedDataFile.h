@@ -91,6 +91,8 @@ void IndexedDataFile<TRecord,blockSize>::insert(const TRecord & rec, unsigned in
 	}catch(LeafRecordNotFoundException e){
 		delete block;
 		throw IndexedDataRecordNotFoundException();
+	}catch(LeafUnicityException e){
+		throw IndexedDataInsertException();
 	}
 }
 

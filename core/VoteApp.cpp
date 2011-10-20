@@ -37,7 +37,7 @@ VoteApp::VoteApp() {
 	this->screens.push_back(scr7);
 	this->screens.push_back(scr8);
 
-	actualScreen = ADM_SCREEN;
+	actualScreen = LOGIN_SCREEN;
 
 }
 VoteApp* VoteApp::getInstance()
@@ -48,17 +48,38 @@ VoteApp* VoteApp::getInstance()
 }
 
 void VoteApp::run(){
-	while(true)
+	while(!quit)
 	{
 		std::list<Drawable*>::iterator screen  = getToScreen(actualScreen);
 		(*screen)->draw();
 	}
+
+	AdministratorFile::deleteInstance();
+	CandidateFile::deleteInstance();
+	ChargeFile::deleteInstance();
+	DistrictFile::deleteInstance();
+	ElectionFile::deleteInstance();
+	ListFile::deleteInstance();
+	VoteCountingFile::deleteInstance();
+	VoterFile::deleteInstance();
+
+
 }
+bool VoteApp::getQuit() const
+{
+    return quit;
+}
+
+void VoteApp::setQuit(bool quit)
+{
+    this->quit = quit;
+}
+
 std::list<Drawable*>::iterator VoteApp::getToScreen(unsigned int screenNumber)
 {
 	std::list<Drawable*>::iterator itList = screens.begin();
-	int a = screens.size();
-	int i = 0;
+
+	unsigned int i = 0;
 	while(i < screenNumber)
 	{
 		itList++;

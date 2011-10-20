@@ -36,8 +36,8 @@ class VoteCountingFile {
 			VOTE_COUNTING_FILE__SEC_INDEX_BLOCK_SIZE> * electionIndex;
 	BPlusTree<SecondaryIndexRecord<DistrictRecord::Key, VoteCountingRecord::Key> ,
 			VOTE_COUNTING_FILE__SEC_INDEX_BLOCK_SIZE> * districtIndex;
-	BPlusTree<SecondaryIndexRecord<ListRecord::Key, VoteCountingRecord::Key> ,
-			VOTE_COUNTING_FILE__SEC_INDEX_BLOCK_SIZE>* listIndex;
+	BPlusTree<SecondaryIndexRecord<ListRecord::Key, VoteCountingRecord::Key> , VOTE_COUNTING_FILE__SEC_INDEX_BLOCK_SIZE>
+			* listIndex;
 	BPlusTree<PrimaryIndexRecord<VoteCountingRecord::Key> , VOTE_COUNTING_FILE__PRI_INDEX_BLOCK_SIZE> * primaryIndex;
 	IndexedDataFile<VoteCountingRecord, VOTE_COUNTING_FILE_DATA_BLOCK_SIZE> * dataFile;
 	enum lastSearchEnum lastSearch;
@@ -52,6 +52,10 @@ class VoteCountingFile {
 public:
 
 	static VoteCountingFile * getInstance();
+	static void deleteInstance() {
+		delete instance;
+		instance = NULL;
+	}
 
 	VoteCountingFile();
 
