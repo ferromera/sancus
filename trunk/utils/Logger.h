@@ -72,7 +72,7 @@ public:
 	/**
 	 * Inserta un mensaje en el archivo de log.
 	 */
-	void insert(std::string& key, std::string& value);
+	void insert(const std::string& key,const std::string& value);
 
 	/**
 	 * Destructor virtual de la clase Logger.
