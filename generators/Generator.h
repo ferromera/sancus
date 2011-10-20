@@ -88,14 +88,10 @@ private:
 
 		districts->insert(*argentinaRecord);
 
-		//string chargesNacionales[] = { PRESIDENTE, VICEPRESIDENTE, SENADOR, DIPUTADO };
-		//loadCharges(chargesNacionales, 4, argentinaRecord);
-
 		delete (argentinaRecord);
 
 		for (unsigned int i = 0; i < NUMERO_DE_PROVINCIAS; i++) {
-			string provincia = NOMBRE_BASE_PROVINCIAS
-					+ StringUtils::intToString(i);
+			string provincia = NOMBRE_BASE_PROVINCIAS + StringUtils::intToString(i);
 			provinciaRecord = new DistrictRecord(provincia, ARGENTINA);
 
 			districts->insert(*provinciaRecord);
@@ -103,8 +99,7 @@ private:
 			delete (provinciaRecord);
 
 			for (unsigned int j = 0; j < NUMERO_DE_MUNICIPIOS; j++) {
-				string municipio = NOMBRE_BASE_MUNICIPIOS
-						+ StringUtils::intToString(j) + "-" + provincia;
+				string municipio = NOMBRE_BASE_MUNICIPIOS + StringUtils::intToString(j) + "-" + provincia;
 				municipioRecord = new DistrictRecord(municipio, provincia);
 
 				loadVoters(municipioRecord);
@@ -115,10 +110,8 @@ private:
 	}
 
 	void loadCharge() {
-		string chargesNacionales[] = { PRESIDENTE, VICEPRESIDENTE, SENADOR,
-				DIPUTADO };
-		string chargesProvinciales[] =
-				{ GOBERNADOR, VICEGOBERNADOR, LEGISLADOR };
+		string chargesNacionales[] = { PRESIDENTE, VICEPRESIDENTE, SENADOR, DIPUTADO };
+		string chargesProvinciales[] = { GOBERNADOR, VICEGOBERNADOR, LEGISLADOR };
 		string chargesMunicipales[] = { INTENDENTE, VICEINTENDENTE, CONSEJAL };
 
 		std::list<DistrictRecord> disList;
@@ -129,40 +122,37 @@ private:
 
 		switch (disList.size()) {
 		case 1:
-			loadChargeForDistrict(chargesNacionales, 4, argentinaRecord);
+			loadChargeForDistrict(chargesNacionales, 4, disList.front());
 			break;
 		case 2:
-			loadChargeForDistrict(chargesProvinciales, 3, provinciaRecord);
+			loadChargeForDistrict(chargesProvinciales, 3, disList.front());
 			break;
 
 		case 3:
-			loadChargeForDistrict(chargesMunicipales, 3, municipioRecord);
+			loadChargeForDistrict(chargesMunicipales, 3, disList.front());
 			break;
 		}
 
 		while (true) {
 			DistrictRecord::Key lastSearched = disList.front().getKey();
 			disList.clear();
-			districts.search(lastSearched);
+			districts->search(lastSearched);
 			try {
-				disList.push_back(districts->next());
+				//disList.push_back(districts->next());
 				while (disList.back().hasFather()) {
-					disList.push_back(
-							districts->search(disList.back().getFather()));
+					disList.push_back(districts->search(disList.back().getFather()));
 				}
 
 				switch (disList.size()) {
 				case 1:
-					loadChargeForDistrict(chargesNacionales, 4, argentinaRecord);
+					loadChargeForDistrict(chargesNacionales, 4, disList.front());
 					break;
 				case 2:
-					loadChargeForDistrict(chargesProvinciales, 3,
-							provinciaRecord);
+					loadChargeForDistrict(chargesProvinciales, 3, disList.front());
 					break;
 
 				case 3:
-					loadChargeForDistrict(chargesMunicipales, 3,
-							municipioRecord);
+					loadChargeForDistrict(chargesMunicipales, 3, disList.front());
 					break;
 				}
 			} catch (FileNextException) {
@@ -173,11 +163,9 @@ private:
 	}
 
 	//CARGA elecciones, listas ,cargos, conteo, candidatos para un distrito
-	void loadChargeForDistrict(string chargesArray[],
-			unsigned int numberOfCharges, DistrictRecord * district) {
+	void loadChargeForDistrict(string chargesArray[], unsigned int numberOfCharges, DistrictRecord & district) {
 
-		ChargeRecord * fatherRecord = new ChargeRecord(chargesArray[0],
-				district->getDistrictName());
+		ChargeRecord * fatherRecord = new ChargeRecord(chargesArray[0], district.getDistrictName());
 		charges->insert(*fatherRecord);
 
 		ElectionRecord * election = loadElection(fatherRecord, district);
@@ -187,9 +175,8 @@ private:
 		ChargeRecord * childRecord;
 
 		for (unsigned int i = 1; i < numberOfCharges; i++) {
-			childRecord = new ChargeRecord(chargesArray[i],
-					district->getDistrictName(), chargesArray[0],
-					district->getDistrictName());
+			childRecord = new ChargeRecord(chargesArray[i], district.getDistrictName(), chargesArray[0],
+							district.getDistrictName());
 
 			charges->insert(*childRecord);
 
@@ -202,10 +189,8 @@ private:
 		delete (election);
 	}
 
-	ElectionRecord * loadElection(ChargeRecord * charge,
-			DistrictRecord * district) {
-		ElectionRecord * election = new ElectionRecord(this->date,
-				charge->getKey(), district->getKey());
+	ElectionRecord * loadElection(ChargeRecord * charge, DistrictRecord & district) {
+		ElectionRecord * election = new ElectionRecord(this->date, charge->getKey(), district.getKey());
 
 		//elections->insert(*election);
 
@@ -232,8 +217,7 @@ private:
 	void loadVoteCountings(ListRecord * list) {
 		VoteCountingRecord * voteCountingRecord;
 
-		DistrictRecord::Key elecDistrict =
-				list->getElection().getCharge().getDistrict();
+		DistrictRecord::Key elecDistrict = list->getElection().getCharge().getDistrict();
 		std::list<DistrictRecord> disList;
 		disList.push_back(districts->search(DistrictRecord::Key()));
 		while (disList.back().hasFather()) {
@@ -242,8 +226,8 @@ private:
 		std::list<DistrictRecord>::iterator itList;
 		for (itList = disList.begin(); itList != disList.end(); itList++) {
 			if (itList->getKey() == elecDistrict) {
-				voteCountingRecord = new VoteCountingRecord(list->getKey(),
-						disList.front().getKey(), list->getElection(), 0);
+				voteCountingRecord = new VoteCountingRecord(list->getKey(), disList.front().getKey(),
+								list->getElection(), 0);
 				voteCountings->insert(*voteCountingRecord);
 				break;
 			}
@@ -251,19 +235,17 @@ private:
 		while (true) {
 			DistrictRecord::Key lastSearched = disList.front().getKey();
 			disList.clear();
-			districts.search(lastSearched);
+			//districts.search(lastSearched);
 			try {
-				disList.push_back(districts->next());
+				//disList.push_back(districts->next());
 				while (disList.back().hasFather()) {
-					disList.push_back(
-							districts->search(disList.back().getFather()));
+					disList.push_back(districts->search(disList.back().getFather()));
 				}
 				for (itList = disList.begin(); itList != disList.end(); itList++) {
 					if (itList->getKey() == elecDistrict) {
 						delete voteCountingRecord;
-						voteCountingRecord = new VoteCountingRecord(
-								list->getKey(), disList.front().getKey(),
-								list->getElection(), 0);
+						voteCountingRecord = new VoteCountingRecord(list->getKey(), disList.front().getKey(),
+										list->getElection(), 0);
 						voteCountings->insert(*voteCountingRecord);
 						break;
 					}
@@ -287,8 +269,8 @@ private:
 
 			VoterRecord::Key * voterKey = new VoterRecord::Key(dni);
 
-			CandidateRecord * candidateRecord = new CandidateRecord(
-					listRecord.getKey(), charge->getKey(), voterKey->getKey());
+			CandidateRecord * candidateRecord = new CandidateRecord(listRecord.getKey(), charge->getKey(),
+							voterKey->getKey());
 
 			candidates->insert(*candidateRecord);
 
@@ -305,9 +287,8 @@ private:
 
 					VoterRecord::Key * voterKey = new VoterRecord::Key(dni);
 
-					CandidateRecord * candidateRecord = new CandidateRecord(
-							listRecord.getKey(), charge->getKey(),
-							voterKey->getKey());
+					CandidateRecord * candidateRecord = new CandidateRecord(listRecord.getKey(), charge->getKey(),
+									voterKey->getKey());
 
 					candidates->insert(*candidateRecord);
 
@@ -330,13 +311,12 @@ private:
 		for (unsigned int i = 0; i < NUMERO_DE_VOTANTES_POR_MUNICIPIO; i++) {
 			string address = "";
 			unsigned int dni = currentDNI++;
-			string voterName = NOMBRE_BASE_VOTANTE + StringUtils::intToString(
-					dni);
+			string voterName = NOMBRE_BASE_VOTANTE + StringUtils::intToString(dni);
 			string voterKey = "password";
 			list<ElectionRecord::Key> elections;
 
-			VoterRecord * voterRecord = new VoterRecord(voterName, dni,
-					address, voterKey, district->getKey(), elections);
+			VoterRecord * voterRecord = new VoterRecord(voterName, dni, address, voterKey, district->getKey(),
+							elections);
 
 			voters->insert(*voterRecord);
 
