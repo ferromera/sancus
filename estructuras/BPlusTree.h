@@ -554,9 +554,9 @@ const TRecord & BPlusTree<TRecord, blockSize>::search(const TRecord & rec) {
 			searchLeaf = new BPTreeVariableLeaf<TRecord, blockSize> (*rootAsLeaf);
 
 		} catch (LeafRecordNotFoundException e) {
-			rootAsLeaf->nextLeaf();//Lanza excepcion ThereIsNoNextLeafException<TRecord>;
+			rootAsLeaf->nextLeaf();//Lanza excepcion ThereIsNoNextLeafException;
 			throw;
-		} catch (ThereIsNoNextLeafException<TRecord>&) {
+		} catch (ThereIsNoNextLeafException&) {
 			throw;
 		}
 	} else {
@@ -584,7 +584,7 @@ const TRecord & BPlusTree<TRecord, blockSize>::next() {
 		try {
 			searchLeaf = (BPTreeVariableLeaf<TRecord, blockSize> *) searchLeaf->nextLeaf();
 			delete oldSearchLeaf;
-		} catch (ThereIsNoNextLeafException<TRecord>&) {
+		} catch (ThereIsNoNextLeafException) {
 			log->insert(logKey, "No hay siguiente registro, se alcanzo el final del arbol.");
 			throw;
 		}
