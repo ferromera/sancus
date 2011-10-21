@@ -8,30 +8,19 @@
 #include "VoteCountingRecord.h"
 
 VoteCountingRecord::VoteCountingRecord(){
-	Logger::getInstance()->info("1 Se llamo al constructor de VOTE COUNTING RECORD "+ StringUtils::intToString((int)(this)));
-
-
 	key_=NULL;
 	count_=0;
 }
 
 VoteCountingRecord::VoteCountingRecord(const Key & k, unsigned int count){
-	Logger::getInstance()->info("2 Se llamo al constructor de VOTE COUNTING RECORD "+ StringUtils::intToString((int)(this)));
-
-
 	key_=new Key(k);
 	count_=count;
 }
 VoteCountingRecord::VoteCountingRecord(const VoteCountingRecord::Key & k){
-	Logger::getInstance()->info("3 Se llamo al constructor de VOTE COUNTING RECORD "+ StringUtils::intToString((int)(this)));
-
-
 	key_=new Key(k);
 	count_=0;
 }
 VoteCountingRecord::VoteCountingRecord(const ListRecord::Key & list, const DistrictRecord::Key & district, const ElectionRecord::Key & election, unsigned int count){
-	Logger::getInstance()->info("4 Se llamo al constructor de VOTE COUNTING RECORD "+ StringUtils::intToString((int)(this)));
-
 	key_=new Key(list,district,election);
 	count_=count;
 
