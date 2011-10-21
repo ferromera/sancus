@@ -57,7 +57,7 @@ public:
 
 		pick(voter, eleccionMunicipal.getKey(), distritosMunicipales,1);
 		pick(voter, eleccionProvincial.getKey(),distritosProvinciales, 2);
-		pick(voter, eleccionMunicipal.getKey(),distritosNacionales, 3);
+		pick(voter, eleccionNacional.getKey(),distritosNacionales, 3);
 
 	}
 private:
@@ -76,7 +76,7 @@ private:
 
 		std::list<ListRecord>::iterator it;
 
-		unsigned int choice = MathUtils::randomNumber(1, listas.size() - 1);
+		unsigned int choice = MathUtils::randomNumber(0, listas.size() - 1);
 
 		cout<<"CHOICE " << choice<<endl;
 
