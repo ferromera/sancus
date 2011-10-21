@@ -113,7 +113,7 @@ void ElectionScreen::draw()
 		}
 		else
 		{
-			std::cout<<"Numero de eleccion Incorrecto eliga nuevamente"<<std::endl;
+			std::cout<<"Numero de eleccion Incorrecto elija nuevamente"<<std::endl;
 		}
 	}
 }
