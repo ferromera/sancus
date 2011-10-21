@@ -232,7 +232,7 @@ public:
 		Logger::getInstance()->info("*************************************************************************");
 
 		for (unsigned int i = 0; i < NUMERO_DE_LISTAS_POR_ELECCION; i++) {
-			string list = NOMBRE_BASE_LISTA + election->getCharge().getString() + StringUtils::intToString(i);
+			string list = NOMBRE_BASE_LISTA + StringUtils::intToString(i);
 			listRecord = new ListRecord(election->getKey(), list);
 
 			lists->insert(*listRecord);
@@ -244,7 +244,7 @@ public:
 	}
 
 	void loadVoteCountings(ListRecord * list) {
-		VoteCountingRecord * voteCountingRecord;
+		VoteCountingRecord * voteCountingRecord=NULL;
 
 		DistrictRecord::Key elecDistrict = list->getElection().getCharge().getDistrict();
 		std::list<DistrictRecord> disList;
@@ -257,7 +257,9 @@ public:
 			if (itList->getKey() == elecDistrict) {
 				voteCountingRecord = new VoteCountingRecord(list->getKey(), disList.front().getKey(),
 								list->getElection(), 0);
+
 				voteCountings->insert(*voteCountingRecord);
+				delete voteCountingRecord;
 				break;
 			}
 		}
@@ -272,10 +274,12 @@ public:
 				}
 				for (itList = disList.begin(); itList != disList.end(); itList++) {
 					if (itList->getKey() == elecDistrict) {
-						delete voteCountingRecord;
+
 						voteCountingRecord = new VoteCountingRecord(list->getKey(), disList.front().getKey(),
 										list->getElection(), 0);
 						voteCountings->insert(*voteCountingRecord);
+						delete voteCountingRecord;
+
 						break;
 					}
 				}
@@ -283,8 +287,6 @@ public:
 				break;
 			}
 		}
-
-		delete voteCountingRecord;
 	}
 
 	void loadCandidates(ElectionRecord * election, ChargeRecord * charge) {
