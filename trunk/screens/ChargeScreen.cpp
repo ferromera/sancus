@@ -29,7 +29,7 @@ void ChargeScreen::draw() {
 	VoteApp* app = VoteApp::getInstance();
 	system("clear");
 	std::cout << "PANTALLA DE ALTA" << std::endl;
-	std::cout << "Eliga el archivo donde quiera ingresar un alta y apriete ENTER" << std::endl;
+	std::cout << "Elija el archivo donde quiera ingresar un alta y apriete ENTER" << std::endl;
 	std::cout << "" << std::endl;
 	std::cout << "1- Archivo de Distritos" << std::endl;
 	std::cout << "2- Archivo de Votantes" << std::endl;
@@ -88,7 +88,7 @@ void ChargeScreen::draw() {
 			app->setActualScreen(ADM_SCREEN);
 			return;
 		default:
-			std::cout << "Opcion Incorrecta, eliga nuevamente" << std::endl;
+			std::cout << "Opcion Incorrecta, elija nuevamente" << std::endl;
 		}
 	}
 }
