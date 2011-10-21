@@ -57,7 +57,7 @@ public:
         bool operator !=(const Record::Key & r)const;
         ~Key();
     };
-
+    VoteCountingRecord();
 	VoteCountingRecord(const Key &, unsigned int);
 	VoteCountingRecord(const ListRecord::Key & , const DistrictRecord::Key & , const ElectionRecord::Key & , unsigned int);
 	VoteCountingRecord(const VoteCountingRecord &);

@@ -123,7 +123,6 @@ char ChargeScreen::chargeDistrict() {
 			std::cout << "No se pude Insertar el Registro por que no existe el Distrito padre elegido" << std::endl;
 			std::cout << "" << std::endl;
 			std::cout << "Quiere agregar otro registro al archivo de Distritos S/N" << std::endl;
-			dFile->report();
 			return doQuestion();
 		}
 		record = DistrictRecord(district, father);
@@ -134,7 +133,6 @@ char ChargeScreen::chargeDistrict() {
 		std::cout << "Error el Registro ya existe" << std::endl;
 		std::cout << "" << std::endl;
 		std::cout << "Quiere agregar otro registro al archivo de Distritos S/N" << std::endl;
-		dFile->report();
 		return doQuestion();
 	}
 	std::cout << "Se inserto correctamente el siguiente Registo distrito: ";
@@ -142,7 +140,6 @@ char ChargeScreen::chargeDistrict() {
 
 	std::cout << "" << std::endl;
 	std::cout << "Quiere agregar otro registro al archivo de Distritos S/N" << std::endl;
-	dFile->report();
 	return doQuestion();
 }
 char ChargeScreen::chargeVoter() {
@@ -616,7 +613,7 @@ char ChargeScreen::chargeCounting() {
 			throw FileSearchException();
 	 }catch(FileSearchException e)
 	 {
-	 std::cout<<"Error el distrito del votante  "<<listKey.getString()<<" no existe en el archivo de Distrito "<<std::endl;
+	 std::cout<<"Error el distrito del votante  "<<distritoVotante<<" no existe en el archivo de Distrito "<<std::endl;
 	 std::cout<<""<<std::endl;
 	 std::cout<<"Quiere agregar otro registro al archivo de Conteo S/N"<<std::endl;
 	 return doQuestion();

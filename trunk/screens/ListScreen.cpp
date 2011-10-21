@@ -42,10 +42,12 @@ void ListScreen::draw() {
 					voteKey = VoteCountingRecord::Key(listRecord.getKey(), *itDistrict, electionRecord.getKey());
 					VoteCountingRecord voteCounting = voteFile->search(voteKey);
 					voteCounting.setCount(voteCounting.getCount() + 1);
+					voteFile->update(voteCounting);
 				}
 				voteKey = VoteCountingRecord::Key(listRecord.getKey(), *itDistrict, electionRecord.getKey());
 				VoteCountingRecord voteCounting = voteFile->search(voteKey);
 				voteCounting.setCount(voteCounting.getCount() + 1);
+				voteFile->update(voteCounting);
 
 				voterRecord.addElection(electionRecord.getKey());
 				VoterFile * voterFile = VoterFile::getInstance();
@@ -84,13 +86,11 @@ std::list<DistrictRecord::Key> ListScreen::getDistrictListOf(const DistrictRecor
 	}
 	while (disRec.hasFather()) {
 		try {
-			std::cout << disRec.getDistrictName() << endl;
 			DistrictRecord::Key fatherKey = disRec.getFather();
 			disRec = disFile->search(fatherKey);
 			if (disRec.getKey() != fatherKey)
 				throw FileSearchException();
 			returnedList.push_back(fatherKey);
-			std::cout << disRec.getDistrictName() << endl;
 		} catch (FileSearchException) {
 			std::cout << "Error no se encontro el distrito" << std::endl;
 		}

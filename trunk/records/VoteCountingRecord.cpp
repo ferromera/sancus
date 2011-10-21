@@ -7,6 +7,11 @@
 
 #include "VoteCountingRecord.h"
 
+VoteCountingRecord::VoteCountingRecord(){
+	key_=NULL;
+	count_=0;
+}
+
 VoteCountingRecord::VoteCountingRecord(const Key & k, unsigned int count){
 	key_=new Key(k);
 	count_=count;

@@ -39,12 +39,17 @@ void ResultScreen::draw()
 char ResultScreen::resultByDistrict()
 {
 	std::string distrito;
+	unsigned int fecha;
 	system("clear");
+	std::cout<<"Ingrese la fecha de las elecciones que quiere consultar (AAAAMMDD)"<<std::endl;
+		std::cout<<""<<std::endl;
+		fecha = IstreamUtils::getUint();
+		std::cout<<""<<std::endl;
 	std::cout<<"Ingrese el Distrito para ver los resultados de las elecciones"<<std::endl;
 	std::cout<<""<<std::endl;
 	distrito = IstreamUtils::getString();
 	std::cout<<""<<std::endl;
-	/*
+
 	VoteCountingFile* vFile = VoteCountingFile::getInstance();
 	DistrictRecord::Key districtKey = DistrictRecord::Key(distrito);
 	VoteCountingRecord record;
@@ -58,18 +63,35 @@ char ResultScreen::resultByDistrict()
 		std::cout<<"Quiere realizar otra busqueda S/N"<<std::endl;
 		return doQuestion();
 	}
+	std::cout<<"Resultados del distrito: "<<distrito<<" para elecciones de la fecha: "<<fecha<<endl;
+	unsigned int showedResults=0;
 	while(true)
 	{
-		std::cout<<"Eleccion: "<< record.getElection() << "Lista: "  << record.getList() << " Votos: "  record.getVotes() <<std:endl;
+		if(record.getElection().getDate() == fecha){
+			std::cout<<"Lista: "  << record.getList().getName() << ", Cargo: "<< record.getElection().getCharge().getCharge()<<" de "<<
+			record.getElection().getCharge().getDistrict().getString()<< ", Votos: "<<  record.getCount() <<std::endl;
+			showedResults++;
+		}
+		if(showedResults== 5){
+			showedResults=0;
+			std::cout<<endl<<"Presione ENTER para continuar o Q para salir"<<endl;
+			if(IstreamUtils::getString()[0]=='Q'){
+				std::cout<<""<<std::endl;
+				std::cout<<"Quiere realizar otra busqueda S/N"<<std::endl;
+				return doQuestion();
+			}else{
+				system("clear");
+			}
+		}
 		try
 		{
-			record = vFile->nexthByDistrict();
-		}catch(FileSearchException e)
+			record = vFile->nextDistrict();
+		}catch(FileNextException e)
 		{
 			break;
 		}
 	}
-	*/
+
 	std::cout<<""<<std::endl;
 	std::cout<<"Quiere realizar otra busqueda S/N"<<std::endl;
 	return doQuestion();

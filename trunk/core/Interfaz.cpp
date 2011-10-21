@@ -12,7 +12,7 @@
 using namespace std;
 
 int main() {
-	//cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
+
 	VoteApp *app = VoteApp::getInstance();
 	app->run();
 	delete app;
