@@ -22,6 +22,7 @@ void ListScreen::draw() {
 	char opcion;
 	system("clear");
 	std::cout << "PANTALLA DE LISTAS" << std::endl;
+	std::cout <<  "" << std::endl;
 	try {
 		listRecord = listFile->searchByElection(electionRecord.getKey());
 	} catch (FileSearchException) {
@@ -31,7 +32,8 @@ void ListScreen::draw() {
 		showList(listRecord);
 		bool opcionInvalida = true;
 		while (opcionInvalida) {
-			std::cout << " Presione V para votar o S para seguir, luego apriete ENTER " << std::endl;
+			std::cout << "Presione V para votar o S para seguir, luego apriete ENTER " << std::endl;
+			std::cout << "" << std::endl;
 			opcion = IstreamUtils::getChar();
 			if (opcion == 'V') {
 				std::list<DistrictRecord::Key> districtList = getDistrictListOf(voterRecord.getDistrict());
@@ -99,6 +101,9 @@ std::list<DistrictRecord::Key> ListScreen::getDistrictListOf(const DistrictRecor
 }
 
 void ListScreen::showList(ListRecord listRec) {
+	system("clear");
+	std::cout << "PANTALLA DE LISTAS" << std::endl;
+	std::cout <<  "" << std::endl;
 	std::cout << "Lista " << listRec.getName() << std::endl;
 	std::cout << "" << std::endl;
 	VoteApp * app = VoteApp::getInstance();
@@ -146,5 +151,6 @@ void ListScreen::showList(ListRecord listRec) {
 		std::cout << "Cargo: " << candRecord.getCharge().getString() << " Candidato: " << candVoter.getName()
 				<< std::endl;
 	}
+	std::cout << "" << std::endl;
 
 }
