@@ -42,14 +42,46 @@ void ListScreen::draw() {
 				std::list<DistrictRecord::Key>::iterator itDistrict = districtList.begin();
 				for (; (*itDistrict) != electionRecord.getDistrict(); itDistrict++) {
 					voteKey = VoteCountingRecord::Key(listRecord.getKey(), *itDistrict, electionRecord.getKey());
+					try{
+						VoteCountingRecord voteCounting = voteFile->search(voteKey);
+						if(voteCounting.getKey() != voteKey)
+							throw FileSearchException();
+
+						voteCounting.setCount(voteCounting.getCount() + 1);
+						voteFile->update(voteCounting);
+					}catch(FileSearchException &e)
+					{
+						VoteCountingRecord voteCounting = VoteCountingRecord(voteKey,1);
+						try
+						{
+							voteFile->insert(voteCounting);
+						}catch(FileInsertException &e)
+						{
+
+						}
+					}
+
+				}
+				voteKey = VoteCountingRecord::Key(listRecord.getKey(), *itDistrict, electionRecord.getKey());
+				try
+				{
 					VoteCountingRecord voteCounting = voteFile->search(voteKey);
+					if(voteCounting.getKey() != voteKey)
+						throw FileSearchException();
 					voteCounting.setCount(voteCounting.getCount() + 1);
 					voteFile->update(voteCounting);
 				}
-				voteKey = VoteCountingRecord::Key(listRecord.getKey(), *itDistrict, electionRecord.getKey());
-				VoteCountingRecord voteCounting = voteFile->search(voteKey);
-				voteCounting.setCount(voteCounting.getCount() + 1);
-				voteFile->update(voteCounting);
+				catch(FileSearchException &e)
+				{
+					VoteCountingRecord voteCounting = VoteCountingRecord(voteKey,1);
+					try
+					{
+						voteFile->insert(voteCounting);
+					}catch(FileInsertException &e)
+					{
+
+					}
+				}
 
 				voterRecord.addElection(electionRecord.getKey());
 				VoterFile * voterFile = VoterFile::getInstance();
