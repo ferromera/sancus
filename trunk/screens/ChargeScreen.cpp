@@ -522,7 +522,7 @@ char ChargeScreen::chargeCharge() {
 	std::cout << record.getKey().getString() << std::endl;
 
 	std::cout << "" << std::endl;
-	std::cout << "Quiere agregar otro registro al archivo de Distritos S/N" << std::endl;
+	std::cout << "Quiere agregar otro registro al archivo de Cargos S/N" << std::endl;
 	return doQuestion();
 }
 char ChargeScreen::chargeCounting() {
