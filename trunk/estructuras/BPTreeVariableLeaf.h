@@ -207,7 +207,7 @@ template<class TRecord, unsigned int blockSize>
 BPTreeLeaf<TRecord, blockSize>* BPTreeVariableLeaf<TRecord, blockSize>::nextLeaf() {
 	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Buscando siguiente hoja.");
 	if (BPTreeLeaf<TRecord, blockSize>::next_ == 0)
-		throw ThereIsNoNextLeafException<TRecord> (BPTreeLeaf<TRecord, blockSize>::records_.back());
+		throw ThereIsNoNextLeafException ();
 
 	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Siguiente hoja encontrada.");
 	return new BPTreeVariableLeaf<TRecord, blockSize> (*BPTreeNode<TRecord, blockSize>::file_,

@@ -52,8 +52,8 @@ void ElectionFile::insert(const ElectionRecord & record) {
 			primaryIndexFound->setBlockNumber(dataFile->getNewBlock());
 			primaryIndex->update(*primaryIndexFound);
 		}
-	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ElectionRecord::Key> > e) {
-		dataFile->insert(record, e.rec.getBlockNumber());
+	} catch (ThereIsNoNextLeafException e) {
+		/*dataFile->insert(record, e.rec.getBlockNumber());
 		if (dataFile->overflow()) {
 			primaryIndex->remove(e.rec);
 			ElectionRecord::Key newKey = dataFile->getNewKey();
@@ -66,7 +66,7 @@ void ElectionFile::insert(const ElectionRecord & record) {
 			ElectionRecord::Key newKey = dataFile->getNewKey();
 			indexToFind.setBlockNumber(e.rec.getBlockNumber());
 			primaryIndex->insert(indexToFind);
-		}
+		}*/
 	} catch (IndexedDataRecordNotFoundException e) {
 		throw FileInsertException();
 	} catch (IndexedDataInsertException e) {
@@ -109,7 +109,7 @@ void ElectionFile::remove(const ElectionRecord & record) {
 				primaryIndex->insert(*primaryIndexFound);
 			}
 		}
-	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ElectionRecord::Key> > e) {
+	} catch (ThereIsNoNextLeafException e) {
 		throw FileRemoveException();
 	} catch (IndexedDataRecordNotFoundException e) {
 		throw FileRemoveException();
@@ -158,7 +158,7 @@ void ElectionFile::update(const ElectionRecord & record) {
 				primaryIndex->insert(*primaryIndexFound);
 			}
 		}
-	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ElectionRecord::Key> > e) {
+	} catch (ThereIsNoNextLeafException e) {
 		throw FileUpdateException();
 	} catch (IndexedDataRecordNotFoundException e) {
 		throw FileUpdateException();
@@ -209,7 +209,7 @@ const ElectionRecord & ElectionFile::searchByDate(unsigned int date) {
 		PrimaryIndexRecord<ElectionRecord::Key> indexToFind(elecKey, 0);
 		indexToFind = primaryIndex->search(indexToFind);
 		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
-	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> > ) {
+	} catch (ThereIsNoNextLeafException ) {
 		throw FileSearchException();
 	}
 }
@@ -226,7 +226,7 @@ const ElectionRecord & ElectionFile::searchByCharge(const ChargeRecord::Key & ch
 		PrimaryIndexRecord<ElectionRecord::Key> indexToFind(elecKey, 0);
 		indexToFind = primaryIndex->search(indexToFind);
 		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
-	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> > ) {
+	} catch (ThereIsNoNextLeafException) {
 		throw FileSearchException();
 	}
 }
@@ -243,7 +243,7 @@ const ElectionRecord & ElectionFile::searchByDistrict(const DistrictRecord::Key 
 		PrimaryIndexRecord<ElectionRecord::Key> indexToFind(elecKey, 0);
 		indexToFind = primaryIndex->search(indexToFind);
 		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
-	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> > ) {
+	} catch (ThereIsNoNextLeafException) {
 		throw FileSearchException();
 	}
 
@@ -254,7 +254,7 @@ const ElectionRecord & ElectionFile::search(const ElectionRecord::Key & election
 		PrimaryIndexRecord<ElectionRecord::Key> indexToFind(election, 0);
 		indexToFind = primaryIndex->search(indexToFind);
 		return dataFile->search(election, indexToFind.getBlockNumber());
-	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ElectionRecord::Key> > ) {
+	} catch (ThereIsNoNextLeafException ) {
 		throw FileSearchException();
 	} catch (IndexedDataRecordNotFoundException) {
 		throw FileSearchException();
@@ -271,7 +271,7 @@ const ElectionRecord & ElectionFile::nextDate() {
 		PrimaryIndexRecord<ElectionRecord::Key> indexToFind(elecKey, 0);
 		indexToFind = primaryIndex->search(indexToFind);
 		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
-	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<Uint32Key, ElectionRecord::Key> > ) {
+	} catch (ThereIsNoNextLeafException ) {
 		throw FileNextException();
 	}
 }
@@ -286,7 +286,7 @@ const ElectionRecord & ElectionFile::nextDistrict() {
 		PrimaryIndexRecord<ElectionRecord::Key> indexToFind(elecKey, 0);
 		indexToFind = primaryIndex->search(indexToFind);
 		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
-	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> > ) {
+	} catch (ThereIsNoNextLeafException ) {
 		throw FileNextException();
 	}
 }
@@ -301,7 +301,7 @@ const ElectionRecord & ElectionFile::nextCharge() {
 		PrimaryIndexRecord<ElectionRecord::Key> indexToFind(elecKey, 0);
 		indexToFind = primaryIndex->search(indexToFind);
 		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
-	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key> > ) {
+	} catch (ThereIsNoNextLeafException) {
 		throw FileNextException();
 	}
 }

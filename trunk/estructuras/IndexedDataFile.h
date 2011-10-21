@@ -172,7 +172,7 @@ void IndexedDataFile<TRecord,blockSize>::handleUnderflow(BPTreeVariableLeaf<TRec
 	BPTreeVariableLeaf<TRecord,blockSize> * nextBlock ;
 	try{
 		nextBlock = (BPTreeVariableLeaf<TRecord,blockSize> *)block->nextLeaf();
-	}catch(ThereIsNoNextLeafException<TRecord>& e){
+	}catch(ThereIsNoNextLeafException& e){
 		newLastKey_=new typename TRecord::Key(block->getLastRecord().getKey());
 		block->write();
 		return;
@@ -276,7 +276,7 @@ const TRecord & IndexedDataFile<TRecord,blockSize>::next(){
 		BPTreeVariableLeaf<TRecord,blockSize> * oldSearchLeaf=searchBlock_;
 		try{
 			searchBlock_=(BPTreeVariableLeaf<TRecord,blockSize> *)searchBlock_->nextLeaf();
-		}catch(ThereIsNoNextLeafException<TRecord>& e){
+		}catch(ThereIsNoNextLeafException& e){
 			delete searchBlock_;
 			searchBlock_=NULL;
 			throw IndexedDataNextException();

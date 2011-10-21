@@ -49,8 +49,8 @@ void ListFile::insert(const ListRecord & record) {
 			primaryIndexFound->setBlockNumber(dataFile->getNewBlock());
 			primaryIndex->update(*primaryIndexFound);
 		}
-	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ListRecord::Key> > e) {
-		dataFile->insert(record, e.rec.getBlockNumber());
+	} catch (ThereIsNoNextLeafException e) {
+		/*dataFile->insert(record, e.rec.getBlockNumber());
 		if (dataFile->overflow()) {
 			primaryIndex->remove(e.rec);
 			ListRecord::Key newKey = dataFile->getNewKey();
@@ -63,7 +63,7 @@ void ListFile::insert(const ListRecord & record) {
 			ListRecord::Key newKey = dataFile->getNewKey();
 			indexToFind.setBlockNumber(e.rec.getBlockNumber());
 			primaryIndex->insert(indexToFind);
-		}
+		}*/
 	} catch (IndexedDataRecordNotFoundException e) {
 		throw FileInsertException();
 	} catch (IndexedDataInsertException e) {
@@ -102,7 +102,7 @@ void ListFile::remove(const ListRecord & record) {
 				primaryIndex->insert(*primaryIndexFound);
 			}
 		}
-	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ListRecord::Key> > e) {
+	} catch (ThereIsNoNextLeafException e) {
 		throw FileRemoveException();
 	} catch (IndexedDataRecordNotFoundException e) {
 		throw FileRemoveException();
@@ -146,7 +146,7 @@ void ListFile::update(const ListRecord & record) {
 				primaryIndex->insert(*primaryIndexFound);
 			}
 		}
-	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ListRecord::Key> > e) {
+	} catch (ThereIsNoNextLeafException e) {
 		throw FileUpdateException();
 	} catch (IndexedDataRecordNotFoundException e) {
 		throw FileUpdateException();
@@ -188,7 +188,7 @@ const ListRecord & ListFile::searchByElection(const ElectionRecord::Key & electi
 	PrimaryIndexRecord<ListRecord::Key> indexToFind(listKey, 0);
 	indexToFind = primaryIndex->search(indexToFind);
 	return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
-	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<ElectionRecord::Key, ListRecord::Key> > ) {
+	} catch (ThereIsNoNextLeafException  ) {
 		throw FileSearchException();
 	}
 }
@@ -205,7 +205,7 @@ const ListRecord & ListFile::searchByName(const std::string & name) {
 	PrimaryIndexRecord<ListRecord::Key> indexToFind(listKey, 0);
 	indexToFind = primaryIndex->search(indexToFind);
 	return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
-} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<StringKey, ListRecord::Key> > ) {
+} catch (ThereIsNoNextLeafException ) {
 		throw FileSearchException();
 	}
 }
@@ -215,7 +215,7 @@ const ListRecord & ListFile::search(const ListRecord::Key & list) {
 		PrimaryIndexRecord<ListRecord::Key> indexToFind(list, 0);
 		indexToFind = primaryIndex->search(indexToFind);
 		return dataFile->search(list, indexToFind.getBlockNumber());
-	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ListRecord::Key> > ) {
+	} catch (ThereIsNoNextLeafException ) {
 		throw FileSearchException();
 	} catch (IndexedDataRecordNotFoundException) {
 		throw FileSearchException();
@@ -232,7 +232,7 @@ const ListRecord & ListFile::nextElection() {
 		PrimaryIndexRecord<ListRecord::Key> indexToFind(listKey, 0);
 		indexToFind = primaryIndex->search(indexToFind);
 		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
-	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<ElectionRecord::Key, ListRecord::Key> > ) {
+	} catch (ThereIsNoNextLeafException ) {
 		throw FileNextException();
 	}
 
@@ -248,7 +248,7 @@ const ListRecord & ListFile::nextName() {
 		PrimaryIndexRecord<ListRecord::Key> indexToFind(listKey, 0);
 		indexToFind = primaryIndex->search(indexToFind);
 		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
-	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<StringKey, ListRecord::Key> > ) {
+	} catch (ThereIsNoNextLeafException ) {
 		throw FileNextException();
 	}
 
