@@ -572,6 +572,7 @@ const TRecord & BPlusTree<TRecord, blockSize>::search(const TRecord & rec) {
 template<class TRecord, unsigned int blockSize>
 const TRecord & BPlusTree<TRecord, blockSize>::next() {
 	delete found;
+	found=NULL;
 	log->insert(logKey, "Buscando siguiente registro.");
 	if (searchLeaf == NULL)
 		throw BPlusTreeNextException();

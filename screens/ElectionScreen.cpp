@@ -26,6 +26,7 @@ void ElectionScreen::draw()
 	DistrictFile* dFile = DistrictFile::getInstance();
 	DistrictRecord::Key dKey = DistrictRecord::Key(user.getDistrict().getString());
 	ElectionFile* electionFile = ElectionFile::getInstance();
+	elections.clear();
 
 	try
 	{
@@ -85,12 +86,17 @@ void ElectionScreen::draw()
 			itDistrict++;
 	}
 	std::list<ElectionRecord>::iterator itElect = elections.begin();
-
+	if(elections.size()==0){
+		std::cout<<"Usted no tiene elecciones pendientes, presione ENTER para salir."<<endl;
+		IstreamUtils::getString();
+		app->setActualScreen(LOGIN_SCREEN);
+		return;
+	}
 	for(unsigned int i = 0 ; i < elections.size();i++,itElect++)
 	{
 		int number = i +1;
 		ElectionRecord record = *itElect;
-		std::cout<< number<<" - Cargo: "<<record.getCharge().getCharge() << " Fecha: " << record.getDate() << " Distrito " << record.getDistrict().getKey() << std::endl;
+		std::cout<< number<<" - Cargo: "<<record.getCharge().getCharge() << " de " << record.getDistrict().getKey() <<", Fecha (AAAAMMDD): " << record.getDate() <<  std::endl;
 	}
 	std::cout<<""<<std::endl;
 	std::cout<<"Elija una eleccion a votar y presione ENTER"<<std::endl;
@@ -134,7 +140,7 @@ bool ElectionScreen::isAValidElection(ElectionRecord election)
 	std::list<ElectionRecord::Key>::iterator itList =  elList.begin();
 	while(itList != elList.end())
 	{
-		if(*itList == election.getKey())
+		if((*itList) == election.getKey())
 			return false;
 
 		itList++;
