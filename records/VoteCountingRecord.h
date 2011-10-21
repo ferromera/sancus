@@ -83,7 +83,6 @@ public:
 	VoteCountingRecord & operator = (const VoteCountingRecord &);
 
 	virtual ~VoteCountingRecord(){
-		Logger::getInstance()->info("Se llamo al destructor de VOTE COUNTING RECORD " + StringUtils::intToString((int)(this)));
 	}
 };
 

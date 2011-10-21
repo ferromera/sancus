@@ -296,6 +296,7 @@ void IndexedDataFile<TRecord,blockSize>::update(const TRecord & rec, unsigned in
 	delete searchBlock_;
 	searchBlock_=NULL;
 	delete newLastKey_;
+	newLastKey_ = NULL;
 	BPTreeVariableLeaf<TRecord,blockSize> * block=new BPTreeVariableLeaf<TRecord,blockSize>(*file_,blockNumber);
 	try{
 		block->update(rec);

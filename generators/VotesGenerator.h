@@ -10,7 +10,6 @@
 
 #define DOCUMENTO_BASE  20000000
 
-
 #include <iostream>
 #include <list>
 #include "../managers/VoterFile.h"
@@ -30,7 +29,7 @@ private:
 	ListFile * lists;
 	VoteCountingFile * voteCountings;
 public:
-	VotesGenerator(){
+	VotesGenerator() {
 		voters = VoterFile::getInstance();
 		districts = DistrictFile::getInstance();
 		elections = ElectionFile::getInstance();
@@ -42,56 +41,63 @@ public:
 		VoterRecord::Key * key = new VoterRecord::Key(documento);
 		VoterRecord voter = voters->search(*key);
 
-		cout<<voter.getName()<<endl;
+		//cout << voter.getName() << endl;
 
 		DistrictRecord::Key localidad = voter.getDistrict();
-
 		DistrictRecord::Key provincia = districts->search(localidad).getFather();
-
 		DistrictRecord::Key pais = districts->search(provincia).getFather();
+
+		DistrictRecord::Key distritosMunicipales[] = { localidad };
+		DistrictRecord::Key distritosProvinciales[] = { provincia, localidad };
+		DistrictRecord::Key distritosNacionales[] = { pais, provincia, localidad };
 
 		ElectionRecord eleccionMunicipal = elections->searchByDistrict(localidad);
 		ElectionRecord eleccionProvincial = elections->searchByDistrict(provincia);
 		ElectionRecord eleccionNacional = elections->searchByDistrict(pais);
 
+		pick(voter, eleccionMunicipal.getKey(), distritosMunicipales,1);
+		pick(voter, eleccionProvincial.getKey(),distritosProvinciales, 2);
+		pick(voter, eleccionMunicipal.getKey(),distritosNacionales, 3);
+
+	}
+private:
+	void pick(VoterRecord voter, ElectionRecord::Key eleccion, DistrictRecord::Key distritos[], unsigned int numberOfDistricts) {
 		std::list<ListRecord> listas;
 
-		listas.push_back(lists->searchByElection(eleccionMunicipal.getKey()));
+		listas.push_back(lists->searchByElection(eleccion));
 
-		while(true){
-			try{
+		while (true) {
+			try {
 				listas.push_back(lists->nextElection());
-			}catch(FileNextException){
+			} catch (FileNextException) {
 				break;
 			}
 		}
 
 		std::list<ListRecord>::iterator it;
 
-		for(it=listas.begin(); it!=listas.end(); it++){
-			cout<<it->getKey().getString()<<endl;
-		}
+		unsigned int choice = MathUtils::randomNumber(1, listas.size() - 1);
 
-		unsigned int choice = MathUtils::randomNumber(0,listas.size()-1);
+		cout<<"CHOICE " << choice<<endl;
 
 		unsigned int i = 0;
-		for(it=listas.begin();i<choice;it++, i++){}
+		for (it = listas.begin(); i < choice; it++, i++) {
+		}
 
 		ListRecord winner = *it;
 
-		VoteCountingRecord winnerRecord(winner.getKey(),localidad,eleccionMunicipal.getKey(),0);
+		for (unsigned int i = 0; i < numberOfDistricts; i++) {
+			updateVoteCountingRecordFor(winner.getKey(), distritos[i], eleccion);
+		}
 
+		cout << "Votante " << voter.getName() << " voto a la lista: " << winner.getKey().getString() << endl;
+	}
+
+	void updateVoteCountingRecordFor(ListRecord::Key winner, DistrictRecord::Key district, ElectionRecord::Key election) {
+		VoteCountingRecord winnerRecord(winner, district, election, 0);
 		winnerRecord = voteCountings->search(winnerRecord.getKey());
-
-		winnerRecord.setCount(winnerRecord.getCount()+1);
-
+		winnerRecord.setCount(winnerRecord.getCount() + 1);
 		voteCountings->update(winnerRecord);
-
-		cout<<"Votante "<<voter.getName()<< " voto a la lista: "<<winner.getKey().getString()<<endl;
-
-		lists->searchByElection(eleccionProvincial.getKey());
-		lists->searchByElection(eleccionNacional.getKey());
-
 	}
 };
 
