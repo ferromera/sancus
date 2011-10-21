@@ -13,43 +13,47 @@ ElectionScreen::ElectionScreen() {
 }
 void ElectionScreen::draw()
 {
-	int electionToVote;
+	unsigned int electionToVote;
 	system("clear");
 	VoteApp* app = VoteApp::getInstance();
 	VoterRecord user = app->getUserLogin();
 	std::cout<<"Bienvenido "<< user.getName() <<" al sistema de voto electronico."<<std::endl;
-	std::cout<<"Ciudad " <<user.getDistrict().getString()<< " Domicilio" <<user.getAddress()<<std::endl;
+	std::cout<<"Ciudad: " <<user.getDistrict().getString()<< ", Domicilio: " <<user.getAddress()<<std::endl;
 	std::cout<<"Abajo observara la elecciones en las cual debe votar"<<std::endl;
-
+	std::cout<<""<<std::endl;
 	std::list<DistrictRecord::Key> keysOfDistrict;
-	std::list<ElectionRecord> keysOfElection;
 	DistrictRecord distRecord;
 	DistrictFile* dFile = DistrictFile::getInstance();
 	DistrictRecord::Key dKey = DistrictRecord::Key(user.getDistrict().getString());
 	ElectionFile* electionFile = ElectionFile::getInstance();
+
 	try
 	{
 		distRecord = dFile->search(dKey);
-		//std::cout<<"Distrito "<< distRecord.getKey().getKey()<<std::endl;
+		if(distRecord.getKey()!=dKey)
+			throw FileSearchException();
+
 	}
 	catch(FileSearchException &e)
 	{
-		std::cout<<"Distrito "<<std::endl;
+		std::cout<<"Error! : Distrito no encontrado"<<std::endl;
 	}
 	while(distRecord.hasFather())
 	{
 		keysOfDistrict.push_back(distRecord.getKey());
 			try
 			{
-				distRecord = dFile->search(distRecord.getFather());
+				DistrictRecord::Key fatherKey=distRecord.getFather();
+				distRecord = dFile->search(fatherKey);
+				if(distRecord.getKey()!=fatherKey)
+					throw FileSearchException();
 			}
 			catch(FileSearchException &e)
 			{
+				std::cout<<"Error! : Distrito padre no encontrado"<<std::endl;
 			}
 	}
-	//keysOfDistrict.push_back(distRecord.getKey());
-	//std::cout<<"Distrito "<< distRecord.getDistrictName()<<std::endl;
-
+	keysOfDistrict.push_back(distRecord.getKey());
 	std::list<DistrictRecord::Key>::iterator itDistrict = keysOfDistrict.begin();
 	while(itDistrict != keysOfDistrict.end())
 	{
@@ -60,10 +64,11 @@ void ElectionScreen::draw()
 			}
 			catch(FileSearchException &e)
 			{
-				break;
+				itDistrict++;
+				continue;
 			}
 			if(isAValidElection(record))
-				keysOfElection.push_back(record);
+				elections.push_back(record);
 			while(true)
 			{
 				try
@@ -75,24 +80,25 @@ void ElectionScreen::draw()
 					break;
 				}
 				if(isAValidElection(record))
-					keysOfElection.push_back(record);
+					elections.push_back(record);
 			}
 			itDistrict++;
 	}
+	std::list<ElectionRecord>::iterator itElect = elections.begin();
 
-	std::list<ElectionRecord>::iterator itElect = keysOfElection.begin();
-
-	for(unsigned int i = 0 ; i < keysOfElection.size();i++,itElect++)
+	for(unsigned int i = 0 ; i < elections.size();i++,itElect++)
 	{
 		int number = i +1;
 		ElectionRecord record = *itElect;
-		std::cout<< number<<" - Cargo: "<<record.getCharge().getCharge() << " Fecha: " << record.getDate() <<std::endl;
+		std::cout<< number<<" - Cargo: "<<record.getCharge().getCharge() << " Fecha: " << record.getDate() << " Distrito " << record.getDistrict().getKey() << std::endl;
 	}
-	std::cout<< "Eliga una eleccion a votar y presione ENTER"<<std::endl;
+	std::cout<<""<<std::endl;
+	std::cout<<"Elija una eleccion a votar y presione ENTER"<<std::endl;
+	std::cout<<""<<std::endl;
 	while(true)
 	{
 		electionToVote = IstreamUtils::getUint();
-		if(electionToVote <= keysOfElection.size())
+		if(electionToVote <= elections.size())
 		{
 			std::list<ElectionRecord>::iterator itElection = getElectionNumber(electionToVote - 1);
 			app->setChooseElection(*itElection);

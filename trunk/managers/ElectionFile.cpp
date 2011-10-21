@@ -252,9 +252,7 @@ const ElectionRecord & ElectionFile::search(const ElectionRecord::Key & election
 	lastSearch = PRIMARY_SEARCH;
 	try {
 		PrimaryIndexRecord<ElectionRecord::Key> indexToFind(election, 0);
-		std::cout << indexToFind.getKey().getKey() << endl;
 		indexToFind = primaryIndex->search(indexToFind);
-		std::cout << indexToFind.getKey().getKey() << endl;
 		return dataFile->search(election, indexToFind.getBlockNumber());
 	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ElectionRecord::Key> > ) {
 		throw FileSearchException();

@@ -101,7 +101,7 @@ void VoteApp::setChooseElection(ElectionRecord election)
 {
 	chooseElection = election;
 }
-VoterRecord VoteApp::getUserLogin()
+const VoterRecord & VoteApp::getUserLogin()
 {
 	return userLogin;
 }

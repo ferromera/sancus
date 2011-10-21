@@ -7,7 +7,11 @@
 
 #include "ElectionRecord.h"
 
-
+ElectionRecord::ElectionRecord()
+{
+	key_= new ElectionRecord::Key();
+	district = new DistrictRecord::Key();
+}
 ElectionRecord::ElectionRecord(char ** input){
 	key_= new ElectionRecord::Key(input);
 	district = new DistrictRecord::Key(input);

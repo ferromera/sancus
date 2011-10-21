@@ -41,7 +41,7 @@ public:
 
 	void setUserLogin(VoterRecord);
 	void setChooseElection(ElectionRecord);
-	VoterRecord getUserLogin();
+	const VoterRecord & getUserLogin();
 	ElectionRecord getChooseElection();
     bool getQuit() const;
     void setQuit(bool quit);

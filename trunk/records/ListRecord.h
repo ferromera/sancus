@@ -50,6 +50,7 @@ public:
         bool operator !=(const Record::Key & rk)const;
         ~Key();
     };
+    ListRecord();
     ListRecord(char ** input);
     ListRecord(const ListRecord::Key &);
     ListRecord(const ListRecord &);

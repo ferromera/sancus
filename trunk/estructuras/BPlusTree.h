@@ -585,7 +585,6 @@ const TRecord & BPlusTree<TRecord, blockSize>::next() {
 			delete oldSearchLeaf;
 		} catch (ThereIsNoNextLeafException<TRecord>&) {
 			log->insert(logKey, "No hay siguiente registro, se alcanzo el final del arbol.");
-			delete oldSearchLeaf;
 			throw;
 		}
 		found = new TRecord(searchLeaf->getFirstRecord());

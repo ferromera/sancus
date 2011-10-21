@@ -52,6 +52,7 @@ public:
         ~Key();
 
     };
+    CandidateRecord(char ** input);
     CandidateRecord(const CandidateRecord::Key& key);
     CandidateRecord(const CandidateRecord&);
     CandidateRecord(const ListRecord::Key& listName,const ChargeRecord::Key& chargeName,const VoterRecord::Key& dni);

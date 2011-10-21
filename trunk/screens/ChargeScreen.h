@@ -9,13 +9,14 @@
 #define CHARGESCREEN_H_
 
 #include "Drawable.h"
+#include "../records/VoterRecord.h"
 
 class ChargeScreen: public Drawable {
 public:
 	ChargeScreen();
 	void draw();
 private:
-	//VoterRecord user;
+	VoterRecord user;
 	char chargeDistrict();
 	char chargeVoter();
 	char chargeElection();
