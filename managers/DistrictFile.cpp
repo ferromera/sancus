@@ -54,7 +54,7 @@ void DistrictFile::update(const DistrictRecord & district) {
 const DistrictRecord & DistrictFile::search(const DistrictRecord::Key & districtKey) {
 	try {
 		return tree->search(districtKey);
-	} catch (ThereIsNoNextLeafException<DistrictRecord> & ex) {
+	} catch (ThereIsNoNextLeafException & ex) {
 		throw FileSearchException();
 	}
 }
@@ -63,7 +63,7 @@ const DistrictRecord & DistrictFile::search(const DistrictRecord::Key & district
 const DistrictRecord & DistrictFile::next() {
 	try {
 		return tree->next();
-	} catch (ThereIsNoNextLeafException<DistrictRecord> & ex) {
+	} catch (ThereIsNoNextLeafException & ex) {
 		throw FileNextException();
 	}catch(BPlusTreeNextException & e){
 		throw FileNextException();

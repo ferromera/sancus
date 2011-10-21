@@ -49,8 +49,8 @@ void ChargeFile::insert(const ChargeRecord & record) {
 			primaryIndexFound->setBlockNumber(dataFile->getNewBlock());
 			primaryIndex->update(*primaryIndexFound);
 		}
-	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ChargeRecord::Key> > e) {
-		dataFile->insert(record, e.rec.getBlockNumber());
+	} catch (ThereIsNoNextLeafException  e) {
+		/*dataFile->insert(record, e.rec.getBlockNumber());
 		if (dataFile->overflow()) {
 			primaryIndex->remove(e.rec);
 			ChargeRecord::Key newKey = dataFile->getNewKey();
@@ -63,7 +63,7 @@ void ChargeFile::insert(const ChargeRecord & record) {
 			ChargeRecord::Key newKey = dataFile->getNewKey();
 			indexToFind.setBlockNumber(e.rec.getBlockNumber());
 			primaryIndex->insert(indexToFind);
-		}
+		}*/
 	} catch (IndexedDataRecordNotFoundException e) {
 		throw FileInsertException();
 	} catch (IndexedDataInsertException e) {
@@ -105,7 +105,7 @@ void ChargeFile::remove(const ChargeRecord & record) {
 				primaryIndex->insert(*primaryIndexFound);
 			}
 		}
-	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ChargeRecord::Key> > e) {
+	} catch (ThereIsNoNextLeafException e) {
 		throw FileRemoveException();
 	} catch (IndexedDataRecordNotFoundException e) {
 		throw FileRemoveException();
@@ -151,7 +151,7 @@ void ChargeFile::update(const ChargeRecord & record) {
 				primaryIndex->insert(*primaryIndexFound);
 			}
 		}
-	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ChargeRecord::Key> > e) {
+	} catch (ThereIsNoNextLeafException e) {
 		throw FileUpdateException();
 	} catch (IndexedDataRecordNotFoundException e) {
 		throw FileUpdateException();
@@ -199,7 +199,7 @@ const ChargeRecord & ChargeFile::searchByFather(const ChargeRecord::Key & father
 		PrimaryIndexRecord<ChargeRecord::Key> indexToFind(chargeKey, 0);
 		indexToFind = primaryIndex->search(indexToFind);
 		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
-	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<ChargeRecord::Key, ChargeRecord::Key> > ) {
+	} catch (ThereIsNoNextLeafException ) {
 		throw FileSearchException();
 	}
 }
@@ -216,7 +216,7 @@ const ChargeRecord & ChargeFile::searchByDistrict(const DistrictRecord::Key & di
 		PrimaryIndexRecord<ChargeRecord::Key> indexToFind(chargeKey, 0);
 		indexToFind = primaryIndex->search(indexToFind);
 		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
-	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<DistrictRecord::Key, ChargeRecord::Key> > ) {
+	} catch (ThereIsNoNextLeafException ) {
 		throw FileSearchException();
 	}
 }
@@ -227,7 +227,7 @@ const ChargeRecord & ChargeFile::search(const ChargeRecord::Key & charge) {
 		PrimaryIndexRecord<ChargeRecord::Key> indexToFind(charge, 0);
 		indexToFind = primaryIndex->search(indexToFind);
 		return dataFile->search(charge, indexToFind.getBlockNumber());
-	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ChargeRecord::Key> > ) {
+	} catch (ThereIsNoNextLeafException ) {
 		throw FileSearchException();
 	} catch (IndexedDataRecordNotFoundException) {
 		throw FileSearchException();
@@ -244,7 +244,7 @@ const ChargeRecord & ChargeFile::nextFather() {
 		PrimaryIndexRecord<ChargeRecord::Key> indexToFind(chargeKey, 0);
 		indexToFind = primaryIndex->search(indexToFind);
 		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
-	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<ChargeRecord::Key, ChargeRecord::Key> > ) {
+	} catch (ThereIsNoNextLeafException ) {
 		throw FileNextException();
 	}
 
@@ -260,7 +260,7 @@ const ChargeRecord & ChargeFile::nextDistrict() {
 		PrimaryIndexRecord<ChargeRecord::Key> indexToFind(chargeKey, 0);
 		indexToFind = primaryIndex->search(indexToFind);
 		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
-	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<DistrictRecord::Key, ChargeRecord::Key> > ) {
+	} catch (ThereIsNoNextLeafException ) {
 		throw FileNextException();
 	}
 

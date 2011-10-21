@@ -888,7 +888,7 @@ TRecord * BPTreeVariableInternalNode<TRecord, blockSize>::search(const TRecord &
 				delete childLeaf;
 				delete nxtLeaf;
 				return found;
-			} catch (ThereIsNoNextLeafException<TRecord> &) {
+			} catch (ThereIsNoNextLeafException &) {
 				delete childLeaf;
 				throw;
 			}
@@ -901,7 +901,7 @@ TRecord * BPTreeVariableInternalNode<TRecord, blockSize>::search(const TRecord &
 			TRecord * found = childNode->search(rec, searchLeaf);
 			delete childNode;
 			return found;
-		} catch (ThereIsNoNextLeafException<TRecord> &e) {
+		} catch (ThereIsNoNextLeafException &e) {
 			delete childNode;
 			throw;
 		}
