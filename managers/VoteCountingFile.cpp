@@ -204,52 +204,70 @@ void VoteCountingFile::update(const VoteCountingRecord & record) {
 const VoteCountingRecord & VoteCountingFile::searchByDistrict(const DistrictRecord::Key & district) {
 	lastSearch = DISTRICT_SEARCH;
 	delete districtSearched;
-	districtSearched = new DistrictRecord::Key(district);
-	SecondaryIndexRecord<DistrictRecord::Key, VoteCountingRecord::Key> firstSecIndex(district);
-	firstSecIndex = districtIndex->search(firstSecIndex);
-	if (firstSecIndex.getAttribute() != district)
+	try {
+		districtSearched = new DistrictRecord::Key(district);
+		SecondaryIndexRecord<DistrictRecord::Key, VoteCountingRecord::Key> firstSecIndex(district);
+		firstSecIndex = districtIndex->search(firstSecIndex);
+		if (firstSecIndex.getAttribute() != district)
+			throw FileSearchException();
+		VoteCountingRecord::Key voteCountKey = firstSecIndex.getPrimary();
+		PrimaryIndexRecord<VoteCountingRecord::Key> indexToFind(voteCountKey, 0);
+		indexToFind = primaryIndex->search(indexToFind);
+		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<DistrictRecord::Key, VoteCountingRecord::Key> > ) {
 		throw FileSearchException();
-	VoteCountingRecord::Key voteCountKey = firstSecIndex.getPrimary();
-	PrimaryIndexRecord<VoteCountingRecord::Key> indexToFind(voteCountKey, 0);
-	indexToFind = primaryIndex->search(indexToFind);
-	return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	}
 
 }
 
 const VoteCountingRecord & VoteCountingFile::searchByElection(const ElectionRecord::Key & election) {
 	lastSearch = ELECTION_SEARCH;
 	delete electionSearched;
-	electionSearched = new ElectionRecord::Key(election);
-	SecondaryIndexRecord<ElectionRecord::Key, VoteCountingRecord::Key> firstSecIndex(election);
-	firstSecIndex = electionIndex->search(firstSecIndex);
-	if (firstSecIndex.getAttribute() != election)
+	try {
+		electionSearched = new ElectionRecord::Key(election);
+		SecondaryIndexRecord<ElectionRecord::Key, VoteCountingRecord::Key> firstSecIndex(election);
+		firstSecIndex = electionIndex->search(firstSecIndex);
+		if (firstSecIndex.getAttribute() != election)
+			throw FileSearchException();
+		VoteCountingRecord::Key voteCountKey = firstSecIndex.getPrimary();
+		PrimaryIndexRecord<VoteCountingRecord::Key> indexToFind(voteCountKey, 0);
+		indexToFind = primaryIndex->search(indexToFind);
+		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<ElectionRecord::Key, VoteCountingRecord::Key> > ) {
 		throw FileSearchException();
-	VoteCountingRecord::Key voteCountKey = firstSecIndex.getPrimary();
-	PrimaryIndexRecord<VoteCountingRecord::Key> indexToFind(voteCountKey, 0);
-	indexToFind = primaryIndex->search(indexToFind);
-	return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	}
 
 }
 
 const VoteCountingRecord & VoteCountingFile::searchByList(const ListRecord::Key & list) {
 	lastSearch = LIST_SEARCH;
 	delete listSearched;
-	listSearched = new ListRecord::Key(list);
-	SecondaryIndexRecord<ListRecord::Key, VoteCountingRecord::Key> firstSecIndex(list);
-	firstSecIndex = listIndex->search(firstSecIndex);
-	if (firstSecIndex.getAttribute() != list)
+	try {
+		listSearched = new ListRecord::Key(list);
+		SecondaryIndexRecord<ListRecord::Key, VoteCountingRecord::Key> firstSecIndex(list);
+		firstSecIndex = listIndex->search(firstSecIndex);
+		if (firstSecIndex.getAttribute() != list)
+			throw FileSearchException();
+		VoteCountingRecord::Key voteCountKey = firstSecIndex.getPrimary();
+		PrimaryIndexRecord<VoteCountingRecord::Key> indexToFind(voteCountKey, 0);
+		indexToFind = primaryIndex->search(indexToFind);
+		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<ListRecord::Key, VoteCountingRecord::Key> > ) {
 		throw FileSearchException();
-	VoteCountingRecord::Key voteCountKey = firstSecIndex.getPrimary();
-	PrimaryIndexRecord<VoteCountingRecord::Key> indexToFind(voteCountKey, 0);
-	indexToFind = primaryIndex->search(indexToFind);
-	return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	}
 }
 
 const VoteCountingRecord & VoteCountingFile::search(const VoteCountingRecord::Key & voteCountKey) {
 	lastSearch = PRIMARY_SEARCH;
-	PrimaryIndexRecord<VoteCountingRecord::Key> indexToFind(voteCountKey, 0);
-	indexToFind = primaryIndex->search(indexToFind);
-	return dataFile->search(voteCountKey, indexToFind.getBlockNumber());
+	try {
+		PrimaryIndexRecord<VoteCountingRecord::Key> indexToFind(voteCountKey, 0);
+		indexToFind = primaryIndex->search(indexToFind);
+		return dataFile->search(voteCountKey, indexToFind.getBlockNumber());
+	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<VoteCountingRecord::Key> > ) {
+		throw FileSearchException();
+	} catch (IndexedDataRecordNotFoundException) {
+		throw FileSearchException();
+	}
 }
 
 const VoteCountingRecord & VoteCountingFile::nextDistrict() {

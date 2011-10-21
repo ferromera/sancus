@@ -24,9 +24,10 @@ ChargeFile::ChargeFile() {
 	ChargeRecord::Key highKey;
 	highKey.setHighValue();
 	PrimaryIndexRecord<ChargeRecord::Key> lastRecord(highKey, 1);
-	try{
+	try {
 		primaryIndex->insert(lastRecord);
-	}catch(LeafUnicityException){}
+	} catch (LeafUnicityException) {
+	}
 	dataFile = new IndexedDataFile<ChargeRecord, 8192> (CHARGE_FILE_DATA_PATH);
 	lastSearch = NO_SEARCH;
 	fatherSearched = NULL;
@@ -154,7 +155,7 @@ void ChargeFile::update(const ChargeRecord & record) {
 		throw FileUpdateException();
 	} catch (IndexedDataRecordNotFoundException e) {
 		throw FileUpdateException();
-	}catch (IndexedDataInsertException e) {
+	} catch (IndexedDataInsertException e) {
 		throw FileUpdateException();
 	}
 	delete primaryIndexFound;
@@ -188,35 +189,49 @@ void ChargeFile::update(const ChargeRecord & record) {
 const ChargeRecord & ChargeFile::searchByFather(const ChargeRecord::Key & father) {
 	lastSearch = FATHER_SEARCH;
 	delete fatherSearched;
-	fatherSearched = new ChargeRecord::Key(father);
-	SecondaryIndexRecord<ChargeRecord::Key, ChargeRecord::Key> firstSecIndex(father);
-	firstSecIndex = fatherIndex->search(firstSecIndex);
-	if (firstSecIndex.getAttribute() != father)
+	try {
+		fatherSearched = new ChargeRecord::Key(father);
+		SecondaryIndexRecord<ChargeRecord::Key, ChargeRecord::Key> firstSecIndex(father);
+		firstSecIndex = fatherIndex->search(firstSecIndex);
+		if (firstSecIndex.getAttribute() != father)
+			throw FileSearchException();
+		ChargeRecord::Key chargeKey = firstSecIndex.getPrimary();
+		PrimaryIndexRecord<ChargeRecord::Key> indexToFind(chargeKey, 0);
+		indexToFind = primaryIndex->search(indexToFind);
+		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<ChargeRecord::Key, ChargeRecord::Key> > ) {
 		throw FileSearchException();
-	ChargeRecord::Key chargeKey = firstSecIndex.getPrimary();
-	PrimaryIndexRecord<ChargeRecord::Key> indexToFind(chargeKey, 0);
-	indexToFind = primaryIndex->search(indexToFind);
-	return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	}
 }
 const ChargeRecord & ChargeFile::searchByDistrict(const DistrictRecord::Key & district) {
 	lastSearch = DISTRICT_SEARCH;
 	delete districtSearched;
-	districtSearched = new DistrictRecord::Key(district);
-	SecondaryIndexRecord<DistrictRecord::Key, ChargeRecord::Key> firstSecIndex(district);
-	firstSecIndex = districtIndex->search(firstSecIndex);
-	if (firstSecIndex.getAttribute() != district)
+	try {
+		districtSearched = new DistrictRecord::Key(district);
+		SecondaryIndexRecord<DistrictRecord::Key, ChargeRecord::Key> firstSecIndex(district);
+		firstSecIndex = districtIndex->search(firstSecIndex);
+		if (firstSecIndex.getAttribute() != district)
+			throw FileSearchException();
+		ChargeRecord::Key chargeKey = firstSecIndex.getPrimary();
+		PrimaryIndexRecord<ChargeRecord::Key> indexToFind(chargeKey, 0);
+		indexToFind = primaryIndex->search(indexToFind);
+		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<DistrictRecord::Key, ChargeRecord::Key> > ) {
 		throw FileSearchException();
-	ChargeRecord::Key chargeKey = firstSecIndex.getPrimary();
-	PrimaryIndexRecord<ChargeRecord::Key> indexToFind(chargeKey, 0);
-	indexToFind = primaryIndex->search(indexToFind);
-	return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	}
 }
 
 const ChargeRecord & ChargeFile::search(const ChargeRecord::Key & charge) {
 	lastSearch = PRIMARY_SEARCH;
-	PrimaryIndexRecord<ChargeRecord::Key> indexToFind(charge, 0);
-	indexToFind = primaryIndex->search(indexToFind);
-	return dataFile->search(charge, indexToFind.getBlockNumber());
+	try {
+		PrimaryIndexRecord<ChargeRecord::Key> indexToFind(charge, 0);
+		indexToFind = primaryIndex->search(indexToFind);
+		return dataFile->search(charge, indexToFind.getBlockNumber());
+	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ChargeRecord::Key> > ) {
+		throw FileSearchException();
+	} catch (IndexedDataRecordNotFoundException) {
+		throw FileSearchException();
+	}
 }
 const ChargeRecord & ChargeFile::nextFather() {
 	if (lastSearch != FATHER_SEARCH)
