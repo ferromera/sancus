@@ -178,6 +178,7 @@ void ListFile::update(const ListRecord & record) {
 const ListRecord & ListFile::searchByElection(const ElectionRecord::Key & election) {
 	lastSearch = ELECTION_SEARCH;
 	delete electionSearched;
+	try{
 	electionSearched = new ElectionRecord::Key(election);
 	SecondaryIndexRecord<ElectionRecord::Key, ListRecord::Key> firstSecIndex(election);
 	firstSecIndex = electionIndex->search(firstSecIndex);
@@ -187,10 +188,14 @@ const ListRecord & ListFile::searchByElection(const ElectionRecord::Key & electi
 	PrimaryIndexRecord<ListRecord::Key> indexToFind(listKey, 0);
 	indexToFind = primaryIndex->search(indexToFind);
 	return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<ElectionRecord::Key, ListRecord::Key> > ) {
+		throw FileSearchException();
+	}
 }
 const ListRecord & ListFile::searchByName(const std::string & name) {
 	lastSearch = NAME_SEARCH;
 	delete nameSearched;
+	try{
 	nameSearched = new StringKey(name);
 	SecondaryIndexRecord<StringKey, ListRecord::Key> firstSecIndex(name);
 	firstSecIndex = nameIndex->search(firstSecIndex);
@@ -200,12 +205,21 @@ const ListRecord & ListFile::searchByName(const std::string & name) {
 	PrimaryIndexRecord<ListRecord::Key> indexToFind(listKey, 0);
 	indexToFind = primaryIndex->search(indexToFind);
 	return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<StringKey, ListRecord::Key> > ) {
+		throw FileSearchException();
+	}
 }
 const ListRecord & ListFile::search(const ListRecord::Key & list) {
 	lastSearch = PRIMARY_SEARCH;
-	PrimaryIndexRecord<ListRecord::Key> indexToFind(list, 0);
-	indexToFind = primaryIndex->search(indexToFind);
-	return dataFile->search(list, indexToFind.getBlockNumber());
+	try {
+		PrimaryIndexRecord<ListRecord::Key> indexToFind(list, 0);
+		indexToFind = primaryIndex->search(indexToFind);
+		return dataFile->search(list, indexToFind.getBlockNumber());
+	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ListRecord::Key> > ) {
+		throw FileSearchException();
+	} catch (IndexedDataRecordNotFoundException) {
+		throw FileSearchException();
+	}
 }
 const ListRecord & ListFile::nextElection() {
 	if (lastSearch != ELECTION_SEARCH)

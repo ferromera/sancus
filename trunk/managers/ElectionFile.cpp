@@ -199,49 +199,68 @@ void ElectionFile::update(const ElectionRecord & record) {
 const ElectionRecord & ElectionFile::searchByDate(unsigned int date) {
 	lastSearch = DATE_SEARCH;
 	delete dateSearched;
-	dateSearched = new Uint32Key(date);
-	SecondaryIndexRecord<Uint32Key, ElectionRecord::Key> firstSecIndex(*dateSearched);
-	firstSecIndex = dateIndex->search(firstSecIndex);
-	if (firstSecIndex.getAttribute() != (*dateSearched))
+	try {
+		dateSearched = new Uint32Key(date);
+		SecondaryIndexRecord<Uint32Key, ElectionRecord::Key> firstSecIndex(*dateSearched);
+		firstSecIndex = dateIndex->search(firstSecIndex);
+		if (firstSecIndex.getAttribute() != (*dateSearched))
+			throw FileSearchException();
+		ElectionRecord::Key elecKey = firstSecIndex.getPrimary();
+		PrimaryIndexRecord<ElectionRecord::Key> indexToFind(elecKey, 0);
+		indexToFind = primaryIndex->search(indexToFind);
+		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> > ) {
 		throw FileSearchException();
-	ElectionRecord::Key elecKey = firstSecIndex.getPrimary();
-	PrimaryIndexRecord<ElectionRecord::Key> indexToFind(elecKey, 0);
-	indexToFind = primaryIndex->search(indexToFind);
-	return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	}
 }
 const ElectionRecord & ElectionFile::searchByCharge(const ChargeRecord::Key & charge) {
 	lastSearch = CHARGE_SEARCH;
 	delete chargeSearched;
-	chargeSearched = new ChargeRecord::Key(charge);
-	SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key> firstSecIndex(charge);
-	firstSecIndex = chargeIndex->search(firstSecIndex);
-	if (firstSecIndex.getAttribute() != (*chargeSearched))
+	try {
+		chargeSearched = new ChargeRecord::Key(charge);
+		SecondaryIndexRecord<ChargeRecord::Key, ElectionRecord::Key> firstSecIndex(charge);
+		firstSecIndex = chargeIndex->search(firstSecIndex);
+		if (firstSecIndex.getAttribute() != (*chargeSearched))
+			throw FileSearchException();
+		ElectionRecord::Key elecKey = firstSecIndex.getPrimary();
+		PrimaryIndexRecord<ElectionRecord::Key> indexToFind(elecKey, 0);
+		indexToFind = primaryIndex->search(indexToFind);
+		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> > ) {
 		throw FileSearchException();
-	ElectionRecord::Key elecKey = firstSecIndex.getPrimary();
-	PrimaryIndexRecord<ElectionRecord::Key> indexToFind(elecKey, 0);
-	indexToFind = primaryIndex->search(indexToFind);
-	return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	}
 }
 const ElectionRecord & ElectionFile::searchByDistrict(const DistrictRecord::Key & district) {
 	lastSearch = DISTRICT_SEARCH;
 	delete districtSearched;
 	districtSearched = new DistrictRecord::Key(district);
-	SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> firstSecIndex(district);
-	firstSecIndex = districtIndex->search(firstSecIndex);
-	if (firstSecIndex.getAttribute() != (*districtSearched))
+	try {
+		SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> firstSecIndex(district);
+		firstSecIndex = districtIndex->search(firstSecIndex);
+		if (firstSecIndex.getAttribute() != (*districtSearched))
+			throw FileSearchException();
+		ElectionRecord::Key elecKey = firstSecIndex.getPrimary();
+		PrimaryIndexRecord<ElectionRecord::Key> indexToFind(elecKey, 0);
+		indexToFind = primaryIndex->search(indexToFind);
+		return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	} catch (ThereIsNoNextLeafException<SecondaryIndexRecord<DistrictRecord::Key, ElectionRecord::Key> > ) {
 		throw FileSearchException();
-	ElectionRecord::Key elecKey = firstSecIndex.getPrimary();
-	PrimaryIndexRecord<ElectionRecord::Key> indexToFind(elecKey, 0);
-	indexToFind = primaryIndex->search(indexToFind);
-	return dataFile->search(firstSecIndex.getPrimary(), indexToFind.getBlockNumber());
+	}
+
 }
 const ElectionRecord & ElectionFile::search(const ElectionRecord::Key & election) {
 	lastSearch = PRIMARY_SEARCH;
-	PrimaryIndexRecord<ElectionRecord::Key> indexToFind(election, 0);
-	std::cout << indexToFind.getKey().getKey() << endl;
-	indexToFind = primaryIndex->search(indexToFind);
-	std::cout << indexToFind.getKey().getKey() << endl;
-	return dataFile->search(election, indexToFind.getBlockNumber());
+	try {
+		PrimaryIndexRecord<ElectionRecord::Key> indexToFind(election, 0);
+		std::cout << indexToFind.getKey().getKey() << endl;
+		indexToFind = primaryIndex->search(indexToFind);
+		std::cout << indexToFind.getKey().getKey() << endl;
+		return dataFile->search(election, indexToFind.getBlockNumber());
+	} catch (ThereIsNoNextLeafException<PrimaryIndexRecord<ElectionRecord::Key> > ) {
+		throw FileSearchException();
+	} catch (IndexedDataRecordNotFoundException) {
+		throw FileSearchException();
+	}
 }
 const ElectionRecord & ElectionFile::nextDate() {
 	if (lastSearch != DATE_SEARCH)
