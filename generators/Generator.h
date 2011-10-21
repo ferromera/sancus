@@ -90,7 +90,7 @@ public:
 		Logger::getInstance()->info("SE CARGAN LOS CARGOS");
 		Logger::getInstance()->info("*************************************************************************");
 
-		loadCharges();
+		//loadCharges();
 
 		Logger::getInstance()->info("*************************************************************************");
 
