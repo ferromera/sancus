@@ -12,6 +12,8 @@
 #include "ListRecord.h"
 #include "DistrictRecord.h"
 #include "ElectionRecord.h"
+#include "../utils/Logger.h"
+#include "../utils/StringUtils.h"
 
 #include <list>
 
@@ -80,7 +82,9 @@ public:
 
 	VoteCountingRecord & operator = (const VoteCountingRecord &);
 
-	virtual ~VoteCountingRecord(){}
+	virtual ~VoteCountingRecord(){
+		Logger::getInstance()->info("Se llamo al destructor de VOTE COUNTING RECORD " + StringUtils::intToString((int)(this)));
+	}
 };
 
 #endif /* VOTECOUNTINGRECORD_H_ */
