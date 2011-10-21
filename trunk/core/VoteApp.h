@@ -30,6 +30,7 @@
 #define BAJA_SCREEN 5
 #define MOD_SCREEN 6
 #define CONSULTA_SCREEN 7
+#define SIMUL_SCREEN 8
 
 class VoteApp : public Runable{
 public:
