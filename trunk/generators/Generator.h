@@ -28,8 +28,8 @@ using namespace std;
 
 #define NUMERO_DE_PROVINCIAS  2
 #define NUMERO_DE_MUNICIPIOS  2
-#define NUMERO_DE_VOTANTES_POR_MUNICIPIO  10
-#define NUMERO_DE_LISTAS_POR_ELECCION  10
+#define NUMERO_DE_VOTANTES_POR_MUNICIPIO  100
+#define NUMERO_DE_LISTAS_POR_ELECCION  4
 #define DOCUMENTO_BASE  20000000
 
 #define NOMBRE_BASE_PROVINCIAS  "Provincia"
@@ -90,7 +90,7 @@ public:
 		Logger::getInstance()->info("SE CARGAN LOS CARGOS");
 		Logger::getInstance()->info("*************************************************************************");
 
-		//loadCharges();
+		loadCharges();
 
 		Logger::getInstance()->info("*************************************************************************");
 
