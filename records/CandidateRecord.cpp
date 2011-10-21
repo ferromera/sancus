@@ -7,6 +7,12 @@
 
 #include "CandidateRecord.h"
 
+
+CandidateRecord::CandidateRecord(char ** input){
+	key_=new CandidateRecord::Key(input);
+	voterKey= new VoterRecord::Key(input);
+}
+
 CandidateRecord::CandidateRecord(const CandidateRecord::Key& key){
 	key_=new CandidateRecord::Key(key);
 	voterKey= new VoterRecord::Key();

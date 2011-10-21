@@ -13,11 +13,11 @@ LoginScreen::LoginScreen() {
 void  LoginScreen::draw()
 {
 	system("clear");
-	VoterFile* voteFile = VoterFile::getInstance();
+
 	VoteApp* app = VoteApp::getInstance();
 	uint32_t dni;
 	std::string clave;
-	char respuesta;
+
 
 	std::cout<<"/////////////////////////////////////////"<<std::endl;
 	std::cout<<"/////////////////////////////////////////"<<std::endl;

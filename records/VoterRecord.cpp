@@ -55,9 +55,9 @@ VoterRecord::VoterRecord(const std::string & name, uint32_t  dni, const std::str
 }
 
 VoterRecord::~VoterRecord(){
-	if(this->voterDistrict != NULL) {
-		delete this->voterDistrict;
-	}
+
+	delete this->voterDistrict;
+
     delete this->electionList;
 }
 
@@ -256,7 +256,7 @@ const VoterRecord & VoterRecord::operator=(const VoterRecord & rk){
 	voterName = rk.voterName;
 	address = rk.address;
 	voterKey = rk.voterKey;
-	voterDistrict = rk.voterDistrict;
+	voterDistrict = new DistrictRecord::Key(*rk.voterDistrict);
 	this->key_ = NULL;
 	this->setKey(rk.dni);
 	this->dni = rk.dni;

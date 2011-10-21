@@ -6,8 +6,9 @@
  */
 
 #include "ListRecord.h"
-
-
+ListRecord::ListRecord(){
+	key_= new ListRecord::Key();
+}
 ListRecord::ListRecord(char ** input){
 	key_= new ListRecord::Key(input);
 }
