@@ -78,7 +78,7 @@ private:
 
 		unsigned int choice = MathUtils::randomNumber(0, listas.size() - 1);
 
-		cout<<"CHOICE " << choice<<endl;
+		//cout<<"CHOICE " << choice<<endl;
 
 		unsigned int i = 0;
 		for (it = listas.begin(); i < choice; it++, i++) {
@@ -90,7 +90,7 @@ private:
 			updateVoteCountingRecordFor(winner.getKey(), distritos[i], eleccion);
 		}
 
-		cout << "Votante " << voter.getName() << " voto a la lista: " << winner.getKey().getString() << endl;
+		//cout << "Votante " << voter.getName() << " voto a la lista: " << winner.getKey().getString() << endl;
 	}
 
 	void updateVoteCountingRecordFor(ListRecord::Key winner, DistrictRecord::Key district, ElectionRecord::Key election) {
