@@ -13,6 +13,7 @@
 #include "../screens/AdministratorScreen.h"
 #include "../screens/ChargeScreen.h"
 #include "../screens/ResultScreen.h"
+#include "../screens/SimulScreen.h"
 
 
 VoteApp* VoteApp::voteApp = NULL;
@@ -27,7 +28,7 @@ VoteApp::VoteApp() {
 	Drawable *scr6 = new ChargeScreen();
 	Drawable *scr7 = new ChargeScreen();
 	Drawable *scr8 = new ResultScreen();
-	Drawable *scr9 = new ChargeScreen();
+	Drawable *scr9 = new SimulScreen();
 
 	this->screens.push_back(scr1);
 	this->screens.push_back(scr2);
