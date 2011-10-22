@@ -19,21 +19,22 @@ void  LoginScreen::draw()
 	std::string clave;
 
 
+
 	std::cout<<"/////////////////////////////////////////"<<std::endl;
+	std::cout<<"       SISTEMA DE VOTO ELECTRONICO       "<<std::endl;
 	std::cout<<"/////////////////////////////////////////"<<std::endl;
+	std::cout<<"            GRUPO KAMMERICH				 "<<std::endl;
+	std::cout<<"         FACULTAD DE INGENIERIA 		 "<<std::endl;
+	std::cout<<"      UNIVERSIDAD DE BUENOS AIRES        "<<std::endl;
 	std::cout<<"/////////////////////////////////////////"<<std::endl;
-	std::cout<<"           VOTO ELECTRONICO              "<<std::endl;
-	std::cout<<"/////////////////////////////////////////"<<std::endl;
-	std::cout<<"/////////////////////////////////////////"<<std::endl;
-	std::cout<<"/////////////////////////////////////////"<<std::endl;
-	std::cout<<""<<std::endl;
+
 	std::cout<<""<<std::endl;
 	std::cout<<""<<std::endl;
 
 
 	bool incorrectUser = true;
 	bool userAdmin = false;
-	std::cout<<"Porfavor ingrese su usuario (DNI) y presione enter"<<std::endl;
+	std::cout<<"Por favor ingrese su usuario (DNI) y presione ENTER"<<std::endl;
 	std::cout<<""<<std::endl;
 
 	while(incorrectUser)
