@@ -102,7 +102,7 @@ public:
 		Logger::getInstance()->info("SE CARGAN LOS DISTRITOS");
 		Logger::getInstance()->info("*************************************************************************");
 
-		cout << "Comienza la carga de distritos" << endl;
+		cout << "Comienza la carga del programa (esto puede tardar un par de minutos)" << endl;
 
 		loadDistricts();
 
@@ -112,7 +112,13 @@ public:
 		Logger::getInstance()->info("SE CARGAN LOS CARGOS");
 		Logger::getInstance()->info("*************************************************************************");
 
+		cout << "espere por favor ... " << endl;
+
+
 		loadCharges();
+
+		cout<< " Comienza la votacion" <<endl;
+		cout << "espere por favor ... " << endl;
 
 		Logger::getInstance()->info("*************************************************************************");
 
@@ -126,6 +132,8 @@ public:
 
 		districts->insert(*argentinaRecord);
 
+		cout<<"Se carga el distrito: "<< ARGENTINA <<endl;
+
 		delete (argentinaRecord);
 
 		for (unsigned int i = 0; i < NUMERO_DE_PROVINCIAS; i++) {
@@ -133,6 +141,8 @@ public:
 			provinciaRecord = new DistrictRecord(provincia, ARGENTINA);
 
 			districts->insert(*provinciaRecord);
+
+			cout<<"Se carga el distrito: "<< provincia <<endl;
 
 			delete (provinciaRecord);
 
@@ -143,6 +153,8 @@ public:
 				loadVoters(municipioRecord);
 
 				districts->insert(*municipioRecord);
+
+				cout<<"Se carga el distrito: "<< municipio <<endl;
 
 				delete (municipioRecord);
 			}
@@ -244,6 +256,8 @@ public:
 
 		elections->insert(*election);
 
+		cout<<"Se carga la eleccion: "<< election->getKey().getString() << endl;
+
 		loadList(election);
 
 		return election;
@@ -260,6 +274,9 @@ public:
 			listRecord = new ListRecord(election->getKey(), list);
 
 			lists->insert(*listRecord);
+
+			cout<<"Se carga la lista: "<< list << endl;
+
 
 			loadVoteCountings(listRecord);
 
