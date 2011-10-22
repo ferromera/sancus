@@ -51,6 +51,7 @@ long File::tell(){
 void File::read(void * buffer,size_t bytes){
 	if(!isOpen())
 			throw FileNotOpenedException();
+	flush();
 	if(fread(buffer,bytes,1,filep)!=1){
 		if(ferror(filep))
 			throw ReadFileException();
