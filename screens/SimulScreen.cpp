@@ -23,6 +23,9 @@ void SimulScreen::draw(){
 	for(unsigned int i= 20000000;i<20005000;i++)
 		vGen.vote(i);
 	app->setActualScreen(ADM_SCREEN);
+
+	cout<<"Votacion concluida "<<endl;
+
 	return;
 
 }
