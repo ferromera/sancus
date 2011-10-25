@@ -1,0 +1,23 @@
+Aclaracion sobre los nombres:  Se usaron nombres poco felices para asegurnarnos que los mismos sean unicos. 
+
+Asi una provincia se puede llamar Provincia0 y un municipio de esa provincia Municipio0-Provincia0
+
+Consultar Distritos:
+
+fecha de eleccion: 20111023
+distrito: Municipio0-Provincia0
+
+consulta lista: 
+
+nombre lista: Lista1
+fecha de eleccion: 20111023
+cargo: Gobernador
+distrito: Provincia0
+
+
+Consulta eleccion: 
+
+fecha de eleccion: 20111023
+cargo: Presidente
+distrito de la eleccion: Argentina
+distrito representativo: Municipio0-Provincia0
