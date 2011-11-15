@@ -9,13 +9,25 @@
 
 using namespace std;
 
+File::File(SecurityStrategy * security):filep(NULL){
+	this->security = security;
+}
+
+File::File(const std::string & path,char openMode, SecurityStrategy * security):path_(path),filep(NULL){
+	this->security = security;
+	open(path,openMode);
+}
 
 File::File():filep(NULL){
+	this->security =  new RsaSecurity(5);
 }
 
 File::File(const std::string & path,char openMode):path_(path),filep(NULL){
+	this->security = new RsaSecurity(5);
+
 	open(path,openMode);
 }
+
 bool File::isOpen(){
 	if(filep==NULL)
 		return false;
@@ -58,10 +70,14 @@ void File::read(void * buffer,size_t bytes){
 		throw EndOfFileException();
 	}
 
+	this->security->decrypt(buffer,bytes);
 }
-void File::write(const void * buffer,size_t bytes){
+void File::write(void * buffer,size_t bytes){
 	if(!isOpen())
 			throw FileNotOpenedException();
+
+	this->security->encrypt(buffer,bytes);
+
 	if(fwrite(buffer,bytes,1,filep)!=1)
 		throw WriteFileException();
 
@@ -139,3 +155,10 @@ File::~File(){
 		close();
 }
 
+//void File::setSecurityStrategy(SecurityStrategy * security) {
+//	this->security = security;
+//}
+
+//SecurityStrategy * File::getSecurityStrategy() {
+//	return this->security;
+//}
