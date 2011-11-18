@@ -11,6 +11,12 @@
 #include <math.h>
 #include <stdlib.h>
 
+struct EuclidesResult{
+	int d;
+	int f;
+	int e; //este es el numero e, en RSA
+};
+
 class MathUtils {
 
 public:
@@ -39,5 +45,62 @@ public:
 	static int randomNumber(unsigned int base, unsigned int max) {
 		return rand() % (max - base + 1) + base;
 	}
+
+
+
+	/* procedimiento que calcula el valor del maximo común divisor
+
+	 * de a y b siguiendo el algoritmo de euclides extendido,
+
+	 * devolviendo en un arreglo la siguiente estructura [d,x,y]
+
+	 * donde:
+	 *    mcd(a,b) = d = a*x + b*y
+	 **/
+
+	/**
+	 * Calcula el maximo comun divisor de a y b con algoritmo de
+	 * euclides extendido.
+	 *
+	 * mcd(a,b) = d = a*x + b*e;
+	 *
+	 * @returns EuclidesResult stuct
+	 */
+	static EuclidesResult euclidesExtendido(int a, int b)
+	{
+		EuclidesResult result;
+		int x=0,y=0,d=0;
+
+		if(b==0)
+		{
+			result.d = a; result.f = 1; result.e = 0;
+		}
+		else
+		{
+			int x2 = 1, x1 = 0, y2 = 0, y1 = 1;
+			int q = 0, r = 0;
+
+			while(b>0)
+			{
+				q = (a/b);
+				r = a - q*b;
+				x = x2-q*x1;
+				y = y2 - q*y1;
+				a = b;
+				b = r;
+				x2 = x1;
+				x1 = x;
+				y2 = y1;
+				y1 = y;
+			}
+
+			result.d = a;
+			result.f = x2;
+			result.e = y2;
+		}
+
+		return result;
+	}
+
 };
 #endif /* MATHUTILS_H_ */
