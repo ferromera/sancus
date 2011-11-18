@@ -59,11 +59,6 @@ public:
 template<class TRecord, unsigned int blockSize>
 BPTreeVariableInternalNode<TRecord, blockSize>::BPTreeVariableInternalNode() :
 	BPTreeInternalNode<TRecord, blockSize> () {
-	BPTreeNode<TRecord, blockSize>::logKey = "Nodo Interno ";
-	char intStr[20];
-	sprintf(intStr, "%lu", BPTreeNode<TRecord, blockSize>::blockNumber_);
-	BPTreeNode<TRecord, blockSize>::logKey.append(intStr);
-	BPTreeNode<TRecord, blockSize>::logKey.append(" :");
 
 	freeSpace = blockSize - VARIABLE_NODE_CONTROL_BYTES;
 }
@@ -71,11 +66,6 @@ BPTreeVariableInternalNode<TRecord, blockSize>::BPTreeVariableInternalNode() :
 template<class TRecord, unsigned int blockSize>
 BPTreeVariableInternalNode<TRecord, blockSize>::BPTreeVariableInternalNode(unsigned int level, File & file) :
 	BPTreeInternalNode<TRecord, blockSize> (level, file) {
-	BPTreeNode<TRecord, blockSize>::logKey = "Nodo Interno ";
-	char intStr[20];
-	sprintf(intStr, "%lu", BPTreeNode<TRecord, blockSize>::blockNumber_);
-	BPTreeNode<TRecord, blockSize>::logKey.append(intStr);
-	BPTreeNode<TRecord, blockSize>::logKey.append(" :");
 
 	freeSpace = blockSize - VARIABLE_NODE_CONTROL_BYTES;
 }
@@ -83,17 +73,11 @@ BPTreeVariableInternalNode<TRecord, blockSize>::BPTreeVariableInternalNode(unsig
 template<class TRecord, unsigned int blockSize>
 BPTreeVariableInternalNode<TRecord, blockSize>::BPTreeVariableInternalNode(File & file, unsigned long blockNumber) :
 	BPTreeInternalNode<TRecord, blockSize> (file, blockNumber) {
-	BPTreeNode<TRecord, blockSize>::logKey = "Nodo Interno ";
-	char intStr[20];
-	sprintf(intStr, "%lu", BPTreeNode<TRecord, blockSize>::blockNumber_);
-	BPTreeNode<TRecord, blockSize>::logKey.append(intStr);
-	BPTreeNode<TRecord, blockSize>::logKey.append(" :");
 
 	read();
 }
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord, blockSize>::read() {
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Leyendo nodo.");
 
 	if (BPTreeNode<TRecord, blockSize>::isFree_)
 		throw ReadInAFreeNodeException();
@@ -113,13 +97,12 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::read() {
 
 	freeSpace = block->freeSpace;
 	readRecords(block);
-
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Nodo leido.");
+	delete block;
 
 }
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord, blockSize>::readRecords(BPTreeVariableNodeBlock<blockSize> *block) {
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Leyendo claves.");
+
 	char * currentPos = block->bytes;
 	unsigned int readSpace = 0;
 	unsigned int usedSpace = blockSize - VARIABLE_NODE_CONTROL_BYTES - freeSpace;
@@ -135,11 +118,9 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::readRecords(BPTreeVariableN
 		readSpace += 4 + newKey->size();
 		delete newKey;
 	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Claves leidas.");
 }
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord, blockSize>::write() {
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Escribiendo nodo.");
 
 	if (BPTreeNode<TRecord, blockSize>::isFree_)
 		throw WriteInAFreeNodeException();
@@ -153,13 +134,11 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::write() {
 	writeRecords(block);
 	file->seek(BPTreeNode<TRecord, blockSize>::blockNumber_ * blockSize, File::BEG);
 	file->write(block, blockSize);
-
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Nodo escrito.");
+	delete block;
 
 }
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord, blockSize>::writeRecords(BPTreeVariableNodeBlock<blockSize> * block) {
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Escribiendo claves.");
 
 	typename std::list<typename TRecord::Key>::iterator itKeys = BPTreeInternalNode<TRecord, blockSize>::keys_.begin();
 	std::list<unsigned int>::iterator itChildren = BPTreeInternalNode<TRecord, blockSize>::children_.begin();
@@ -173,20 +152,9 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::writeRecords(BPTreeVariable
 		itKeys++;
 		itChildren++;
 	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Claves escritas.");
 }
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord, blockSize>::insert(const TRecord & record) {
-	BPTreeNode<TRecord, blockSize>::logString = "Insertando registro con clave : ";
-	if (TRecord::Key::isString)
-		BPTreeNode<TRecord, blockSize>::logString.append(record.getKey().getString());
-	else {
-		char intStr[20];
-		sprintf(intStr, "%u", record.getKey().getUint());
-		BPTreeNode<TRecord, blockSize>::logString.append(intStr);
-	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey,
-			BPTreeNode<TRecord, blockSize>::logString);
 
 	typename TRecord::Key key = record.getKey();
 	//Busco la clave en la lista
@@ -236,7 +204,6 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::insert(const TRecord & reco
 		}
 
 	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Registro insertado.");
 
 }
 template<class TRecord, unsigned int blockSize>
@@ -286,7 +253,6 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::loadInsert(const TRecord & 
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord, blockSize>::handleLeafOverflow(
 		BPTreeVariableLeaf<TRecord, blockSize> * childLeaf, const TRecord & record) {
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Manejando Overflow de hoja.");
 
 	typename std::list<TRecord> recordList = childLeaf->getRecords();
 	typename std::list<TRecord>::iterator recordIt = recordList.begin();
@@ -324,14 +290,12 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::handleLeafOverflow(
 
 	insertInNode(newKey, newBlockNumber);
 	write();
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Overflow de hoja resuelto.");
+
 }
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord, blockSize>::handleNodeOverflow(
 		BPTreeVariableInternalNode<TRecord, blockSize>*childNode,
 		NodeOverflowException<typename TRecord::Key> ovException) {
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey,
-			"Manejando Overflow de nodo interno.");
 
 	BPTreeVariableInternalNode<TRecord, blockSize>* newNode = new BPTreeVariableInternalNode<TRecord, blockSize> (
 			BPTreeNode<TRecord, blockSize>::level_ - 1, *BPTreeNode<TRecord, blockSize>::file_);
@@ -376,8 +340,6 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::handleNodeOverflow(
 	insertInNode(middleKey, newBlockNumber);
 	write();
 
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey,
-			"Overflow de nodo interno resuelto.");
 }
 
 template<class TRecord, unsigned int blockSize>
@@ -441,20 +403,6 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::handleLoadNodeOverflow(
 
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord, blockSize>::insertInNode(typename TRecord::Key & key, unsigned int child) {
-	BPTreeNode<TRecord, blockSize>::logString = "Insertando en nodo clave : ";
-	if (TRecord::Key::isString)
-		BPTreeNode<TRecord, blockSize>::logString.append(key.getString());
-	else {
-		char intStr[20];
-		sprintf(intStr, "%u", key.getUint());
-		BPTreeNode<TRecord, blockSize>::logString.append(intStr);
-	}
-	BPTreeNode<TRecord, blockSize>::logString = " con hijo derecho : ";
-	char intStr[20];
-	sprintf(intStr, "%u", child);
-	BPTreeNode<TRecord, blockSize>::logString.append(intStr);
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey,
-			BPTreeNode<TRecord, blockSize>::logString);
 
 	if (freeSpace < key.size() + 4)
 		throw NodeOverflowException<typename TRecord::Key> (child, key);
@@ -472,7 +420,6 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::insertInNode(typename TReco
 	BPTreeInternalNode<TRecord, blockSize>::children_.insert(itChildren, child);
 	freeSpace -= key.size() + 4;
 
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Clave e hijo insertados.");
 
 }
 
@@ -500,16 +447,6 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::loadInsertInNode(typename T
 
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord, blockSize>::remove(const TRecord & record) {
-	BPTreeNode<TRecord, blockSize>::logString = "Borrando registro con clave : ";
-	if (TRecord::Key::isString)
-		BPTreeNode<TRecord, blockSize>::logString.append(record.getKey().getString());
-	else {
-		char intStr[20];
-		sprintf(intStr, "%u", record.getKey().getUint());
-		BPTreeNode<TRecord, blockSize>::logString.append(intStr);
-	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey,
-			BPTreeNode<TRecord, blockSize>::logString);
 
 	typename TRecord::Key key = record.getKey();
 	//Busco la clave en la lista
@@ -556,14 +493,12 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::remove(const TRecord & reco
 			handleNodeUnderflow(childNode, itKey, itChildren);
 		}
 	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Registro borrado.");
 }
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord, blockSize>::handleLeafUnderflow(
 		BPTreeVariableLeaf<TRecord, blockSize>* childLeaf, typename std::list<typename TRecord::Key>::iterator itKey,
 		std::list<unsigned int>::iterator itChildren) {
 
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Manejando underflow de hoja.");
 
 	BPTreeVariableLeaf<TRecord, blockSize>* sibling;
 	std::list<unsigned int>::iterator itSibling = itChildren;
@@ -591,7 +526,6 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::handleLeafUnderflow(
 
 	if (sibling->hasMinimumCapacity()) {
 		//fusion
-		BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Aplicando fusion.");
 		if (rightSibling) {
 			childLeaf->next(sibling->next());
 			sibling->free();
@@ -618,7 +552,6 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::handleLeafUnderflow(
 		return;
 	} else {
 		//balanceo
-		BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Aplicando balanceo.");
 		childLeaf->clear();
 		sibling->clear();
 		unsigned int childBytes = 0, siblingBytes = 0;
@@ -661,8 +594,6 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::handleLeafUnderflow(
 		delete sibling;
 		write();
 
-		BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey,
-				"Underflow de hoja resuelto.");
 		return;
 
 	}
@@ -672,8 +603,6 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::handleNodeUnderflow(
 		BPTreeVariableInternalNode<TRecord, blockSize>* childNode,
 		typename std::list<typename TRecord::Key>::iterator itKey, std::list<unsigned int>::iterator itChildren) {
 
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey,
-			"Manejando underflow de nodo interno.");
 
 	BPTreeVariableInternalNode<TRecord, blockSize>* sibling;
 	std::list<unsigned int>::iterator itSibling = itChildren;
@@ -706,7 +635,6 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::handleNodeUnderflow(
 	}
 	if (childNode->usedSpace() + sibling->usedSpace() + itKey->size() + 4 <= blockSize - VARIABLE_NODE_CONTROL_BYTES) {
 		//fusion
-		BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Aplicando fusion.");
 		sibling->BPTreeNode<TRecord, blockSize>::free();
 		childNode->clear();
 
@@ -732,7 +660,7 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::handleNodeUnderflow(
 		return;
 	} else {
 		//balanceo
-		BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Aplicando balanceo.");
+
 		childNode->clear();
 		sibling->clear();
 		unsigned int childBytes = 0, siblingBytes = 0;
@@ -789,23 +717,11 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::handleNodeUnderflow(
 		delete childNode;
 		delete sibling;
 		write();
-		BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey,
-				"Underflow de nodo interno resuelto.");
 
 	}
 }
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord, blockSize>::removeInNode(typename TRecord::Key & key) {
-	BPTreeNode<TRecord, blockSize>::logString = "Borrando en nodo clave : ";
-	if (TRecord::Key::isString)
-		BPTreeNode<TRecord, blockSize>::logString.append(key.getString());
-	else {
-		char intStr[20];
-		sprintf(intStr, "%u", key.getUint());
-		BPTreeNode<TRecord, blockSize>::logString.append(intStr);
-	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey,
-			BPTreeNode<TRecord, blockSize>::logString);
 
 	typename std::list<typename TRecord::Key>::iterator itRemovePos = itSearch(key);
 	if (itRemovePos == BPTreeInternalNode<TRecord, blockSize>::keys_.end() || (*itRemovePos) != key)
@@ -824,8 +740,6 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::removeInNode(typename TReco
 	BPTreeInternalNode<TRecord, blockSize>::children_.erase(itRightChild);
 	BPTreeInternalNode<TRecord, blockSize>::keys_.erase(itRemovePos);
 
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Clave borrada.");
-
 }
 template<class TRecord, unsigned int blockSize>
 unsigned int BPTreeVariableInternalNode<TRecord, blockSize>::usedSpace() {
@@ -840,17 +754,6 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::clear() {
 template<class TRecord, unsigned int blockSize>
 TRecord * BPTreeVariableInternalNode<TRecord, blockSize>::search(const TRecord & rec,
 		BPTreeVariableLeaf<TRecord, blockSize> ** searchLeaf) {
-
-	BPTreeNode<TRecord, blockSize>::logString = "Buscando registro con clave : ";
-	if (TRecord::Key::isString)
-		BPTreeNode<TRecord, blockSize>::logString.append(rec.getKey().getString());
-	else {
-		char intStr[20];
-		sprintf(intStr, "%u", rec.getKey().getUint());
-		BPTreeNode<TRecord, blockSize>::logString.append(intStr);
-	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey,
-			BPTreeNode<TRecord, blockSize>::logString);
 
 	typename TRecord::Key key = rec.getKey();
 	//Busco la clave en la lista
@@ -909,16 +812,6 @@ TRecord * BPTreeVariableInternalNode<TRecord, blockSize>::search(const TRecord &
 }
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord, blockSize>::update(const TRecord & record) {
-	BPTreeNode<TRecord, blockSize>::logString = "Actualizando registro con clave : ";
-	if (TRecord::Key::isString)
-		BPTreeNode<TRecord, blockSize>::logString.append(record.getKey().getString());
-	else {
-		char intStr[20];
-		sprintf(intStr, "%u", record.getKey().getUint());
-		BPTreeNode<TRecord, blockSize>::logString.append(intStr);
-	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey,
-			BPTreeNode<TRecord, blockSize>::logString);
 
 	typename TRecord::Key key = record.getKey();
 	//Busco la clave en la lista
@@ -968,12 +861,10 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::update(const TRecord & reco
 			handleNodeOverflow(childNode, ovException);
 		}
 	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Registro Actualizado.");
 
 }
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableInternalNode<TRecord, blockSize>::preOrderReport(File & reportFile, unsigned int treeLevel) {
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Reportando en pre orden.");
 
 	for (unsigned int i = BPTreeNode<TRecord, blockSize>::level_; i < treeLevel; i++)
 		reportFile << "|\t";
@@ -1004,7 +895,6 @@ void BPTreeVariableInternalNode<TRecord, blockSize>::preOrderReport(File & repor
 			delete internal;
 		}
 	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Nodo reportado.");
 }
 
 template<class TRecord, unsigned int blockSize>

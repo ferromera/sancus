@@ -40,11 +40,6 @@ public:
 template<class TRecord, unsigned int blockSize>
 BPTreeLeaf<TRecord, blockSize>::BPTreeLeaf(File & file) :
 	BPTreeNode<TRecord, blockSize> (file), next_(0) {
-	BPTreeNode<TRecord, blockSize>::logKey = "Hoja ";
-	char intStr[20];
-	sprintf(intStr, "%lu", BPTreeNode<TRecord, blockSize>::blockNumber_);
-	BPTreeNode<TRecord, blockSize>::logKey.append(intStr);
-	BPTreeNode<TRecord, blockSize>::logKey.append(" :");
 	BPTreeNode<TRecord, blockSize>::level_ = 0;
 	searchIterator = records_.begin();
 }
@@ -52,11 +47,6 @@ BPTreeLeaf<TRecord, blockSize>::BPTreeLeaf(File & file) :
 template<class TRecord, unsigned int blockSize>
 BPTreeLeaf<TRecord, blockSize>::BPTreeLeaf(File & file, unsigned long blockNumber) :
 	BPTreeNode<TRecord, blockSize> (file, blockNumber), next_(0) {
-	BPTreeNode<TRecord, blockSize>::logKey = "Hoja ";
-	char intStr[20];
-	sprintf(intStr, "%lu", BPTreeNode<TRecord, blockSize>::blockNumber_);
-	BPTreeNode<TRecord, blockSize>::logKey.append(intStr);
-	BPTreeNode<TRecord, blockSize>::logKey.append(" :");
 	BPTreeNode<TRecord, blockSize>::level_ = 0;
 	searchIterator = records_.begin();
 }
@@ -64,11 +54,6 @@ BPTreeLeaf<TRecord, blockSize>::BPTreeLeaf(File & file, unsigned long blockNumbe
 template<class TRecord, unsigned int blockSize>
 BPTreeLeaf<TRecord, blockSize>::BPTreeLeaf(const BPTreeLeaf<TRecord, blockSize> &leaf) :
 	BPTreeNode<TRecord, blockSize> (leaf), records_(leaf.records_), next_(leaf.next_) {
-	BPTreeNode<TRecord, blockSize>::logKey = "Hoja ";
-	char intStr[20];
-	sprintf(intStr, "%lu", BPTreeNode<TRecord, blockSize>::blockNumber_);
-	BPTreeNode<TRecord, blockSize>::logKey.append(intStr);
-	BPTreeNode<TRecord, blockSize>::logKey.append(" :");
 	searchIterator = records_.begin();
 	typename std::list<TRecord>::const_iterator it = leaf.records_.begin();
 	for (; it != leaf.searchIterator; it++, searchIterator++)
@@ -110,20 +95,12 @@ void BPTreeLeaf<TRecord, blockSize>::clear() {
 
 template<class TRecord, unsigned int blockSize>
 TRecord * BPTreeLeaf<TRecord, blockSize>::search(const TRecord & rec) {
-	BPTreeNode<TRecord, blockSize>::logString = "Buscando registro con clave : ";
-	if (TRecord::Key::isString)
-		BPTreeNode<TRecord, blockSize>::logString.append(rec.getKey().getString());
-	else {
-		char intStr[20];
-		sprintf(intStr, "%u", rec.getKey().getUint());
-		BPTreeNode<TRecord, blockSize>::logString.append(intStr);
-	}
+
 	searchIterator = itSearch(rec);
 
 	if (searchIterator == records_.end())
 		throw LeafRecordNotFoundException();
 	TRecord * found = new TRecord(*searchIterator);
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Registro encontrado.");
 	return found;
 }
 

@@ -116,18 +116,12 @@ void BPlusTree<TRecord, blockSize>::create() {
 	FreeSpaceStackBlock<blockSize> * fblock = new FreeSpaceStackBlock<blockSize> ;
 	fblock->blockNumber = 1;
 	fblock->inFile = 0;
-	log->insert(logKey, "Escribiendo bloque 0 de espacio libre.");
 	file_->write((char*) fblock, blockSize);
-	log->insert(logKey, "Bloque 0 escrito.");
 	delete fblock;
 
 	root = new BPTreeVariableLeaf<TRecord, blockSize> (*file_);
-	log->insert(logKey, "Escribiendo bloque 1 , raiz hoja vacia.");
 	root->write();
-	log->insert(logKey, "Raiz escrita.");
-	log->insert(logKey, "Inicializando hoja de busqueda con bloque 1.");
 	searchLeaf = new BPTreeVariableLeaf<TRecord, blockSize> (*file_, 1);
-	log->insert(logKey, "Hoja de Busqueda inicializada.");
 
 }
 template<class TRecord, unsigned int blockSize>
@@ -145,14 +139,13 @@ void BPlusTree<TRecord, blockSize>::load() {
 	log->insert(logKey, "El archivo se abrio correctamente.");
 
 	BPTreeVariableLeafBlock<blockSize> *block = new BPTreeVariableLeafBlock<blockSize> ;
-	log->insert(logKey, "Leyendo bloque 1 (raiz).");
 	file_->seek(blockSize, File::BEG);
 	file_->read((char*) block, blockSize);
 	if (block->level == 0)
 		root = new BPTreeVariableLeaf<TRecord, blockSize> (*file_, 1);
 	else
 		root = new BPTreeVariableInternalNode<TRecord, blockSize> (*file_, 1);
-	log->insert(logKey, "Se leyo la raiz.");
+	delete block;
 
 }
 template<class TRecord, unsigned int blockSize>
@@ -207,13 +200,11 @@ void BPlusTree<TRecord, blockSize>::insert(const TRecord & rec) {
 	} catch (NodeOverflowException<typename TRecord::Key> e) {
 		handleNodeOverflow(rec, e);
 	}
-	log->insert(logKey, "Registro insertado.");
 }
 template<class TRecord, unsigned int blockSize>
 void BPlusTree<TRecord, blockSize>::loadInsert(const TRecord & rec, float compression) {
 	delete searchLeaf;
 	searchLeaf = NULL;
-	logString = "Insertando por carga registro con clave: ";
 	if (TRecord::Key::isString)
 		logString.append(rec.getKey().getString());
 	else {
@@ -229,7 +220,6 @@ void BPlusTree<TRecord, blockSize>::loadInsert(const TRecord & rec, float compre
 	} catch (NodeOverflowException<typename TRecord::Key> e) {
 		handleLoadNodeOverflow(rec, e);
 	}
-	log->insert(logKey, "Registro insertado.");
 }
 template<class TRecord, unsigned int blockSize>
 void BPlusTree<TRecord, blockSize>::remove(const TRecord & rec) {
@@ -256,11 +246,9 @@ void BPlusTree<TRecord, blockSize>::remove(const TRecord & rec) {
 		else
 			root->write();
 	}
-	log->insert(logKey, "Registro borrado.");
 }
 template<class TRecord, unsigned int blockSize>
 void BPlusTree<TRecord, blockSize>::handleLeafOverflow(const TRecord & record) {
-	log->insert(logKey, "Manejando overflow de hoja en raiz");
 
 	BPTreeVariableLeaf<TRecord, blockSize>* rootAsLeaf = (BPTreeVariableLeaf<TRecord, blockSize>*) root;
 
@@ -313,7 +301,6 @@ void BPlusTree<TRecord, blockSize>::handleLeafOverflow(const TRecord & record) {
 template<class TRecord, unsigned int blockSize>
 void BPlusTree<TRecord, blockSize>::handleNodeOverflow(const TRecord & rec,
 		NodeOverflowException<typename TRecord::Key> ovException) {
-	log->insert(logKey, "Manejando overflow de nodo interno en raiz");
 
 	BPTreeVariableInternalNode<TRecord, blockSize>* leftNode = new BPTreeVariableInternalNode<TRecord, blockSize> (
 			root->level(), *file_);
@@ -373,7 +360,6 @@ void BPlusTree<TRecord, blockSize>::handleNodeOverflow(const TRecord & rec,
 }
 template<class TRecord, unsigned int blockSize>
 void BPlusTree<TRecord, blockSize>::handleNodeUnderflow() {
-	log->insert(logKey, "Manejando underflow de nodo interno en raiz");
 
 	BPTreeVariableInternalNode<TRecord, blockSize>* rootAsInternal =
 			(BPTreeVariableInternalNode<TRecord, blockSize>*) root;
@@ -397,7 +383,6 @@ void BPlusTree<TRecord, blockSize>::handleNodeUnderflow() {
 
 template<class TRecord, unsigned int blockSize>
 void BPlusTree<TRecord, blockSize>::handleLoadLeafOverflow(const TRecord & rec) {
-	log->insert(logKey, "Manejando overflow de carga de hoja en raiz");
 
 	BPTreeVariableLeaf<TRecord, blockSize>* rootAsLeaf = (BPTreeVariableLeaf<TRecord, blockSize>*) root;
 
@@ -437,7 +422,6 @@ void BPlusTree<TRecord, blockSize>::handleLoadLeafOverflow(const TRecord & rec) 
 template<class TRecord, unsigned int blockSize>
 void BPlusTree<TRecord, blockSize>::handleLoadNodeOverflow(const TRecord & rec,
 		NodeOverflowException<typename TRecord::Key> ovException) {
-	log->insert(logKey, "Manejando overflow de carga de nodo interno en raiz");
 
 	BPTreeVariableInternalNode<TRecord, blockSize>* leftNode = new BPTreeVariableInternalNode<TRecord, blockSize> (
 			root->level(), *file_);
@@ -530,7 +514,6 @@ void BPlusTree<TRecord, blockSize>::update(const TRecord & rec) {
 		else
 			root->write();
 	}
-	log->insert(logKey, "Registro actualizado.");
 }
 
 template<class TRecord, unsigned int blockSize>

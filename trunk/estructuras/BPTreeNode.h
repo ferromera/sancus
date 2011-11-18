@@ -15,10 +15,6 @@ protected:
             unsigned int level_;
             bool isFree_;
 
-            Logger * log;
-            std::string logString;
-            std::string logKey;
-
             unsigned int getFreeBlock();
 
 public:
@@ -50,31 +46,26 @@ public:
 template<class TRecord,unsigned int blockSize>
 BPTreeNode<TRecord,blockSize>::BPTreeNode():
 file_(NULL),isFree_(false){
-	log=Logger::getInstance();
 	blockNumber_=1;
 }
 template<class TRecord,unsigned int blockSize>
 BPTreeNode<TRecord,blockSize>::BPTreeNode(File & file,unsigned long blockNum):
 file_(&file),blockNumber_(blockNum),isFree_(false){
-	log=Logger::getInstance();
 }
 template<class TRecord,unsigned int blockSize>
 BPTreeNode<TRecord,blockSize>::BPTreeNode(File & file):
 file_(&file),isFree_(false){
-	log=Logger::getInstance();
 	blockNumber_=getFreeBlock();
 }
 
 template<class TRecord,unsigned int blockSize>
 BPTreeNode<TRecord,blockSize>::BPTreeNode(const BPTreeNode<TRecord,blockSize> & node):
 file_(node.file_),blockNumber_(node.blockNumber_),level_(node.level_),isFree_(node.isFree_){
-	log=Logger::getInstance();
 
 }
 
 template<class TRecord,unsigned int blockSize>
 unsigned int BPTreeNode<TRecord,blockSize>::getFreeBlock(){
-	log->insert(logKey,"Buscando bloque libre");
 	unsigned int newBlockNumber;
 	FreeSpaceStackBlock<blockSize> *freeBlock= new FreeSpaceStackBlock<blockSize>;
 	file_->seek(0,File::BEG);
@@ -92,17 +83,11 @@ unsigned int BPTreeNode<TRecord,blockSize>::getFreeBlock(){
 		file_->write((char *)freeBlock,blockSize);
 	}
 	delete freeBlock;
-	logString="Bloque libre encontrado : ";
-	char intStr[20];
-	sprintf(intStr,"%u",newBlockNumber);
-	logString.append(intStr);
-	log->insert(logKey,logString);
 	return newBlockNumber;
 }
 
 template<class TRecord,unsigned int blockSize>
 void BPTreeNode<TRecord,blockSize>::free(){
-	log->insert(logKey,"Liberando nodo.");
 
 	FreeSpaceStackBlock<blockSize> *freeBlock= new FreeSpaceStackBlock<blockSize>;
 	file_->seek(0,File::BEG);
@@ -117,7 +102,6 @@ void BPTreeNode<TRecord,blockSize>::free(){
 
 	delete freeBlock;
 	isFree_=true;
-	log->insert(logKey,"Nodo liberado.");
 }
 
 template<class TRecord,unsigned int blockSize>
