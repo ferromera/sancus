@@ -59,7 +59,6 @@ BPTreeVariableLeaf<TRecord, blockSize>::BPTreeVariableLeaf(const BPTreeVariableL
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableLeaf<TRecord, blockSize>::read() {
 
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Leyendo hoja.");
 	if (BPTreeNode<TRecord, blockSize>::isFree_)
 		throw ReadInAFreeNodeException();
 
@@ -78,12 +77,11 @@ void BPTreeVariableLeaf<TRecord, blockSize>::read() {
 	BPTreeLeaf<TRecord, blockSize>::next_ = block->next;
 	readRecords(block);
 	delete block;
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Hoja leida.");
 }
 
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableLeaf<TRecord, blockSize>::readRecords(BPTreeVariableLeafBlock<blockSize> * block) {
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Leyendo registros.");
+
 	char * currentPos = block->bytes;
 	unsigned int readSpace = 0;
 	unsigned int usedSpace = blockSize - VARIABLE_LEAF_CONTROL_BYTES - freeSpace;
@@ -93,12 +91,12 @@ void BPTreeVariableLeaf<TRecord, blockSize>::readRecords(BPTreeVariableLeafBlock
 		BPTreeLeaf<TRecord, blockSize>::records_.push_back(*newRecord);
 		delete newRecord;
 	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Registros leidos.");
+
 }
 
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableLeaf<TRecord, blockSize>::write() {
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Escribiendo hoja.");
+
 	if (BPTreeNode<TRecord, blockSize>::isFree_)
 		throw WriteInAFreeNodeException();
 
@@ -114,14 +112,13 @@ void BPTreeVariableLeaf<TRecord, blockSize>::write() {
 
 	file->seek(blockNumber * blockSize, File::BEG);
 	file->write(block, blockSize);
+	delete block;
 
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Hoja escrita.");
 
 }
 
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableLeaf<TRecord, blockSize>::writeRecords(BPTreeVariableLeafBlock<blockSize> * block) {
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Escribiendo registros.");
 
 	typename std::list<TRecord>::iterator itRecord = BPTreeLeaf<TRecord, blockSize>::records_.begin();
 
@@ -131,21 +128,12 @@ void BPTreeVariableLeaf<TRecord, blockSize>::writeRecords(BPTreeVariableLeafBloc
 		itRecord->write(&currentPos);
 		itRecord++;
 	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Registros escritos.");
+
 }
 
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableLeaf<TRecord, blockSize>::insert(const TRecord & rec) {
-	BPTreeNode<TRecord, blockSize>::logString = "Insertando registro con clave : ";
-	if (TRecord::Key::isString)
-		BPTreeNode<TRecord, blockSize>::logString.append(rec.getKey().getString());
-	else {
-		char intStr[20];
-		sprintf(intStr, "%u", rec.getKey().getUint());
-		BPTreeNode<TRecord, blockSize>::logString.append(intStr);
-	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey,
-			BPTreeNode<TRecord, blockSize>::logString);
+
 	if (rec.size() > blockSize - VARIABLE_LEAF_CONTROL_BYTES)
 		throw BPTreeRecordSizeException();
 	if (rec.size() > freeSpace)
@@ -157,8 +145,8 @@ void BPTreeVariableLeaf<TRecord, blockSize>::insert(const TRecord & rec) {
 	TRecord * rp = new TRecord(rec);
 
 	BPTreeLeaf<TRecord, blockSize>::records_.insert(itInsertionPos, *rp);
+	delete rp;
 	freeSpace -= rec.size();
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Registro insertado.");
 
 }
 template<class TRecord, unsigned int blockSize>
@@ -170,22 +158,12 @@ void BPTreeVariableLeaf<TRecord, blockSize>::loadInsert(const TRecord & rec, flo
 	typename std::list<TRecord>::iterator itInsertionPos = itSearch(rec);
 	TRecord * rp = new TRecord(rec);
 	BPTreeLeaf<TRecord, blockSize>::records_.insert(itInsertionPos, *rp);
+	delete rp;
 	freeSpace -= rec.size();
 }
 
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableLeaf<TRecord, blockSize>::remove(const TRecord & rec) {
-
-	BPTreeNode<TRecord, blockSize>::logString = "Borrando registro con clave : ";
-	if (TRecord::Key::isString)
-		BPTreeNode<TRecord, blockSize>::logString.append(rec.getKey().getString());
-	else {
-		char intStr[20];
-		sprintf(intStr, "%u", rec.getKey().getUint());
-		BPTreeNode<TRecord, blockSize>::logString.append(intStr);
-	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey,
-			BPTreeNode<TRecord, blockSize>::logString);
 
 	typename std::list<TRecord>::iterator itRemovePos = itSearch(rec);
 	if (itRemovePos == BPTreeLeaf<TRecord, blockSize>::records_.end() || (*itRemovePos) != rec)
@@ -199,17 +177,14 @@ void BPTreeVariableLeaf<TRecord, blockSize>::remove(const TRecord & rec) {
 
 	freeSpace += itRemovePos->size();
 	BPTreeLeaf<TRecord, blockSize>::records_.erase(itRemovePos);
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Registro borrado.");
 
 }
 
 template<class TRecord, unsigned int blockSize>
 BPTreeLeaf<TRecord, blockSize>* BPTreeVariableLeaf<TRecord, blockSize>::nextLeaf() {
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Buscando siguiente hoja.");
 	if (BPTreeLeaf<TRecord, blockSize>::next_ == 0)
 		throw ThereIsNoNextLeafException ();
 
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Siguiente hoja encontrada.");
 	return new BPTreeVariableLeaf<TRecord, blockSize> (*BPTreeNode<TRecord, blockSize>::file_,
 			BPTreeLeaf<TRecord, blockSize>::next_);
 }
@@ -230,16 +205,7 @@ void BPTreeVariableLeaf<TRecord, blockSize>::clear() {
 
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableLeaf<TRecord, blockSize>::update(const TRecord & rec) {
-	BPTreeNode<TRecord, blockSize>::logString = "Actualizando registro con clave : ";
-	if (TRecord::Key::isString)
-		BPTreeNode<TRecord, blockSize>::logString.append(rec.getKey().getString());
-	else {
-		char intStr[20];
-		sprintf(intStr, "%u", rec.getKey().getUint());
-		BPTreeNode<TRecord, blockSize>::logString.append(intStr);
-	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey,
-			BPTreeNode<TRecord, blockSize>::logString);
+
 	unsigned int oldFreeSpace = freeSpace;
 	try {
 		remove(rec);
@@ -249,12 +215,12 @@ void BPTreeVariableLeaf<TRecord, blockSize>::update(const TRecord & rec) {
 	if (oldFreeSpace > (blockSize - VARIABLE_LEAF_CONTROL_BYTES) / 2 && oldFreeSpace < freeSpace) {
 		throw LeafUnderflowException();
 	}
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Registro actualizado.");
+
 }
 
 template<class TRecord, unsigned int blockSize>
 void BPTreeVariableLeaf<TRecord, blockSize>::preOrderReport(File & reportFile, unsigned int treeLevel) {
-	BPTreeNode<TRecord, blockSize>::logString = "Reportando hoja.";
+
 	for (unsigned int i = 0; i < treeLevel; i++)
 		reportFile << "|\t";
 	reportFile << "Node " << BPTreeNode<TRecord, blockSize>::blockNumber_ << " : ";
@@ -265,7 +231,7 @@ void BPTreeVariableLeaf<TRecord, blockSize>::preOrderReport(File & reportFile, u
 		reportFile << "(" << itRecords->getKey().getKey() << ")";
 	}
 	reportFile << "\n";
-	BPTreeNode<TRecord, blockSize>::log->insert(BPTreeNode<TRecord, blockSize>::logKey, "Hoja reportada.");
+
 }
 
 template<class TRecord, unsigned int blockSize>
