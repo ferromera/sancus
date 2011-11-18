@@ -69,7 +69,7 @@ public:
 	static EuclidesResult euclidesExtendido(int a, int b)
 	{
 		EuclidesResult result;
-		int x=0,y=0,d=0;
+		int x=0,y=0;
 
 		if(b==0)
 		{
