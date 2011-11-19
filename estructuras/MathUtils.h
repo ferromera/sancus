@@ -102,5 +102,15 @@ public:
 		return result;
 	}
 
+	static int generateRandomIntegersOf(unsigned int bits){
+		unsigned int randomNumber = 0;
+
+		for (int i = 0; i < bits; i++) {
+			randomNumber +=  ((rand() >>i) & 1) * pow(2,i);
+		}
+
+		return randomNumber;
+	}
+
 };
 #endif /* MATHUTILS_H_ */
