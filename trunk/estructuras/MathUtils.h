@@ -11,7 +11,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-struct EuclidesResult{
+struct EuclidesResult {
 	int d;
 	int f;
 	int e; //este es el numero e, en RSA
@@ -46,8 +46,6 @@ public:
 		return rand() % (max - base + 1) + base;
 	}
 
-
-
 	/* procedimiento que calcula el valor del maximo común divisor
 
 	 * de a y b siguiendo el algoritmo de euclides extendido,
@@ -66,26 +64,23 @@ public:
 	 *
 	 * @returns EuclidesResult stuct
 	 */
-	static EuclidesResult euclidesExtendido(int a, int b)
-	{
+	static EuclidesResult euclidesExtendido(int a, int b) {
 		EuclidesResult result;
-		int x=0,y=0;
+		int x = 0, y = 0;
 
-		if(b==0)
-		{
-			result.d = a; result.f = 1; result.e = 0;
-		}
-		else
-		{
+		if (b == 0) {
+			result.d = a;
+			result.f = 1;
+			result.e = 0;
+		} else {
 			int x2 = 1, x1 = 0, y2 = 0, y1 = 1;
 			int q = 0, r = 0;
 
-			while(b>0)
-			{
-				q = (a/b);
-				r = a - q*b;
-				x = x2-q*x1;
-				y = y2 - q*y1;
+			while (b > 0) {
+				q = (a / b);
+				r = a - q * b;
+				x = x2 - q * x1;
+				y = y2 - q * y1;
 				a = b;
 				b = r;
 				x2 = x1;
@@ -102,14 +97,24 @@ public:
 		return result;
 	}
 
-	static int generateRandomIntegersOf(unsigned int bits){
+	static int generateRandomIntegersOf(unsigned int bits) {
 		unsigned int randomNumber = 0;
 
-		for (int i = 0; i < bits; i++) {
-			randomNumber +=  ((rand() >>i) & 1) * pow(2,i);
+		for (unsigned int i = 0; i < bits; i++) {
+			randomNumber += ((rand() >> i) & 1) * pow(2, i);
 		}
 
 		return randomNumber;
+	}
+
+	static unsigned int powMod(unsigned int base, unsigned int exp, unsigned int mod) {
+		if (exp == 0)
+			return 1;
+		if (exp % 2 == 0) {
+			return (unsigned int)(pow(powMod(base, (exp / 2), mod), 2)) % mod;
+		} else {
+			return (base * powMod(base, (exp - 1), mod)) % mod;
+		}
 	}
 
 };

@@ -8,6 +8,8 @@
 #ifndef VIGENERE_SECURITY_H_
 #define VIGENERE_SECURITY_H_
 
+#include "SecurityStrategy.h"
+
 class VigenereSecurity : public SecurityStrategy {
 private:
 	char * key;
