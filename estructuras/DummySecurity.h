@@ -10,10 +10,12 @@
 #ifndef DUMMY_SECURITY_H_
 #define DUMMY_SECURITY_H_
 
+#include "SecurityStrategy.h"
+
 class DummySecurity : public SecurityStrategy {
 
 public:
-	DummySecurity(unsigned int  keySize): SecurityStrategy(keySize){
+	DummySecurity(): SecurityStrategy(0){
 	}
 
    void encrypt(void * buffer, size_t bytes){

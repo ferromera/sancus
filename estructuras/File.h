@@ -16,7 +16,7 @@
 #include <string>
 #include "FileException.h"
 #include "unistd.h"
-#include "RsaSecurity.h"
+#include "DummySecurity.h"
 
 class File {
 	std::string path_;
