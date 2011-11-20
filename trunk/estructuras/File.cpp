@@ -19,11 +19,11 @@ File::File(const std::string & path,char openMode, SecurityStrategy * security):
 }
 
 File::File():filep(NULL){
-	this->security =  new RsaSecurity(5);
+	this->security =  new DummySecurity();
 }
 
 File::File(const std::string & path,char openMode):path_(path),filep(NULL){
-	this->security = new RsaSecurity(5);
+	this->security = new DummySecurity();
 
 	open(path,openMode);
 }
