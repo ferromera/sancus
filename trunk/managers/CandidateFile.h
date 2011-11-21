@@ -30,6 +30,7 @@ public:
 	void insert(const CandidateRecord &);
 	void remove(const CandidateRecord &);
 	void update(const CandidateRecord &);
+	void createReportFile();
 	const CandidateRecord & search(const CandidateRecord::Key &);
 
 	virtual ~CandidateFile();

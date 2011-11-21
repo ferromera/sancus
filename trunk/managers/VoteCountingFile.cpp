@@ -6,6 +6,7 @@
  */
 
 #include "VoteCountingFile.h"
+#include "../utils/Time.h"
 
 VoteCountingFile* VoteCountingFile::instance = NULL;
 
@@ -332,6 +333,28 @@ void VoteCountingFile::report() {
 	electionIndex->preOrderReport();
 	districtIndex->preOrderReport();
 	primaryIndex->preOrderReport();
+}
+void VoteCountingFile::createReportFile() {
+	std::string nameFile = "reportFileVoteCounting";
+	nameFile.append(Time::getTime());
+
+	File reportFile = File(nameFile, File::NEW);
+	VoteCountingRecord::Key key = VoteCountingRecord::Key();
+	this->search(key);
+	while (true) {
+		try {
+			VoteCountingRecord record = this->next();
+			reportFile << "Lista: " << record.getList().getString()
+					<< " Eleccion: " << record.getElection().getString()
+					<< " Distrito: " << record.getDistrict().getString()
+					<< " Votos: " << record.getCount()
+					<< "\n";
+		} catch (FileNextException e) {
+			break;
+		}
+	}
+	std::cout << "Se ha creado el archivo " << nameFile << " con Exito" << std::endl;
+
 }
 
 VoteCountingFile::~VoteCountingFile() {

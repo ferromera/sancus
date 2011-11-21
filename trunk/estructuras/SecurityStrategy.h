@@ -8,6 +8,9 @@
 #ifndef SECURITY_STRATEGY_H_
 #define SECURITY_STRATEGY_H_
 
+#include <cstdlib>
+using namespace std;
+
 class SecurityStrategy {
 protected:
 	unsigned int keySize;

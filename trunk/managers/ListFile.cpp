@@ -6,6 +6,7 @@
  */
 
 #include "ListFile.h"
+#include "../utils/Time.h"
 
 ListFile* ListFile::instance = NULL;
 
@@ -269,6 +270,25 @@ void ListFile::report() {
 	nameIndex->preOrderReport();
 	electionIndex->preOrderReport();
 	primaryIndex->preOrderReport();
+}
+void ListFile::createReportFile() {
+	std::string nameFile = "reportFileList";
+	nameFile.append(Time::getTime());
+
+	File reportFile = File(nameFile, File::NEW);
+	ListRecord::Key key = ListRecord::Key();
+	this->search(key);
+	while (true) {
+		try {
+			ListRecord record = this->next();
+			reportFile << "Nombre de la Lista: " << record.getName()
+					<< " Eleccion que se Presenta: " << record.getElection().getString() << "\n";
+		} catch (FileNextException e) {
+			break;
+		}
+	}
+	std::cout << "Se ha creado el archivo " << nameFile << " con Exito" << std::endl;
+
 }
 
 ListFile::~ListFile() {

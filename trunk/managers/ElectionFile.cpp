@@ -6,6 +6,7 @@
  */
 
 #include "ElectionFile.h"
+#include "../utils/Time.h"
 
 ElectionFile* ElectionFile::instance = NULL;
 
@@ -323,6 +324,27 @@ void ElectionFile::report() {
 	dateIndex->preOrderReport();
 	chargeIndex->preOrderReport();
 	primaryIndex->preOrderReport();
+}
+void ElectionFile::createReportFile() {
+	std::string nameFile = "reportFileElection";
+	nameFile.append(Time::getTime());
+
+	File reportFile = File(nameFile, File::NEW);
+	ElectionRecord::Key key = ElectionRecord::Key();
+	this->search(key);
+	while (true) {
+		try {
+			ElectionRecord record = this->next();
+			reportFile << "Nombre de Cargo: " << record.getCharge().getString()
+					<< " Fecha: " << record.getDate()
+					<< " Distrito: " << record.getDistrict().getString()
+					<< "\n";
+		} catch (FileNextException e) {
+			break;
+		}
+	}
+	std::cout << "Se ha creado el archivo " << nameFile << " con Exito" << std::endl;
+
 }
 
 ElectionFile::~ElectionFile() {

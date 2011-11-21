@@ -7,6 +7,7 @@
 
 #include "AdministratorFile.h"
 #include "FileManagerExceptions.h"
+#include "../utils/Time.h"
 
 AdministratorFile* AdministratorFile::instance = NULL;
 
@@ -63,6 +64,24 @@ const AdministratorRecord & AdministratorFile::search(
 	} catch (RecordNotFoundException & ex) {
 		throw FileSearchException();
 	}
+}
+void AdministratorFile::createReportFile()
+{
+	std::string nameFile = "reportFileAdministrator";
+	nameFile.append(Time::getTime());
+	File reportFile = File(nameFile, File::NEW);
+	this->table->positionateAtBegining();
+	while (true) {
+		try {
+			AdministratorRecord record = this->table->next();
+			reportFile << "Usuario : " << record.getUser()
+					<< " Contraseña: " << record.getPassword() << "\n";
+		} catch (RecordNotFoundException e) {
+			break;
+		}
+	}
+	std::cout << "Se ha creado el archivo " << nameFile << " con Exito" << std::endl;
+
 }
 
 AdministratorFile::~AdministratorFile() {
