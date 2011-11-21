@@ -6,6 +6,7 @@
  */
 
 #include "DistrictFile.h"
+#include "../utils/Time.h"
 #include "FileManagerExceptions.h"
 
 #ifdef DISTRICT_FILE_BPLUS
@@ -13,13 +14,15 @@
 DistrictFile* DistrictFile::instance = NULL;
 
 DistrictFile * DistrictFile::getInstance() {
-	if (instance == NULL)
+	if (instance == NULL
+		)
 		instance = new DistrictFile();
 	return instance;
 }
 
 DistrictFile::DistrictFile() {
-	tree = new BPlusTree<DistrictRecord, DISTRICT_FILE_BLOCKSIZE> (DISTRICT_FILE_DATA_PATH);
+	tree = new BPlusTree<DistrictRecord, DISTRICT_FILE_BLOCKSIZE>(
+			DISTRICT_FILE_DATA_PATH);
 }
 
 void DistrictFile::insert(const DistrictRecord & district) {
@@ -51,7 +54,8 @@ void DistrictFile::update(const DistrictRecord & district) {
 
 // Retorna el registro con la clave districtKey o, si no se encuentra,
 // el mayor inmediato.
-const DistrictRecord & DistrictFile::search(const DistrictRecord::Key & districtKey) {
+const DistrictRecord & DistrictFile::search(
+		const DistrictRecord::Key & districtKey) {
 	try {
 		return tree->search(districtKey);
 	} catch (ThereIsNoNextLeafException & ex) {
@@ -65,12 +69,31 @@ const DistrictRecord & DistrictFile::next() {
 		return tree->next();
 	} catch (ThereIsNoNextLeafException & ex) {
 		throw FileNextException();
-	}catch(BPlusTreeNextException & e){
+	} catch (BPlusTreeNextException & e) {
 		throw FileNextException();
 	}
 }
-void DistrictFile::report(){
+void DistrictFile::report() {
 	tree->preOrderReport();
+}
+void DistrictFile::createReportFile() {
+	std::string nameFile = "reportFileDistrict";
+	nameFile.append(Time::getTime());
+
+	File reportFile = File(nameFile, File::NEW);
+	DistrictRecord::Key key = DistrictRecord::Key();
+	this->search(key);
+	while (true) {
+		try {
+			DistrictRecord record = this->next();
+			reportFile << "Nombre de Distrito: " << record.getDistrictName()
+					<< " Distrito Padre: " << record.getFatherName() << "\n";
+		} catch (FileNextException e) {
+			break;
+		}
+	}
+	std::cout << "Se ha creado el archivo " << nameFile << " con Exito" << std::endl;
+
 }
 DistrictFile::~DistrictFile() {
 	delete tree;

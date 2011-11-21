@@ -31,6 +31,7 @@
 #define MOD_SCREEN 6
 #define CONSULTA_SCREEN 7
 #define SIMUL_SCREEN 8
+#define REPORT_FILE_SCREEN 9
 
 class VoteApp : public Runable{
 public:

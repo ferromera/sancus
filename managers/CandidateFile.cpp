@@ -7,6 +7,7 @@
 
 #include "CandidateFile.h"
 #include "FileManagerExceptions.h"
+#include "../utils/Time.h"
 
 CandidateFile* CandidateFile::instance = NULL;
 
@@ -63,6 +64,25 @@ const CandidateRecord & CandidateFile::search(
 	} catch (RecordNotFoundException & ex) {
 		throw FileSearchException();
 	}
+}
+void CandidateFile::createReportFile()
+{
+	std::string nameFile = "reportFileCandidate";
+	nameFile.append(Time::getTime());
+	File reportFile = File(nameFile, File::NEW);
+	this->table->positionateAtBegining();
+	while (true) {
+		try {
+			CandidateRecord record = this->table->next();
+			reportFile << "DNI : " << record.getVoter().getKey()
+					<< " Lista: " << record.getList().getString()
+					<< " Cargo: " << record.getCharge().getString()
+					<< "\n";
+		} catch (RecordNotFoundException e) {
+			break;
+		}
+	}
+	std::cout << "Se ha creado el archivo " << nameFile << " con Exito" << std::endl;
 }
 
 CandidateFile::~CandidateFile() {

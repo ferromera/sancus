@@ -33,6 +33,7 @@ public:
 	void insert(const VoterRecord &);
 	void remove(const VoterRecord &);
 	void update(const VoterRecord &);
+	void createReportFile();
 	const VoterRecord & search(const VoterRecord::Key &);
 };
 

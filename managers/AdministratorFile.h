@@ -29,6 +29,7 @@ public:
 	void insert(const AdministratorRecord &);
 	void remove(const AdministratorRecord &);
 	void update(const AdministratorRecord &);
+	void createReportFile();
 	const AdministratorRecord & search(const AdministratorRecord::Key &);
 
 	virtual ~AdministratorFile();

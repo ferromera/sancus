@@ -67,6 +67,7 @@ public:
 	const ElectionRecord & nextDistrict();
 	const ElectionRecord & next();
 	void report();
+	void createReportFile();
 
 	virtual ~ElectionFile();
 };

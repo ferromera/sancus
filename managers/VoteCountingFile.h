@@ -71,6 +71,7 @@ public:
 	const VoteCountingRecord & nextList();
 	const VoteCountingRecord & next();
 	void report();
+	void createReportFile();
 
 	virtual ~VoteCountingFile();
 

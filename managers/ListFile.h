@@ -62,6 +62,7 @@ public:
 	const ListRecord & nextName();
 	const ListRecord & next();
 	void report();
+	void createReportFile();
 
 	virtual ~ListFile();
 };

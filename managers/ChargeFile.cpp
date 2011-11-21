@@ -6,6 +6,7 @@
  */
 
 #include "ChargeFile.h"
+#include "../utils/Time.h"
 
 ChargeFile* ChargeFile::instance = NULL;
 
@@ -282,6 +283,29 @@ void ChargeFile::report() {
 	districtIndex->preOrderReport();
 	primaryIndex->preOrderReport();
 	fatherIndex->preOrderReport();
+}
+void ChargeFile::createReportFile()
+{
+	std::string nameFile = "reportFileCharge";
+	nameFile.append(Time::getTime());
+
+	File reportFile = File(nameFile, File::NEW);
+	ChargeRecord::Key key = ChargeRecord::Key();
+	this->search(key);
+	while (true) {
+		try {
+			ChargeRecord record = this->next();
+			reportFile << "Nombre de Cargo: " << record.getChargeName()
+					<< " Distrito: " << record.getDistrict().getString();
+					if(record.hasFather())
+						reportFile << " Cargo padre : " << record.getChargeFather().getString();
+					reportFile << "\n";
+		} catch (FileNextException e) {
+			break;
+		}
+	}
+	std::cout << "Se ha creado el archivo " << nameFile << " con Exito" << std::endl;
+
 }
 
 ChargeFile::~ChargeFile() {

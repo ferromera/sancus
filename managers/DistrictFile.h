@@ -35,6 +35,7 @@ public:
 	void remove(const DistrictRecord &);
 	void update(const DistrictRecord &);
 	void report();
+	void createReportFile();
 	const DistrictRecord & search(const DistrictRecord::Key & district);
 	const DistrictRecord & next();
 

@@ -55,6 +55,7 @@ public:
 	const ChargeRecord & nextDistrict();
 	const ChargeRecord & next();
 	void report();
+	void createReportFile();
 	virtual ~ChargeFile();
 };
 

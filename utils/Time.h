@@ -10,11 +10,13 @@
 
 #include <stdio.h>
 #include <time.h>
+#include <string>
 
 class Time {
 public:
 	Time();
 	static int getCurrentDate();
+	static std::string getTime();
 
 };
 
