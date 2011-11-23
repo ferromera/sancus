@@ -10,6 +10,7 @@
 
 #include "SecurityStrategy.h"
 #include "MathUtils.h"
+#include <algorithm>
 
 struct RsaPublicKey {
 	unsigned int e;
@@ -29,19 +30,20 @@ private:
 public:
 	RsaSecurity(unsigned int keySize) :
 		SecurityStrategy(keySize) {
-		unsigned int p;
-		unsigned int q;
-		unsigned int d;
-		unsigned int x;
-		unsigned int e;
-		unsigned int n;
+		unsigned int p = 0;
+		unsigned int q = 0;
+		unsigned int d = 0;
+		unsigned int x = 0;
+		unsigned int n = 0;
+		EuclidesResult result;
+		result.e = 0;
 
 		//obtener p y q
-		while (MathUtils::isPrime(p)) {
+		while (MathUtils::isPrime(p) || p == 0) {
 			p = MathUtils::generateRandomIntegersOf(this->keySize);
 		}
 
-		while (MathUtils::isPrime(q) || q == p) {
+		while (MathUtils::isPrime(q) || q == p || q == 0) {
 			q = MathUtils::generateRandomIntegersOf(this->keySize);
 		}
 
@@ -51,34 +53,41 @@ public:
 		//calcular fi(n)
 		x = (p - 1) * (q - 1);
 
-		//obtener d
-		d = 0;
-		while (d < p && d < q) {
-			d = rand();
+		//si e < 0 hay que tomar otro d
+		while (result.e <= 0) {
+			//obtener d
+			d = 0;
+			while (d < max(p, q)) {
+				d = MathUtils::generateRandomIntegersOf(this->keySize + 1);
 
-			if (!MathUtils::isPrime(d)) {
-				MathUtils::nextPrime(d);
+				if (!MathUtils::isPrime(d)) {
+					MathUtils::nextPrime(d);
+				}
 			}
+
+			//obtener e
+			result = MathUtils::euclidesExtendido(x, d);
 		}
 
-		//obtener e
-		e = (MathUtils::euclidesExtendido(x, d)).e;
-
-		publicKey.e = e;
+		publicKey.e = result.e;
 		publicKey.n = n;
 		privateKey.n = n;
 		privateKey.d = d;
 	}
 
 	void encrypt(void * m, size_t bytes) {
+		int * f = (int *) m;
+
 		for (unsigned int i = 0; i < bytes; i++) {
-			m[i] = MathUtils::powMod((char) m[i], publicKey.e, publicKey.n);
+			f[i] = MathUtils::powMod(f[i], publicKey.e, publicKey.n);
 		}
 	}
 
 	void decrypt(void * c, size_t bytes) {
+		int * f = (int *) c;
+
 		for (unsigned int i = 0; i < bytes; i++) {
-			c[i] = MathUtils::powMod((char) c[i], privateKey.d, privateKey.n);
+			f[i] = MathUtils::powMod(f[i], privateKey.d, privateKey.n);
 		}
 	}
 
