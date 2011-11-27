@@ -11,6 +11,7 @@
 #include "SecurityStrategy.h"
 #include "MathUtils.h"
 #include <algorithm>
+#include "../records/StudentRecord.h"
 
 struct RsaPublicKey {
 	unsigned int e;

@@ -9,6 +9,7 @@
 #define RSAUTILTEST__H_
 
 #include "RsaSecurity.h"
+#include "../records/StudentRecord.h"
 
 using namespace std;
 
@@ -32,13 +33,17 @@ private:
 
 public:
 	void testEncryptAndDecrypt() {
-		char * name = "pato";
-		void * buffer = &name;
+		char name[6];
+		char * buffer = name;
 
-		this->rsa = new RsaSecurity(4);
-		this->rsa->encrypt(buffer, 4);
+		StudentRecord * record = new StudentRecord(12, "tito");
+		record->read(&buffer);
 
-		cout << "Encrypt" << endl;
+		this->rsa = new RsaSecurity(6);
+		this->rsa->encrypt(&buffer, 6);
+
+		/**
+
 
 		for (unsigned int i = 0; i < 4; i++) {
 			cout << name[i];
@@ -51,7 +56,7 @@ public:
 		for (unsigned int i = 0; i < 4; i++) {
 			cout << name[i];
 		}
-
+*/
 	}
 
 };
