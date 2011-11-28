@@ -18,6 +18,7 @@ private:
 	void generateAndStoreRandomKey(unsigned int keySize)
 	{
 		this->key = (unsigned char*)"AAAA";
+		this->keySize = keySize;
 	}
 
 public:
@@ -30,8 +31,10 @@ public:
 		unsigned int j=0;
 		unsigned char* message = (unsigned char*)buffer;
 
+		cout<<"keySize"<<keySize<<std::endl;
+
 		for(unsigned int i = 0; i< bytes; i++){
-			if(j>this->keySize){
+			if(j>=this->keySize){
 				j=0;
 			}
 
@@ -45,7 +48,7 @@ public:
 		unsigned char* message = (unsigned char*)buffer;
 
 		for(unsigned int i = 0; i< bytes; i++){
-			if(j>this->keySize){
+			if(j>=this->keySize){
 				j=0;
 			}
 			if (message[i] - key[j] < 0){
