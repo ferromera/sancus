@@ -60,7 +60,7 @@ public:
 	 * Calcula el maximo comun divisor de a y b con algoritmo de
 	 * euclides extendido.
 	 *
-	 * mcd(a,b) = d = a*x + b*e;
+	 * mcd(a,b) = d = a*f + b*e;
 	 *
 	 * @returns EuclidesResult stuct
 	 */
@@ -93,7 +93,6 @@ public:
 			result.f = x2;
 			result.e = y2;
 		}
-
 		return result;
 	}
 

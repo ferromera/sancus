@@ -8,32 +8,61 @@
 //#include "AdministratorScreen.h"
 //#include "LoginScreen.h"
 //#include "../core/VoteApp.h"
-#include "VigenereSecurityTest.h"
 #include "VigenereSecurity.h"
 #include <iostream>
 #include <stdlib.h>
+#include "../records/StudentRecord.h"
+#include "../estructuras/MathUtilsTest.h"
+#include "../estructuras/RsaSecurityTest.h"
 
 using namespace std;
 
 int main() {
+	RsaSecurityTest * test = new RsaSecurityTest();
 
-	unsigned char message2[] = "CECI";
+	test->testEncryptAndDecrypt();
+//
+//	int r;
+//	for (int i = 0; i < 3; i++){
+//
+//
+//		r = MathUtils::randomNumber(0,256);
+//		cout << (unsigned char) r;
+//		cout <<  r;
+//	}
 
-	VigenereSecurity sec(4);
-	sec.encrypt(message2, 4);
-	cout << message2 << endl;
+	//unsigned char message2[] = "CECI";
+//	VigenereSecurity * vs;
+//
+//	char name[6];
+//	char * buffer = name;
+//
+//	StudentRecord * record = new StudentRecord(12, "ceci");
+//	record->read(&buffer);
+//
+//	vs = new VigenereSecurity(6);
+//	vs->encrypt(&buffer,6);
 
-	sec.decrypt(message2, 4);
-	cout << message2 << endl;
+//	VigenereSecurity sec(4);
+//	sec.encrypt(message2, 4);
+//	cout << message2 << endl;
+//
+//	sec.decrypt(message2, 4);
+//	cout << message2 << endl;
+//
+//	int ceci2 = (int)'A';
+//	char ceci1 = 'A';
+//
+//	cout << ceci2 << endl;
+//	cout << ceci1 << endl;
+//	cout << (int)ceci1 << endl;
+//	printf("valooor: %c\n", ceci2);
+//	printf("valooor: %d\n", ceci2);
 
-	int ceci2 = (int)'A';
-	char ceci1 = 'A';
 
-	cout << ceci2 << endl;
-	cout << ceci1 << endl;
-	cout << (int)ceci1 << endl;
-	printf("valooor: %c\n", ceci2);
-	printf("valooor: %d\n", ceci2);
+
+
+
 
 
 	//AdministratorScreen myscreen;

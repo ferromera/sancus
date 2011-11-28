@@ -70,13 +70,13 @@ void File::read(void * buffer,size_t bytes){
 		throw EndOfFileException();
 	}
 
-	this->security->decrypt(buffer,bytes);
+	this->security->decrypt((unsigned char * &)buffer,bytes);
 }
 void File::write(void * buffer,size_t bytes){
 	if(!isOpen())
 			throw FileNotOpenedException();
 
-	this->security->encrypt(buffer,bytes);
+	this->security->encrypt((unsigned char * &)buffer,bytes);
 
 	if(fwrite(buffer,bytes,1,filep)!=1)
 		throw WriteFileException();

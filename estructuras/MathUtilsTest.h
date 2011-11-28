@@ -40,6 +40,10 @@ public:
 		assertTrue(mcd.d == (mcd.f * a) + (mcd.e*b), "testEuclides", "No es una combinacion lineal");
 	}
 
+	void testPowMod(){
+		cout<<MathUtils::powMod(105,5,126)<<endl;
+	}
+
 };
 
 #endif

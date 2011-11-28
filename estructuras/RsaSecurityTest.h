@@ -33,15 +33,22 @@ private:
 
 public:
 	void testEncryptAndDecrypt() {
-		char * buffer = "hola";
+		StudentRecord * record = new StudentRecord(12,"ceci");
 
-		string str="hola";
+		this->rsa = new RsaSecurity(9);
 
-		for(unsigned int i=0; i<4; i++)
-		       buffer[i]=str[i];
+		unsigned char * mensaje = new unsigned char[record->size()];
+		char * punteroMensaje = (char *)mensaje;
 
-		this->rsa = new RsaSecurity(6);
-		this->rsa->encrypt(buffer, 4);
+		record->write(&punteroMensaje);
+
+		this->rsa->encrypt(mensaje, record->size());
+
+		this->rsa->decrypt(mensaje, record->size());
+
+		for(unsigned int i = 0; i<record->size()*4;i++){
+			cout<<"Mensaje "<< mensaje[i] <<endl;
+		}
 
 		/**
 

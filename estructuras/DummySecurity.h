@@ -18,11 +18,11 @@ public:
 	DummySecurity(): SecurityStrategy(0){
 	}
 
-   void encrypt(void * buffer, size_t bytes){
+   void encrypt(unsigned char * &buffer, size_t bytes){
         //DO NOTHING
 	}
 	
-	void decrypt(void * buffer, size_t bytes){
+	void decrypt(unsigned char * &buffer, size_t bytes){
 		//DO NOTHING
 	}
 };

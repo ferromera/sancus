@@ -19,8 +19,8 @@ public:
 		this->keySize = keySize;
 	}
 
-	virtual void encrypt(void * buffer, size_t bytes) = 0;
-	virtual void decrypt(void * buffer, size_t bytes) = 0;
+	virtual void encrypt(unsigned char * &buffer, size_t bytes) = 0;
+	virtual void decrypt(unsigned char * &buffer, size_t bytes) = 0;
 };
 
 #endif /* SECURITY_STRATEGY_H_ */
