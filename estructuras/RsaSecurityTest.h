@@ -33,14 +33,15 @@ private:
 
 public:
 	void testEncryptAndDecrypt() {
-		char name[6];
-		char * buffer = name;
+		char * buffer = "hola";
 
-		StudentRecord * record = new StudentRecord(12, "tito");
-		record->read(&buffer);
+		string str="hola";
+
+		for(unsigned int i=0; i<4; i++)
+		       buffer[i]=str[i];
 
 		this->rsa = new RsaSecurity(6);
-		this->rsa->encrypt(&buffer, 6);
+		this->rsa->encrypt(buffer, 4);
 
 		/**
 
