@@ -77,15 +77,16 @@ public:
 	}
 
 	void encrypt(void * m, size_t bytes) {
-		int * f = (int *) m;
+		unsigned int * c = (unsigned int *) m;
 
 		for (unsigned int i = 0; i < bytes; i++) {
-			f[i] = MathUtils::powMod(f[i], publicKey.e, publicKey.n);
+			c[i] =  MathUtils::powMod(((unsigned char *)m)[i], publicKey.e, publicKey.n);
+			cout << c[i]<<endl;
 		}
 	}
 
 	void decrypt(void * c, size_t bytes) {
-		int * f = (int *) c;
+		unsigned int * f = (unsigned int *) c;
 
 		for (unsigned int i = 0; i < bytes; i++) {
 			f[i] = MathUtils::powMod(f[i], privateKey.d, privateKey.n);
