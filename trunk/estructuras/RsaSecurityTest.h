@@ -33,20 +33,23 @@ private:
 
 public:
 	void testEncryptAndDecrypt() {
-		StudentRecord * record = new StudentRecord(12,"ceci");
+		StudentRecord * record = new StudentRecord(12,"anda hasta 26 bits");
+	//	cout<<MathUtils::powMod(123456,32,200000)<<endl;
 
-		this->rsa = new RsaSecurity(9);
+
+		this->rsa = new RsaSecurity(26);
 
 		unsigned char * mensaje = new unsigned char[record->size()];
 		char * punteroMensaje = (char *)mensaje;
 
 		record->write(&punteroMensaje);
+		unsigned char * encryption;
+		encryption=this->rsa->encrypt(mensaje, record->size());
 
-		this->rsa->encrypt(mensaje, record->size());
 
-		this->rsa->decrypt(mensaje, record->size());
+		mensaje=this->rsa->decrypt(encryption, record->size());
 
-		for(unsigned int i = 0; i<record->size()*4;i++){
+		for(unsigned int i = 0; i<record->size();i++){
 			cout<<"Mensaje "<< mensaje[i] <<endl;
 		}
 

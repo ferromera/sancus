@@ -18,12 +18,14 @@ public:
 	DummySecurity(): SecurityStrategy(0){
 	}
 
-   void encrypt(unsigned char * &buffer, size_t bytes){
+	unsigned char * encrypt(unsigned char * buffer, size_t bytes){
         //DO NOTHING
+		return buffer;
 	}
 	
-	void decrypt(unsigned char * &buffer, size_t bytes){
+	unsigned char * decrypt(unsigned char * buffer, size_t bytes){
 		//DO NOTHING
+		return buffer;
 	}
 };
 #endif /* DUMMY_SECURITY_H_ */
