@@ -22,6 +22,7 @@
 #include <sys/stat.h>
 #include "../utils/Logger.h"
 #include "../utils/StringUtils.h"
+#include "SecurityStrategy.h"
 
 #define PACKAGE_DENSITY 0.7
 #define BUCKET_LOAD_FACTOR 0.75
@@ -37,6 +38,7 @@ private:
 
 	Function<T> * hashFunction;
 	Function<T> * rehashFunction;
+	SecurityStrategy * security;
 
 	int insertRecord(const T & record, Function<T> * function,
 			unsigned int jump);
@@ -63,11 +65,31 @@ public:
 			const unsigned int maxNumberOfRecords);
 
 	/**
+	 * Primitiva de creación
+	 *
+	 * @file
+	 * @recordsPerBucket numero de registros por cubeta
+	 * @maxNumberOfRecords numero maximo de registros en el archivo (cuando se llegue a este numero se debera
+	 * @security seguridad para encriptar
+	 * enfrentar una reorganización de la tabla).
+	 */
+	HashTable(const std::string & path, const unsigned int recordsPerBucket,
+			const unsigned int maxNumberOfRecords,SecurityStrategy * security);
+
+	/**
 	 * Primitiva de carga
 	 *
 	 * @path el path a un archivo directo existente (se supone que es un archivo valido)
 	 */
 	HashTable(const std::string & path);
+
+	/**
+	 * Primitiva de carga
+	 *
+	 * @path el path a un archivo directo existente (se supone que es un archivo valido)
+	 * @security seguridad para encriptar
+	 */
+	HashTable(const std::string & path , SecurityStrategy * security);
 
 	~HashTable();
 
@@ -157,6 +179,42 @@ HashTable<T, bucketSize>::HashTable(const std::string & path,
 }
 
 template<class T, unsigned int bucketSize>
+HashTable<T, bucketSize>::HashTable(const std::string & path,
+		const unsigned int recordsPerBucket,
+		const unsigned int maxNumberOfRecords,SecurityStrategy * security) {
+
+	this->file = new File(path, File::NEW | File::IO | File::BIN , security);
+	this->size = maxNumberOfRecords / (PACKAGE_DENSITY * recordsPerBucket);
+
+	this->recordFound = NULL;
+	this->searchBucketIndex = 0;
+	this->searchRecordIndex = 0;
+
+	if (!MathUtils::isPrime(size)) {
+		this->size = MathUtils::nextPrime(size);
+	}
+
+	this->hashFunction = new HashFunction<T>(this->size);
+	this->rehashFunction = new ReHashFunction<T>(this->size);
+
+	//por propiedad de los numeros primos luego de size rehashes se vuelve a repetir el primer resultado.
+	this->maxNumberOfRehashes = this->size;
+
+	Bucket<bucketSize> * bucket = new Bucket<bucketSize>();
+	bucket->freeSpace = sizeof(bucket->bytes);
+	bucket->count = 0;
+	bucket->overflow = false;
+
+	for (unsigned int i = 0; i < this->size; i++) {
+		file->write((char *) bucket, bucketSize);
+	}
+
+	file->flush();
+
+	delete (bucket);
+}
+
+template<class T, unsigned int bucketSize>
 HashTable<T, bucketSize>::HashTable(const std::string & path) {
 	this->file = new File(path, File::IO | File::BIN);
 	this->file->seek(0, File::END);
@@ -168,6 +226,20 @@ HashTable<T, bucketSize>::HashTable(const std::string & path) {
 	this->hashFunction = new HashFunction<T>(this->size);
 	this->rehashFunction = new ReHashFunction<T>(this->size);
 }
+
+template<class T, unsigned int bucketSize>
+HashTable<T, bucketSize>::HashTable(const std::string & path , SecurityStrategy * security) {
+	this->file = new File(path, File::IO | File::BIN, security );
+	this->file->seek(0, File::END);
+	this->recordFound = NULL;
+	this->searchBucketIndex = 0;
+	this->searchRecordIndex = 0;
+	this->size = file->tell() / bucketSize;
+	this->maxNumberOfRehashes = this->size;
+	this->hashFunction = new HashFunction<T>(this->size);
+	this->rehashFunction = new ReHashFunction<T>(this->size);
+}
+
 
 template<class T, unsigned int bucketSize>
 void HashTable<T, bucketSize>::insert(const T & record) {
