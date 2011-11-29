@@ -31,7 +31,7 @@ public:
 		generateAndStoreRandomKey(keySize);
 	}
 
-	void encrypt(unsigned char * &buffer, size_t bytes){
+	unsigned char * encrypt(unsigned char * buffer, size_t bytes){
 		unsigned int j=0;
 		unsigned char* message = (unsigned char*)buffer;
 
@@ -43,9 +43,10 @@ public:
 			message[i] = ((key[j] + message[i])  % SYMBOLS);
 			j++;
 		}
+		return buffer;
 	}
 	
-	void decrypt(unsigned char * &buffer, size_t bytes){
+	unsigned char * decrypt(unsigned char * buffer, size_t bytes){
 		unsigned int j=0;
 		unsigned char* message = (unsigned char*)buffer;
 
@@ -62,6 +63,7 @@ public:
 			j++;
 
 		}
+		return buffer;
 	}
 
 	~VigenereSecurity()

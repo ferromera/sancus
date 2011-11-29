@@ -9,6 +9,7 @@
 #define MATHUTILS_H_
 
 #include <math.h>
+#include <time.h>
 #include <stdlib.h>
 
 struct EuclidesResult {
@@ -18,7 +19,6 @@ struct EuclidesResult {
 };
 
 class MathUtils {
-
 public:
 	static int nextPrime(unsigned int number) {
 		while (!isPrime(number)) {
@@ -42,8 +42,9 @@ public:
 		return true;
 	}
 
-	static int randomNumber(unsigned int base, unsigned int max) {
-		return rand() % (max - base + 1) + base;
+	static unsigned int randomNumber(unsigned int base, unsigned int max) {
+		//srand((unsigned)time(0));
+		return ((unsigned int )rand()) % (max - base + 1) + base;
 	}
 
 	/* procedimiento que calcula el valor del maximo común divisor
@@ -98,10 +99,12 @@ public:
 
 	static int generateRandomIntegersOf(unsigned int bits) {
 		unsigned int randomNumber = 0;
-
+		/*
 		for (unsigned int i = 0; i < bits; i++) {
 			randomNumber += ((rand() >> i) & 1) * pow(2, i);
-		}
+		}*/
+		randomNumber=pow(2, bits-1);
+		randomNumber+= MathUtils::randomNumber(0,pow(2, bits-1)-1);
 
 		return randomNumber;
 	}
@@ -110,9 +113,9 @@ public:
 		if (exp == 0)
 			return 1;
 		if (exp % 2 == 0) {
-			return (unsigned int)(pow(powMod(base, (exp / 2), mod), 2)) % mod;
+			return ((unsigned int)fmod((pow(powMod((long double)base, (exp / 2), mod), 2)),mod));
 		} else {
-			return (base * powMod(base, (exp - 1), mod)) % mod;
+			return ((unsigned int)fmod(((long double)base * powMod((long double)base, (exp - 1), mod)),mod)) ;
 		}
 	}
 
