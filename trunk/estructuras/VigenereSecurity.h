@@ -9,7 +9,14 @@
 #define VIGENERE_SECURITY_H_
 #define SYMBOLS 256
 
+#include <cstdio>
+#include <cstdlib>
+
+#define VIGENERE_SECURITY_KEYPATH	"VigenereKey.bin"
+
 #include "SecurityStrategy.h"
+#include "MathUtils.h"
+#include "File.h"
 
 class VigenereSecurity : public SecurityStrategy {
 private:
@@ -17,12 +24,20 @@ private:
 
 	void generateAndStoreRandomKey(unsigned int keySize)
 	{
-		this->key = (unsigned char*)"AAAA";
-//		int r;
-//		//for (int i = 0; i < keySize; i++){
-//			key[i] = MathUtils::randomNumber(0,256);
-//		}
-
+		File* keyFile;
+		try {
+			keyFile = new File(VIGENERE_SECURITY_KEYPATH, File::BIN | File::IO);
+			keyFile->read(this->key, keySize);
+			delete keyFile;
+		}
+		catch (OpenFileException) {
+			keyFile = new File(VIGENERE_SECURITY_KEYPATH, File::BIN | File::NEW);
+			for (unsigned int i = 0; i < keySize; i++){
+				this->key[i] = MathUtils::randomNumber(0,256);
+			}
+			keyFile->write(this->key, keySize);
+			delete keyFile;
+		}
 	}
 
 public:

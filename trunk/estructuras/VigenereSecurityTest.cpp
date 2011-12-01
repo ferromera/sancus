@@ -18,9 +18,9 @@
 using namespace std;
 
 int main() {
-	RsaSecurityTest * test = new RsaSecurityTest();
-
-	test->testEncryptAndDecrypt();
+//	RsaSecurityTest * test = new RsaSecurityTest();
+//
+//	test->testEncryptAndDecrypt();
 //
 //	int r;
 //	for (int i = 0; i < 3; i++){
@@ -31,7 +31,7 @@ int main() {
 //		cout <<  r;
 //	}
 
-	//unsigned char message2[] = "CECI";
+	unsigned char message2[] = "CECI";
 //	VigenereSecurity * vs;
 //
 //	char name[6];
@@ -43,12 +43,12 @@ int main() {
 //	vs = new VigenereSecurity(6);
 //	vs->encrypt(&buffer,6);
 
-//	VigenereSecurity sec(4);
-//	sec.encrypt(message2, 4);
-//	cout << message2 << endl;
-//
-//	sec.decrypt(message2, 4);
-//	cout << message2 << endl;
+	VigenereSecurity sec(4);
+	sec.encrypt(message2, 4);
+	cout << message2 << endl;
+
+	sec.decrypt(message2, 4);
+	cout << message2 << endl;
 //
 //	int ceci2 = (int)'A';
 //	char ceci1 = 'A';
