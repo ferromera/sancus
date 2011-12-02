@@ -35,7 +35,7 @@ public:
 	File(SecurityStrategy * strategy);
 	File(const std::string &, char openMode, SecurityStrategy * strategy);
 	File();
-	File(const std::string &, char openMode);
+	File(const std::string &, char openMode=0);
 	bool isOpen();
 	void seek(long offset, char origin = BEG);
 	long tell();
@@ -60,6 +60,8 @@ public:
 	const std::string & path() const;
 	File & operator<<(const std::string &);
 	File & operator<<(unsigned int);
+	File & operator>>(std::string &);
+	File & operator>>(unsigned int &number);
 	~File();
 };
 

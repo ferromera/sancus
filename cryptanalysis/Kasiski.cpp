@@ -27,6 +27,7 @@ void Kasiski::attack(std::string encryptedFilePath) {
 	char * buffer = new char[bufferSize];
 	file.read(buffer, bufferSize);
 	int keyLength = calculateKeyLength(buffer, bufferSize);
+	std::cout<<keyLength<<std::endl;
 }
 unsigned int Kasiski::calculateKeyLength(char * buffer, unsigned int size) {
 	char * str1 = buffer;
