@@ -105,7 +105,7 @@ public:
 
 	unsigned char * encrypt(unsigned char * m, size_t bytes) {
 		unsigned int splittedSize = bytes * 8 / (keySize - 1);
-		if (bytes % (keySize - 1))
+		if ((bytes*8) % (keySize - 1))
 			splittedSize++;
 		unsigned int * msgSplitted = new unsigned int[splittedSize];
 		split(m, bytes, msgSplitted, splittedSize,keySize-1);
@@ -186,26 +186,10 @@ public:
 						}
 					}
 
-				/*
-		unsigned int byte = 0, k = 0;
-		for (unsigned int i = 0; i < splittedSize; i++) {
-			for (unsigned int b = 0; b < keySize; b++) {
-				if ((splitted[i] & (unsigned int) pow(2, b)))
-					toJoin[byte] |= (unsigned char) pow(2, k);
-				else
-					toJoin[byte] &= ~(unsigned char) pow(2, k);
-				k++;
-				if (k == 8) {
-					k = 0;
-					byte++;
-				}
-			}
-		}*/
-
 	}
 	unsigned int getEncryptedBytes(size_t bytes) {
 		unsigned int splittedSize = bytes * 8 / (keySize - 1);
-		if (bytes % (keySize - 1))
+		if ((bytes*8) % (keySize - 1))
 			splittedSize++;
 		unsigned int encryptedSize = splittedSize * keySize / 8;
 		if ((splittedSize * keySize) % 8)
@@ -214,9 +198,10 @@ public:
 
 	}
 
+
 	unsigned char * decrypt(unsigned char * c, size_t bytes) {
 		unsigned int splittedSize = bytes * 8 / (keySize - 1);
-				if (bytes % (keySize - 1))
+				if (bytes*8 % (keySize - 1))
 					splittedSize++;
 		unsigned int * cSplitted = new unsigned int[splittedSize];
 		split(c, getEncryptedBytes(bytes), cSplitted, splittedSize,keySize);

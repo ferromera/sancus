@@ -11,11 +11,16 @@
 #include <vector>
 
 class RSABreaker {
+	static void join(unsigned int * splitted, unsigned int splittedSize,unsigned char * toJoin,unsigned int toJoinSize ,unsigned int bits);
+	static void split(unsigned char * m, unsigned int bytes,unsigned int * toSplit,unsigned int splittedSize ,unsigned int bits) ;
+	static unsigned char * decrypt(unsigned char * c, size_t encryptedBytes,unsigned int N,unsigned int D);
 public:
 	RSABreaker();
 	static const unsigned int N=88151509;//9787x9007
 	static const unsigned int E=7;
 	static void attack(std::string encryptedFilePath);
+
+
 	static void attack2(std::string encryptedFilePath,unsigned int N,unsigned int E);
 	static void addBNumber(const std::vector<unsigned int> & base, unsigned int b,
 			std::vector<unsigned int> & bNumbers, std::vector<std::vector<unsigned int> >&e);
