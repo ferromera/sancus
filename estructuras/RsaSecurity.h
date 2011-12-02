@@ -99,7 +99,6 @@ public:
 			std::string str;
 
 			publicFile >> str;
-			std::cout<<str<<std::endl;
 			publicFile >> e;
 			publicFile >> str;
 			publicFile >> n;

@@ -181,10 +181,10 @@ char ResultScreen::resultByList() {
 		return doQuestion();
 	}
 	unsigned int showedResults = 0;
-	std::cout << "Lista " << name << endl;
+	std::cout << "Resultados de la lista: " << name << endl;
 	std::cout << "Eleccion: Fecha: " << fecha << " " << cargo << " de "
 			<< distrito << endl;
-	reportFile << "Lista " << name << "\n";
+	reportFile << "Resultados de la lista: " << name << "\n";
 	reportFile << "Eleccion: Fecha: " << fecha << " " << cargo << " de "
 			<< distrito << "\n";
 	while (true) {
@@ -268,9 +268,9 @@ char ResultScreen::resultByElection() {
 	unsigned int showedResults = 0;
 	bool noResults = true;
 	DistrictRecord::Key disKey(distrito);
-	std::cout << "Resultados de eleccion: " << cargo << " de " << distElec
+	std::cout << "Resultados de la eleccion: " << cargo << " de " << distElec
 			<< " en " << distrito << endl;
-	reportFile << "Resultados de eleccion: " << cargo << " de " << distElec
+	reportFile << "Resultados de la eleccion: " << cargo << " de " << distElec
 			<< " en " << distrito << "\n";
 
 	while (true) {

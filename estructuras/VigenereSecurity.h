@@ -33,7 +33,7 @@ private:
 		catch (OpenFileException) {
 			keyFile = new File(VIGENERE_SECURITY_KEYPATH, File::BIN | File::NEW);
 			for (unsigned int i = 0; i < keySize; i++){
-				this->key[i] = MathUtils::randomNumber(0,256);
+				this->key[i] = MathUtils::randomNumber(0,255);
 			}
 			keyFile->write(this->key, keySize);
 			delete keyFile;
@@ -42,8 +42,10 @@ private:
 
 public:
 	VigenereSecurity(unsigned int  keySize): SecurityStrategy(keySize){
+		srand((unsigned) time(0));
 		key = new unsigned char[keySize];
 		generateAndStoreRandomKey(keySize);
+
 	}
 
 	unsigned char * encrypt(unsigned char * buffer, size_t bytes){
@@ -51,7 +53,7 @@ public:
 		unsigned char* message = (unsigned char*)buffer;
 
 		for(unsigned int i = 0; i< bytes; i++){
-			if(j>this->keySize){
+			if(j==this->keySize){
 				j=0;
 			}
 
@@ -66,7 +68,7 @@ public:
 		unsigned char* message = (unsigned char*)buffer;
 
 		for(unsigned int i = 0; i< bytes; i++){
-			if(j>this->keySize){
+			if(j==this->keySize){
 				j=0;
 			}
 			if (message[i] - key[j] < 0){
