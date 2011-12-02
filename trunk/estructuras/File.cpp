@@ -150,6 +150,27 @@ File & File::operator<<(unsigned int number){
 		throw FailedInWritingUIntToFileException();
 	return *this;
 }
+File & File::operator>>(std::string & str){
+	if(!isOpen())
+		throw FileNotOpenedException();
+	char * c_str = new char[100000];
+	if(fgets(c_str,100000,filep)==NULL){
+		delete c_str;
+		if(ferror(filep))
+			throw ReadFileException();
+		throw EndOfFileException();
+	}
+	str=c_str;
+	delete c_str;
+	return *this;
+}
+File & File::operator>>(unsigned int &number){
+	if(!isOpen())
+		throw FileNotOpenedException();
+	if(fscanf(filep,"%u",&number)==EOF)
+		throw ReadFileException();
+	return *this;
+}
 File::~File(){
 	if(isOpen())
 		close();
