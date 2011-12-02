@@ -7,8 +7,10 @@
 
 #ifndef RESULTSCREEN_H_
 #define RESULTSCREEN_H_
+#define VIGENEREKEYSIZE 4
 
 #include "Drawable.h"
+#include "../estructuras/VigenereSecurity.h"
 
 class ResultScreen: public Drawable {
 public:
