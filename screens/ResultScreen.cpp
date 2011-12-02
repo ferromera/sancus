@@ -51,9 +51,10 @@ void ResultScreen::draw() {
 	}
 }
 char ResultScreen::resultByDistrict() {
+	VigenereSecurity* vigenereSec = new VigenereSecurity(VIGENEREKEYSIZE);
 	std::string nameFile = "resultByDistrict";
 	nameFile.append(Time::getTime());
-	File reportFile = File(nameFile, File::NEW);
+	File reportFile = File(nameFile, File::NEW,vigenereSec);
 
 	std::string distrito;
 	unsigned int fecha;
@@ -131,9 +132,11 @@ char ResultScreen::resultByDistrict() {
 	return doQuestion();
 }
 char ResultScreen::resultByList() {
+	VigenereSecurity* vigenereSec = new VigenereSecurity(VIGENEREKEYSIZE);
+
 	std::string nameFile = "resultByList";
 	nameFile.append(Time::getTime());
-	File reportFile = File(nameFile, File::NEW);
+	File reportFile = File(nameFile, File::NEW, vigenereSec);
 
 	int fecha;
 	std::string name;
@@ -217,9 +220,11 @@ char ResultScreen::resultByList() {
 
 }
 char ResultScreen::resultByElection() {
+	VigenereSecurity* vigenereSec = new VigenereSecurity(VIGENEREKEYSIZE);
+
 	std::string nameFile = "resultByElection";
 	nameFile.append(Time::getTime());
-	File reportFile = File(nameFile, File::NEW);
+	File reportFile = File(nameFile, File::NEW, vigenereSec);
 	int fecha;
 	std::string cargo;
 	std::string distrito;
