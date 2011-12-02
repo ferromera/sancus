@@ -25,6 +25,7 @@ void SimulScreen::draw(){
 	app->setActualScreen(ADM_SCREEN);
 
 	cout<<"Votacion concluida "<<endl;
+	IstreamUtils::getString();
 
 	return;
 

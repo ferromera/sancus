@@ -80,12 +80,6 @@ public:
 			publicFile << " n: \n";
 			publicFile << publicKey.n;
 
-			cout << "n: " << n << endl;
-			cout << "p: " << p << endl;
-			cout << "q: " << q << endl;
-			cout << "fi de n: " << phi << endl;
-			cout << "e: " << publicKey.e << endl;
-			cout << "d: " << d << endl;
 		}
 
 	}
@@ -121,41 +115,17 @@ public:
 			splittedSize++;
 		unsigned int * msgSplitted = new unsigned int[splittedSize];
 		split(m, bytes, msgSplitted, splittedSize, keySize - 1);
-		for (unsigned int i = 0; i < splittedSize; i++)
-			cout << "encrypton splitted: " << msgSplitted[i] << endl;
+
 
 		for (unsigned int i = 0; i < splittedSize; i++) {
-			cout << "encriptando: " << msgSplitted[i] << endl;
 			msgSplitted[i] = MathUtils::powMod(msgSplitted[i], publicKey.e, publicKey.n);
-			cout << "criptograma splitted: " << msgSplitted[i] << endl;
 		}
 
 		unsigned char * encrypted = new unsigned char[getEncryptedBytes(bytes)];
 		join(msgSplitted, splittedSize, encrypted, getEncryptedBytes(bytes), keySize);
-		for (unsigned int i = 0; i < getEncryptedBytes(bytes); i++)
-			cout << (unsigned int) encrypted[i] << endl;
 
 		return encrypted;
 
-		/* unsigned char * c_toChar = new unsigned char[bytes * 4];
-		 unsigned int c_i;
-		 unsigned char char_c_i;
-		 cout << "exponente e:" << publicKey.e << endl;
-		 cout << "n " << publicKey.n << endl;
-
-		 for (unsigned int i = 0; i < bytes; i++) {
-		 c_i = MathUtils::powMod(m[i], publicKey.e, publicKey.n);
-		 cout << c_i << endl;
-		 for (int j = 0; j < 4; j++) {
-		 char_c_i = (unsigned char) (c_i & 255);
-		 cout << "char c-i: " << (unsigned int) char_c_i << endl;
-		 c_toChar[4 * i + j] = char_c_i;
-		 c_i = c_i >> 8;
-		 }
-		 }
-
-		 delete (m);
-		 m = c_toChar;*/
 	}
 
 	void split(unsigned char * m, unsigned int bytes, unsigned int * toSplit, unsigned int splittedSize,
@@ -208,6 +178,22 @@ public:
 		return encryptedSize;
 
 	}
+	/*
+	 * Retorna la cantidad de bytes obtenidos al desencriptar
+	 * encryptedBytes, debido a que es imposible obtener la cantidad
+	 * de bytes exactas del bloque plano a partir de la cantidad de bytes
+	 * encriptados se retorna la mayor cantidad
+	 * de bytes posible del bloque plano.
+	 */
+	unsigned int getPlainBytes(size_t encryptedBytes){
+		unsigned int splittedSize = encryptedBytes * 8 / keySize;
+				if ((encryptedBytes * 8) % keySize )
+					splittedSize++;
+				unsigned int plainSize = splittedSize * (keySize-1) / 8;
+				if ((splittedSize * (keySize-1)) % 8)
+					plainSize++;
+				return plainSize;
+	}
 
 	unsigned char * decrypt(unsigned char * c, size_t bytes) {
 		unsigned int splittedSize = bytes * 8 / (keySize - 1);
@@ -217,25 +203,13 @@ public:
 		split(c, getEncryptedBytes(bytes), cSplitted, splittedSize, keySize);
 
 		for (unsigned int i = 0; i < splittedSize; i++) {
-			cout << "desencriptando: " << cSplitted[i] << endl;
 			cSplitted[i] = MathUtils::powMod(cSplitted[i], privateKey.d, privateKey.n);
-			cout << "desencriptado: " << cSplitted[i] << endl;
 		}
 
 		unsigned char * decrypted = new unsigned char[bytes];
 		join(cSplitted, splittedSize, decrypted, bytes, keySize - 1);
 		return decrypted;
-		/*
-		 unsigned char * plain = new unsigned char[bytes];
-		 unsigned int * &f = (unsigned int *&) c;
 
-		 cout << "MENSAJE " << endl;
-		 for (unsigned int i = 0; i < bytes; i++) {
-		 cout << "ENCRIPTADO ES: " << f[i] << endl;
-		 plain[i] = (unsigned char) MathUtils::powMod(f[i], privateKey.d, privateKey.n);
-		 cout << f[i] << endl;
-		 }
-		 c = plain;*/
 	}
 
 	RsaPublicKey getPublicKey() {

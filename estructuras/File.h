@@ -38,7 +38,9 @@ public:
 	File(const std::string &, char openMode=0);
 	bool isOpen();
 	void seek(long offset, char origin = BEG);
+	void seekBlock(unsigned int blockNumber,unsigned int blockSize);
 	long tell();
+	unsigned int tellBlock(unsigned int blockSize);
 	void read(void *, size_t bytes);
 
 	/**

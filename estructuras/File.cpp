@@ -33,6 +33,19 @@ bool File::isOpen(){
 		return false;
 	return true;
 }
+unsigned int File::tellBlock(unsigned int blockSize){
+	unsigned int encryptedBytes=tell();
+	return encryptedBytes/security->getEncryptedBytes(blockSize);
+}
+void File::seekBlock(unsigned int blockNumber,unsigned int blockSize){
+		if(!isOpen())
+				throw FileNotOpenedException();
+
+		unsigned int seekOffset=security->getEncryptedBytes(blockSize)*blockNumber;
+		if(fseek(filep,seekOffset,SEEK_SET))
+			throw SeekInternalException();
+
+}
 void File::seek(long offset,char origin){
 	int ori;
 	if(!isOpen())
@@ -48,7 +61,7 @@ void File::seek(long offset,char origin){
 			throw BadSeekOriginException();
 	}
 
-	if(fseek(filep,offset,ori))
+	if(fseek(filep,security->getEncryptedBytes(offset),ori))
 		throw SeekInternalException();
 
 }
@@ -58,28 +71,36 @@ long File::tell(){
 	long l;
 	if((l=ftell(filep))==-1L)
 		throw TellException();
-	return l;
+	return security->getPlainBytes(l);
 }
 void File::read(void * buffer,size_t bytes){
 	if(!isOpen())
 			throw FileNotOpenedException();
 	flush();
-	if(fread(buffer,bytes,1,filep)!=1){
+	unsigned char * readBuffer=new unsigned char[security->getEncryptedBytes(bytes)];
+	if(fread(readBuffer,security->getEncryptedBytes(bytes),1,filep)!=1){
+		delete readBuffer;
 		if(ferror(filep))
 			throw ReadFileException();
 		throw EndOfFileException();
 	}
-
-	this->security->decrypt((unsigned char * &)buffer,bytes);
+	unsigned char * decryptedBuffer=this->security->decrypt(readBuffer,bytes);
+	for(unsigned int i=0;i<bytes;i++)
+		((unsigned char*)buffer)[i]=decryptedBuffer[i];
+	delete readBuffer;
+	delete decryptedBuffer;
 }
 void File::write(void * buffer,size_t bytes){
 	if(!isOpen())
 			throw FileNotOpenedException();
 
-	this->security->encrypt((unsigned char * &)buffer,bytes);
+	unsigned char * encryptedBuffer=this->security->encrypt((unsigned char * )buffer,bytes);
 
-	if(fwrite(buffer,bytes,1,filep)!=1)
+	if(fwrite(encryptedBuffer,security->getEncryptedBytes(bytes),1,filep)!=1){
+		delete encryptedBuffer;
 		throw WriteFileException();
+	}
+	delete encryptedBuffer;
 
 }
 void File::close(){
