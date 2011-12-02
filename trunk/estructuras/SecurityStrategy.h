@@ -24,6 +24,9 @@ public:
 	virtual unsigned int getEncryptedBytes(size_t bytes){
 		return bytes;
 	}
+	virtual unsigned int getPlainBytes(size_t encryptedBytes){
+			return encryptedBytes;
+		}
 };
 
 #endif /* SECURITY_STRATEGY_H_ */

@@ -8,7 +8,7 @@
 #include "AdministratorFile.h"
 #include "FileManagerExceptions.h"
 #include "../utils/Time.h"
-#include "../estructuras/VigenereSecurity.h"
+#include "../estructuras/RsaSecurity.h"
 
 AdministratorFile* AdministratorFile::instance = NULL;
 
@@ -19,16 +19,15 @@ AdministratorFile * AdministratorFile::getInstance(){
 }
 
 AdministratorFile::AdministratorFile() {
+	SecurityStrategy *security = new RsaSecurity(10);
 	try
 	{
-		//SecurityStrategy *security = new VigenereSecurity(10);
-		this->table = new HashTable<AdministratorRecord, 4096> (ADMINISTRATOR_FILE_DATA_PATH);
+		this->table = new HashTable<AdministratorRecord, 4096> (ADMINISTRATOR_FILE_DATA_PATH,security);
 	}catch(OpenFileException &e)
 	{
-		//SecurityStrategy *security = new VigenereSecurity(10);
 		this->table = new HashTable<AdministratorRecord, 4096> (ADMINISTRATOR_FILE_DATA_PATH,
 				ADMINISTRATOR_FILE_RECORDS_PER_BUCKET,
-				ADMINISTRATOR_FILE_MAX_NUMBER_OF_RECORDS);
+				ADMINISTRATOR_FILE_MAX_NUMBER_OF_RECORDS,security);
 	}
 }
 

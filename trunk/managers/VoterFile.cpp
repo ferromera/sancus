@@ -7,6 +7,7 @@
 
 #include "VoterFile.h"
 #include "../utils/Time.h"
+#include "../estructuras/RsaSecurity.h"
 
 VoterFile* VoterFile::instance = NULL;
 
@@ -17,14 +18,14 @@ VoterFile * VoterFile::getInstance(){
 }
 
 VoterFile::VoterFile()
-{
+{	SecurityStrategy *security = new RsaSecurity(10);
 	try
 	{
-		this->table = new HashTable<VoterRecord, 4096> (VOTER_FILE_DATA_PATH);
+		this->table = new HashTable<VoterRecord, 4096> (VOTER_FILE_DATA_PATH,security);
 	}catch(OpenFileException & e)
 	{
 		this-> table = new HashTable<VoterRecord, 4096> (VOTER_FILE_DATA_PATH,
-					VOTER_FILE_RECORDS_PER_BUCKET, VOTER_FILE_MAX_NUMBER_OF_RECORDS);
+					VOTER_FILE_RECORDS_PER_BUCKET, VOTER_FILE_MAX_NUMBER_OF_RECORDS,security);
 	}
 }
 

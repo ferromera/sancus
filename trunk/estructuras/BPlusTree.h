@@ -22,7 +22,7 @@ private:
 	File *file_;
 	std::string dataPath;
 	std::string reportPath;
-	SecurityStrategy* security;
+	SecurityStrategy * security;
 	TRecord * found;
 	Logger* log;
 	std::string logString;
@@ -43,9 +43,9 @@ private:
 public:
 
 	BPlusTree(const std::string & path);
-	BPlusTree(const std::string & path , SecurityStrategy & security);
+	BPlusTree(const std::string & path , SecurityStrategy * security);
 	BPlusTree(const std::string & treePath, const std::string & sequentialPath);
-	BPlusTree(const std::string & treePath, const std::string & sequentialPath, SecurityStrategy & security);
+	BPlusTree(const std::string & treePath, const std::string & sequentialPath, SecurityStrategy * security);
 
 	void insert(const TRecord & rec);
 	void remove(const TRecord & rec);
@@ -64,7 +64,7 @@ public:
 
 template<class TRecord, unsigned int blockSize>
 BPlusTree<TRecord, blockSize>::BPlusTree(const std::string & path) :
-	root(NULL), searchLeaf(NULL), file_(NULL), dataPath(path),found(NULL) {
+	root(NULL), searchLeaf(NULL), file_(NULL), dataPath(path),security(NULL),found(NULL){
 	log = Logger::getInstance();
 	logKey = "Arbol B+ (";
 	logKey.append(dataPath);
@@ -86,7 +86,7 @@ BPlusTree<TRecord, blockSize>::BPlusTree(const std::string & path) :
 
 }
 template<class TRecord, unsigned int blockSize>
-BPlusTree<TRecord, blockSize>::BPlusTree(const std::string & path,SecurityStrategy &security) :
+BPlusTree<TRecord, blockSize>::BPlusTree(const std::string & path,SecurityStrategy *security) :
 	root(NULL), searchLeaf(NULL), file_(NULL), dataPath(path),security(security),found(NULL) {
 	log = Logger::getInstance();
 	logKey = "Arbol B+ (";
@@ -110,7 +110,7 @@ BPlusTree<TRecord, blockSize>::BPlusTree(const std::string & path,SecurityStrate
 }
 template<class TRecord, unsigned int blockSize>
 BPlusTree<TRecord, blockSize>::BPlusTree(const std::string & treePath, const std::string & sequentialPath) :
-	root(NULL), searchLeaf(NULL), file_(NULL), dataPath(treePath),found(NULL) {
+	root(NULL), searchLeaf(NULL), file_(NULL), dataPath(treePath),security(NULL),found(NULL) {
 	log = Logger::getInstance();
 	logKey = "Arbol B+ (";
 	logKey.append(dataPath);
@@ -127,7 +127,7 @@ BPlusTree<TRecord, blockSize>::BPlusTree(const std::string & treePath, const std
 
 }
 template<class TRecord, unsigned int blockSize>
-BPlusTree<TRecord, blockSize>::BPlusTree(const std::string & treePath, const std::string & sequentialPath,SecurityStrategy & security) :
+BPlusTree<TRecord, blockSize>::BPlusTree(const std::string & treePath, const std::string & sequentialPath,SecurityStrategy * security) :
 	root(NULL), searchLeaf(NULL), file_(NULL), dataPath(treePath),security(security),found(NULL) {
 	log = Logger::getInstance();
 	logKey = "Arbol B+ (";
@@ -154,7 +154,11 @@ void BPlusTree<TRecord, blockSize>::create() {
 	logString.append(dataPath);
 	log->insert(logKey, logString);
 
-	file_ = new File(dataPath, File::NEW | File::BIN | File::IO);
+	if(security == NULL)
+			file_ = new File(dataPath,File::NEW | File::BIN | File::IO);
+		else
+			file_ = new File(dataPath,File::NEW | File::BIN | File::IO,security);
+
 
 	log->insert(logKey, "El archivo se creo correctamente.");
 
