@@ -1,0 +1,58 @@
+Resultados de la lista: Alianza Frente para la Victoria 
+Eleccion: Fecha: 20111023 Presidente de Argentina
+ Votos en Argentina : 1232
+ Votos en Adolfo Alsina : 12
+ Votos en Calamuchita : 22
+ Votos en Belgrano : 32
+ Votos en Alberdi : 31
+ Votos en Aguirre : 21
+ Votos en Alberti : 26
+ Votos en Cordoba Capital : 25
+ Votos en Castellanos : 31
+ Votos en Burruyacu : 23
+ Votos en Atamisqui : 35
+ Votos en Almirante Brown : 26
+ Votos en Colon : 14
+ Votos en Constitucion : 33
+ Votos en Cruz Alta : 25
+ Votos en Banda : 27
+ Votos en Arrecifes : 29
+ Votos en Cruz del Eje : 24
+ Votos en Garay : 22
+ Votos en Famailla : 21
+ Votos en Choya : 27
+ Votos en Avellaneda : 24
+ Votos en General Roca : 19
+ Votos en General Lopez : 21
+ Votos en Graneros : 26
+ Votos en Copo : 18
+ Votos en Ayacucho : 17
+ Votos en General San Martin : 26
+ Votos en General Obligado : 27
+ Votos en La Cocha : 18
+ Votos en Figueroa : 29
+ Votos en Azul : 21
+ Votos en Ischilin : 28
+ Votos en Iriondo : 27
+ Votos en Guasayan : 15
+ Votos en Jimenez : 27
+ Votos en Bahia Blanca : 28
+ Votos en Juarez Celman : 28
+ Votos en La Capital : 19
+ Votos en Leales : 26
+ Votos en Loreto : 29
+ Votos en Balcarce : 25
+ Votos en Marcos Juarez : 21
+ Votos en Las Colonias : 30
+ Votos en Lules : 26
+ Votos en Matara : 26
+ Votos en Baradero : 30
+ Votos en Minas : 29
+ Votos en Monteros : 17
+ Votos en Rio Chico : 22
+ Votos en Mitre : 27
+ Votos en Buenos Aires : 238
+ Votos en Cordoba : 236
+ Votos en Santa Fe : 259
+ Votos en Tucuman : 233
+ Votos en Santiago del Estero : 266
