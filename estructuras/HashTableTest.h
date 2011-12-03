@@ -125,6 +125,18 @@ public:
 		}
 	}
 
+	void testMassiveInsertDistrict() {
+		try {
+			for (int i = 1; i < 1000; i++) {
+				DistrictRecord * record = new DistrictRecord("Distrito" + StringUtils::intToString(i), "FATHER" + StringUtils::intToString(i));
+				table2->insert(*record);
+				delete (record);
+			}
+		} catch (RehashCountException & ex) {
+			cout << "Se lanzo la exception RehashCountException" << endl;
+		}
+	}
+
 	void testMassiveGet() {
 		testMassiveInsert();
 
@@ -141,7 +153,10 @@ public:
 	}
 
 	void testUpdate() {
-		table2 = new HashTable<DistrictRecord, 4096> ("DistrictFileHashTable.bin", 40, 400);
+		SecurityStrategy * RSA = new RsaSecurity(10);
+		table2 = new HashTable<DistrictRecord, 4096> ("DistrictFileHashTable.bin", 40, 400,RSA);
+
+		testMassiveInsertDistrict();
 
 		try {
 			DistrictRecord * record = new DistrictRecord("Pacheco", "Buenos Aires");

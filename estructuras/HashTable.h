@@ -40,8 +40,7 @@ private:
 	Function<T> * rehashFunction;
 	SecurityStrategy * security;
 
-	int insertRecord(const T & record, Function<T> * function,
-			unsigned int jump);
+	int insertRecord(const T & record, Function<T> * function, unsigned int jump);
 
 	std::string keyToString(typename T::Key key);
 
@@ -61,8 +60,7 @@ public:
 	 * @maxNumberOfRecords numero maximo de registros en el archivo (cuando se llegue a este numero se debera
 	 * enfrentar una reorganización de la tabla).
 	 */
-	HashTable(const std::string & path, const unsigned int recordsPerBucket,
-			const unsigned int maxNumberOfRecords);
+	HashTable(const std::string & path, const unsigned int recordsPerBucket, const unsigned int maxNumberOfRecords);
 
 	/**
 	 * Primitiva de creación
@@ -73,8 +71,8 @@ public:
 	 * enfrentar una reorganización de la tabla).
 	 * @security seguridad para encriptar
 	 */
-	HashTable(const std::string & path, const unsigned int recordsPerBucket,
-			const unsigned int maxNumberOfRecords,SecurityStrategy * security);
+	HashTable(const std::string & path, const unsigned int recordsPerBucket, const unsigned int maxNumberOfRecords,
+			SecurityStrategy * security);
 
 	/**
 	 * Primitiva de carga
@@ -89,7 +87,7 @@ public:
 	 * @path el path a un archivo directo existente (se supone que es un archivo valido)
 	 * @security seguridad para encriptar
 	 */
-	HashTable(const std::string & path , SecurityStrategy * security);
+	HashTable(const std::string & path, SecurityStrategy * security);
 
 	~HashTable();
 
@@ -143,8 +141,7 @@ public:
 };
 
 template<class T, unsigned int bucketSize>
-HashTable<T, bucketSize>::HashTable(const std::string & path,
-		const unsigned int recordsPerBucket,
+HashTable<T, bucketSize>::HashTable(const std::string & path, const unsigned int recordsPerBucket,
 		const unsigned int maxNumberOfRecords) {
 
 	this->file = new File(path, File::NEW | File::IO | File::BIN);
@@ -158,13 +155,13 @@ HashTable<T, bucketSize>::HashTable(const std::string & path,
 		this->size = MathUtils::nextPrime(size);
 	}
 
-	this->hashFunction = new HashFunction<T>(this->size);
-	this->rehashFunction = new ReHashFunction<T>(this->size);
+	this->hashFunction = new HashFunction<T> (this->size);
+	this->rehashFunction = new ReHashFunction<T> (this->size);
 
 	//por propiedad de los numeros primos luego de size rehashes se vuelve a repetir el primer resultado.
 	this->maxNumberOfRehashes = this->size;
 
-	Bucket<bucketSize> * bucket = new Bucket<bucketSize>();
+	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	bucket->freeSpace = sizeof(bucket->bytes);
 	bucket->count = 0;
 	bucket->overflow = false;
@@ -179,11 +176,10 @@ HashTable<T, bucketSize>::HashTable(const std::string & path,
 }
 
 template<class T, unsigned int bucketSize>
-HashTable<T, bucketSize>::HashTable(const std::string & path,
-		const unsigned int recordsPerBucket,
-		const unsigned int maxNumberOfRecords,SecurityStrategy * security) {
+HashTable<T, bucketSize>::HashTable(const std::string & path, const unsigned int recordsPerBucket,
+		const unsigned int maxNumberOfRecords, SecurityStrategy * security) {
 
-	this->file = new File(path, File::NEW | File::IO | File::BIN , security);
+	this->file = new File(path, File::NEW | File::IO | File::BIN, security);
 	this->size = maxNumberOfRecords / (PACKAGE_DENSITY * recordsPerBucket);
 
 	this->recordFound = NULL;
@@ -194,13 +190,13 @@ HashTable<T, bucketSize>::HashTable(const std::string & path,
 		this->size = MathUtils::nextPrime(size);
 	}
 
-	this->hashFunction = new HashFunction<T>(this->size);
-	this->rehashFunction = new ReHashFunction<T>(this->size);
+	this->hashFunction = new HashFunction<T> (this->size);
+	this->rehashFunction = new ReHashFunction<T> (this->size);
 
 	//por propiedad de los numeros primos luego de size rehashes se vuelve a repetir el primer resultado.
 	this->maxNumberOfRehashes = this->size;
 
-	Bucket<bucketSize> * bucket = new Bucket<bucketSize>();
+	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	bucket->freeSpace = sizeof(bucket->bytes);
 	bucket->count = 0;
 	bucket->overflow = false;
@@ -223,23 +219,22 @@ HashTable<T, bucketSize>::HashTable(const std::string & path) {
 	this->searchRecordIndex = 0;
 	this->size = file->tellBlock(bucketSize);
 	this->maxNumberOfRehashes = this->size;
-	this->hashFunction = new HashFunction<T>(this->size);
-	this->rehashFunction = new ReHashFunction<T>(this->size);
+	this->hashFunction = new HashFunction<T> (this->size);
+	this->rehashFunction = new ReHashFunction<T> (this->size);
 }
 
 template<class T, unsigned int bucketSize>
-HashTable<T, bucketSize>::HashTable(const std::string & path , SecurityStrategy * security) {
-	this->file = new File(path, File::IO | File::BIN, security );
+HashTable<T, bucketSize>::HashTable(const std::string & path, SecurityStrategy * security) {
+	this->file = new File(path, File::IO | File::BIN, security);
 	this->file->seek(0, File::END);
 	this->recordFound = NULL;
 	this->searchBucketIndex = 0;
 	this->searchRecordIndex = 0;
 	this->size = file->tellBlock(bucketSize);
 	this->maxNumberOfRehashes = this->size;
-	this->hashFunction = new HashFunction<T>(this->size);
-	this->rehashFunction = new ReHashFunction<T>(this->size);
+	this->hashFunction = new HashFunction<T> (this->size);
+	this->rehashFunction = new ReHashFunction<T> (this->size);
 }
-
 
 template<class T, unsigned int bucketSize>
 void HashTable<T, bucketSize>::insert(const T & record) {
@@ -258,13 +253,12 @@ void HashTable<T, bucketSize>::insert(const T & record) {
 }
 
 template<class T, unsigned int bucketSize>
-int HashTable<T, bucketSize>::insertRecord(const T & record,
-		Function<T> * function, unsigned int jump) {
-	Bucket<bucketSize> * bucket = new Bucket<bucketSize>();
+int HashTable<T, bucketSize>::insertRecord(const T & record, Function<T> * function, unsigned int jump) {
+	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	unsigned int position = (function->hash(record.getKey(), jump));
 	//unsigned int insertOffset = (position * bucketSize);
 
-	file->seekBlock(position,bucketSize);
+	file->seekBlock(position, bucketSize);
 	file->read((char *) bucket, bucketSize);
 	char * buffer = bucket->bytes;
 
@@ -289,8 +283,7 @@ int HashTable<T, bucketSize>::insertRecord(const T & record,
 				delete (recordFromBucket);
 
 				Logger::getInstance()->error(
-						"No se puede insertar el record "
-								+ keyToString(record.getKey()) + " ya existe");
+						"No se puede insertar el record " + keyToString(record.getKey()) + " ya existe");
 
 				throw UniqueViolationException();
 			}
@@ -299,8 +292,7 @@ int HashTable<T, bucketSize>::insertRecord(const T & record,
 		//VERIFICAR EL FACTOR DE CARGA DEL BUCKET
 		unsigned int effectiveSizeForRecords = bucketSize - 5;
 
-		if ((bucket->freeSpace - record.size())
-				> effectiveSizeForRecords * (1 - BUCKET_LOAD_FACTOR)) {
+		if ((bucket->freeSpace - record.size()) > effectiveSizeForRecords * (1 - BUCKET_LOAD_FACTOR)) {
 
 			//No existe en el bucket debemos insertar (respetando el orden);
 			bufferedRecords.push_front(record);
@@ -326,13 +318,12 @@ int HashTable<T, bucketSize>::insertRecord(const T & record,
 				recordsIterator++;
 			}
 
-			file->seekBlock(position,bucketSize);
+			file->seekBlock(position, bucketSize);
 			file->write((char *) bucket, bucketSize);
 			file->flush();
 
 			Logger::getInstance()->info(
-					"Se inserto el record con clave "
-							+ keyToString(record.getKey()) + " en el bucket "
+					"Se inserto el record con clave " + keyToString(record.getKey()) + " en el bucket "
 							+ StringUtils::intToString(position));
 
 			delete (bucket);
@@ -341,7 +332,7 @@ int HashTable<T, bucketSize>::insertRecord(const T & record,
 		} else {
 			bucket->overflow = true;
 
-			file->seekBlock(position,bucketSize);
+			file->seekBlock(position, bucketSize);
 			file->write((char *) bucket, bucketSize);
 			file->flush();
 
@@ -356,7 +347,7 @@ int HashTable<T, bucketSize>::insertRecord(const T & record,
 
 template<class T, unsigned int bucketSize>
 const T & HashTable<T, bucketSize>::get(const typename T::Key & key) {
-	Bucket<bucketSize> * bucket = new Bucket<bucketSize>();
+	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	//unsigned int offset;
 	unsigned int rehashingCount = 0;
 	unsigned int position = hashFunction->hash(key, 0);
@@ -369,7 +360,7 @@ const T & HashTable<T, bucketSize>::get(const typename T::Key & key) {
 
 		//offset = (position * bucketSize);
 
-		file->seekBlock(position,bucketSize);
+		file->seekBlock(position, bucketSize);
 		file->read((char *) bucket, bucketSize);
 		buffer = bucket->bytes;
 
@@ -380,9 +371,7 @@ const T & HashTable<T, bucketSize>::get(const typename T::Key & key) {
 			if (!bucket->overflow) {
 				delete (bucket);
 
-				Logger::getInstance()->error(
-						"El record con clave " + keyToString(key)
-								+ " no existe.");
+				Logger::getInstance()->error("El record con clave " + keyToString(key) + " no existe.");
 
 				throw RecordNotFoundException();
 			} else {
@@ -396,9 +385,7 @@ const T & HashTable<T, bucketSize>::get(const typename T::Key & key) {
 
 			if (recordFound->getKey() > key) {
 				if (!bucket->overflow) {
-					Logger::getInstance()->error(
-							"El record con clave " + keyToString(key)
-									+ " no existe.");
+					Logger::getInstance()->error("El record con clave " + keyToString(key) + " no existe.");
 					throw RecordNotFoundException();
 				} else {
 					rehashingCount++;
@@ -417,15 +404,14 @@ const T & HashTable<T, bucketSize>::get(const typename T::Key & key) {
 		delete (bucket);
 	}
 
-	Logger::getInstance()->error(
-			"El record con clave " + keyToString(key) + " no existe.");
+	Logger::getInstance()->error("El record con clave " + keyToString(key) + " no existe.");
 
 	throw RecordNotFoundException();
 }
 
 template<class T, unsigned int bucketSize>
 void HashTable<T, bucketSize>::remove(const T & record) {
-	Bucket<bucketSize> * bucket = new Bucket<bucketSize>();
+	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	//unsigned int offset;
 	unsigned int rehashingCount = 0;
 	unsigned int position = hashFunction->hash(record.getKey(), 0);
@@ -434,13 +420,14 @@ void HashTable<T, bucketSize>::remove(const T & record) {
 	typename std::list<T> bufferedRecords;
 
 	while (rehashingCount < maxNumberOfRehashes) {
+		found = false;
 		if (rehashingCount > 0) {
 			position = rehashFunction->hash(record.getKey(), position);
 		}
 
 		//offset = (position * bucketSize);
 
-		file->seekBlock(position,bucketSize);
+		file->seekBlock(position, bucketSize);
 		file->read((char *) bucket, bucketSize);
 		buffer = bucket->bytes;
 
@@ -450,27 +437,23 @@ void HashTable<T, bucketSize>::remove(const T & record) {
 		if (bucket->count == 0) {
 			if (!bucket->overflow) {
 				delete (bucket);
-				Logger::getInstance()->error(
-						"El record con clave " + keyToString(record.getKey())
-								+ " no existe.");
+				Logger::getInstance()->error("El record con clave " + keyToString(record.getKey()) + " no existe.");
 				throw RecordNotFoundException();
 			} else {
 				found = false;
 				rehashingCount++;
+				continue;
 			}
 		}
-
+		T * recordFromBucket;
 		for (int i = 0; i < bucket->count; i++) {
 
-			T * recordFromBucket = new T(&buffer);
+			recordFromBucket = new T(&buffer);
 
 			if (*recordFromBucket > record) {
 				if (!bucket->overflow) {
 					delete (recordFromBucket);
-					Logger::getInstance()->error(
-							"El record con clave "
-									+ keyToString(record.getKey())
-									+ " no existe.");
+					Logger::getInstance()->error("El record con clave " + keyToString(record.getKey()) + " no existe.");
 					throw RecordNotFoundException();
 				} else {
 					delete (recordFromBucket);
@@ -481,13 +464,22 @@ void HashTable<T, bucketSize>::remove(const T & record) {
 			}
 
 			if (*recordFromBucket != record) {
-				bufferedRecords.push_front(record);
+				bufferedRecords.push_back(*recordFromBucket);
+				delete recordFromBucket;
 			} else {
 				found = true;
+				for (int j = i; j < bucket->count; j++) {
+					delete recordFromBucket;
+					recordFromBucket = new T(&buffer);
+					bufferedRecords.push_back(*recordFromBucket);
+
+				}
+				break;
 			}
 		}
 
 		if (found) {
+
 			//free bucket bytes
 			for (unsigned int i = 0; i < sizeof(bucket->bytes); i++) {
 				bucket->bytes[i] = 0;
@@ -495,7 +487,7 @@ void HashTable<T, bucketSize>::remove(const T & record) {
 
 			buffer = bucket->bytes;
 
-			bucket->freeSpace += record.size();
+			bucket->freeSpace += recordFromBucket->size();
 			bucket->count--;
 
 			typename std::list<T>::iterator recordsIterator;
@@ -503,18 +495,16 @@ void HashTable<T, bucketSize>::remove(const T & record) {
 			recordsIterator = bufferedRecords.begin();
 
 			while (recordsIterator != bufferedRecords.end()) {
-				T r = (*recordsIterator);
-				r.write(&buffer);
+				recordsIterator->write(&buffer);
 				recordsIterator++;
 			}
 
-			file->seekBlock(position,bucketSize);
+			file->seekBlock(position, bucketSize);
 			file->write((char *) bucket, bucketSize);
 			file->flush();
 
 			Logger::getInstance()->info(
-					"Se removio el record con clave "
-							+ keyToString(record.getKey()) + " en el bucket "
+					"Se removio el record con clave " + keyToString(record.getKey()) + " en el bucket "
 							+ StringUtils::intToString(position));
 
 			delete (bucket);
@@ -525,12 +515,13 @@ void HashTable<T, bucketSize>::remove(const T & record) {
 
 template<class T, unsigned int bucketSize>
 void HashTable<T, bucketSize>::update(const T & record) {
-	Bucket<bucketSize> * bucket = new Bucket<bucketSize>();
+
+	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
 	//unsigned int offset;
 	unsigned int rehashingCount = 0;
 	unsigned int position = hashFunction->hash(record.getKey(), 0);
 	char * buffer;
-	bool found;
+	bool found = false;
 	typename std::list<T> bufferedRecords;
 
 	while (rehashingCount < maxNumberOfRehashes) {
@@ -540,7 +531,7 @@ void HashTable<T, bucketSize>::update(const T & record) {
 
 		//offset = (position * bucketSize);
 
-		file->seekBlock(position,bucketSize);
+		file->seekBlock(position, bucketSize);
 		file->read((char *) bucket, bucketSize);
 		buffer = bucket->bytes;
 
@@ -572,12 +563,20 @@ void HashTable<T, bucketSize>::update(const T & record) {
 					break;
 				}
 			}
-
 			if (*recordFromBucket != record) {
-				bufferedRecords.push_front(record);
+				//bufferedRecords.push_front(record);
+				bufferedRecords.push_front(*recordFromBucket);
 			} else {
 				bucket->freeSpace += recordFromBucket->size();
 				found = true;
+				for (int j = i; j < bucket->count-1; j++) {
+					delete recordFromBucket;
+					recordFromBucket = new T(&buffer);
+					bufferedRecords.push_back(*recordFromBucket);
+				}
+				delete recordFromBucket;
+				break;
+
 			}
 		}
 
@@ -585,8 +584,7 @@ void HashTable<T, bucketSize>::update(const T & record) {
 			//VERIFICAR EL FACTOR DE CARGA DEL BUCKET
 			unsigned int effectiveSizeForRecords = bucketSize - 5;
 
-			if ((bucket->freeSpace - record.size())
-					> effectiveSizeForRecords * (1 - BUCKET_LOAD_FACTOR)) {
+			if ((bucket->freeSpace - record.size()) > effectiveSizeForRecords * (1 - BUCKET_LOAD_FACTOR)) {
 
 				//insertarmos el bucket con las actualizaciones (respetando el orden);
 				bufferedRecords.push_front(record);
@@ -606,26 +604,52 @@ void HashTable<T, bucketSize>::update(const T & record) {
 
 				while (recordsIterator != bufferedRecords.end()) {
 					T r = (*recordsIterator);
+					//cout<<"KEY DE R "<<r.getKey().getKey()<<endl;
 					r.write(&buffer);
 					recordsIterator++;
 				}
 
-				file->seekBlock(position,bucketSize);
+				file->seekBlock(position, bucketSize);
 				file->write((char *) bucket, bucketSize);
 				file->flush();
 
 				Logger::getInstance()->info(
-						"Se actualizo el record con clave "
-								+ keyToString(record.getKey()) + " no existe.");
+						"Se actualizo el record con clave " + keyToString(record.getKey()));
 
 				delete (bucket);
 				break;
 			} else {
 				bucket->overflow = true;
 
-				file->seekBlock(position,bucketSize);
+
+
+				bufferedRecords.sort();
+				typename std::list<T>::iterator recordsIterator;
+
+				//free bucket bytes
+				for (unsigned int i = 0; i < sizeof(bucket->bytes); i++) {
+					bucket->bytes[i] = 0;
+				}
+
+				buffer = bucket->bytes;
+
+				recordsIterator = bufferedRecords.begin();
+
+				while (recordsIterator != bufferedRecords.end()) {
+					T r = (*recordsIterator);
+					//cout<<"KEY DE R "<<r.getKey().getKey()<<endl;
+					r.write(&buffer);
+					recordsIterator++;
+				}
+
+				file->seekBlock(position, bucketSize);
 				file->write((char *) bucket, bucketSize);
 				file->flush();
+
+				delete (bucket);
+
+				insert(record);
+				return;
 			}
 		}
 	}
@@ -645,8 +669,8 @@ const T& HashTable<T, bucketSize>::next() {
 	if (searchBucketIndex >= size)
 		throw RecordNotFoundException();
 
-	Bucket<bucketSize> * bucket = new Bucket<bucketSize>();
-	file->seekBlock(searchBucketIndex,bucketSize);
+	Bucket<bucketSize> * bucket = new Bucket<bucketSize> ();
+	file->seekBlock(searchBucketIndex, bucketSize);
 	file->read(bucket, bucketSize);
 
 	while (bucket->count == 0 || searchRecordIndex >= bucket->count) {
@@ -655,8 +679,12 @@ const T& HashTable<T, bucketSize>::next() {
 			throw RecordNotFoundException();
 
 		searchRecordIndex = 0;
-		file->seekBlock(searchBucketIndex,bucketSize);
+		file->seekBlock(searchBucketIndex, bucketSize);
 		file->read(bucket, bucketSize);
+		//cout<<"Bucket index :"<<searchBucketIndex<<endl;
+		//char * bytes = bucket->bytes;
+		//T * record = new T(&bytes);
+		//cout<<record->getKey().getKey()<<endl;
 	}
 
 	char * buffer = bucket->bytes;
