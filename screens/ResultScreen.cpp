@@ -54,7 +54,7 @@ char ResultScreen::resultByDistrict() {
 	VigenereSecurity* vigenereSec = new VigenereSecurity(VIGENEREKEYSIZE);
 	std::string nameFile = "resultByDistrict";
 	nameFile.append(Time::getTime());
-	File reportFile = File(nameFile, File::NEW,vigenereSec);
+	File * reportFile = new File(nameFile,  File::NEW|File::IO);
 
 	std::string distrito;
 	unsigned int fecha;
@@ -85,7 +85,7 @@ char ResultScreen::resultByDistrict() {
 	}
 	std::cout << "Resultados del distrito: " << distrito
 			<< " para elecciones de la fecha: " << fecha << endl;
-	reportFile << "Resultados del distrito: " << distrito
+	*reportFile << "Resultados del distrito: " << distrito
 			<< " para elecciones de la fecha: " << fecha << "\n";
 	unsigned int showedResults = 0;
 	while (true) {
@@ -98,7 +98,7 @@ char ResultScreen::resultByDistrict() {
 					<< " de "
 					<< record.getElection().getCharge().getDistrict().getString()
 					<< ", Votos: " << record.getCount() << std::endl;
-			reportFile
+			*reportFile
 					<< "Lista: "
 					<< record.getList().getName()
 					<< ", Cargo: "
@@ -127,6 +127,14 @@ char ResultScreen::resultByDistrict() {
 		}
 	}
 
+	reportFile->seek(0,File::END);
+	unsigned int size = reportFile->tell();
+	reportFile->seek(0,0);
+	unsigned char *buffer = new unsigned char[size];
+	reportFile->read(buffer,size);
+	File reportFileEncrypted = File(nameFile, File::NEW,vigenereSec);
+	reportFileEncrypted.write(buffer,size);
+
 	std::cout << "" << std::endl;
 	std::cout << "Quiere realizar otra busqueda S/N" << std::endl;
 	return doQuestion();
@@ -136,7 +144,7 @@ char ResultScreen::resultByList() {
 
 	std::string nameFile = "resultByList";
 	nameFile.append(Time::getTime());
-	File reportFile = File(nameFile, File::NEW, vigenereSec);
+	File reportFile = File(nameFile,  File::NEW|File::IO);
 
 	int fecha;
 	std::string name;
@@ -214,6 +222,15 @@ char ResultScreen::resultByList() {
 			break;
 		}
 	}
+
+	reportFile.seek(0,File::END);
+	unsigned int size = reportFile.tell();
+	reportFile.seek(0,File::BEG);
+	unsigned char* buffer = new unsigned char[size];
+	reportFile.read(buffer,size);
+	File reportFileEncrypted = File(nameFile, File::NEW,vigenereSec);
+	reportFileEncrypted.write(buffer,size);
+
 	std::cout << "" << std::endl;
 	std::cout << "Quiere realizar otra busqueda S/N" << std::endl;
 	return doQuestion();
@@ -224,7 +241,7 @@ char ResultScreen::resultByElection() {
 
 	std::string nameFile = "resultByElection";
 	nameFile.append(Time::getTime());
-	File reportFile = File(nameFile, File::NEW, vigenereSec);
+	File reportFile = File(nameFile,  File::NEW|File::IO);
 	int fecha;
 	std::string cargo;
 	std::string distrito;
@@ -316,6 +333,15 @@ char ResultScreen::resultByElection() {
 		std::cout << "No se encontraron resultados para la eleccion: " << "\n\t"
 				<< cargo << " de " << distElec << " en " << distrito
 				<< std::endl;
+
+	reportFile.seek(0,File::END);
+	unsigned int size = reportFile.tell();
+	reportFile.seek(0,File::BEG);
+	unsigned char* buffer = new unsigned char[size];
+	reportFile.read(buffer,size);
+
+	File reportFileEncrypted = File(nameFile, File::NEW,vigenereSec);
+	reportFileEncrypted.write(buffer,size);
 
 	std::cout << "" << std::endl;
 	std::cout << "Quiere realizar otra busqueda S/N" << std::endl;

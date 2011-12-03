@@ -7,7 +7,7 @@
 
 #ifndef RESULTSCREEN_H_
 #define RESULTSCREEN_H_
-#define VIGENEREKEYSIZE 4
+#define VIGENEREKEYSIZE 23
 
 #include "Drawable.h"
 #include "../estructuras/VigenereSecurity.h"
