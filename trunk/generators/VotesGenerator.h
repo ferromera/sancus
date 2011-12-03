@@ -55,13 +55,16 @@ public:
 		ElectionRecord eleccionProvincial = elections->searchByDistrict(provincia);
 		ElectionRecord eleccionNacional = elections->searchByDistrict(pais);
 
-		pick(voter, eleccionMunicipal.getKey(), distritosMunicipales,1);
-		pick(voter, eleccionProvincial.getKey(),distritosProvinciales, 2);
-		pick(voter, eleccionNacional.getKey(),distritosNacionales, 3);
+		pick(voter, eleccionMunicipal.getKey(), distritosMunicipales, 1);
+		pick(voter, eleccionProvincial.getKey(), distritosProvinciales, 2);
+		pick(voter, eleccionNacional.getKey(), distritosNacionales, 3);
+		//if(voter.getDni()%100==0)
+		//	voters->createReportFile();
 
 	}
 private:
-	void pick(VoterRecord voter, ElectionRecord::Key eleccion, DistrictRecord::Key distritos[], unsigned int numberOfDistricts) {
+	void pick(VoterRecord voter, ElectionRecord::Key eleccion, DistrictRecord::Key distritos[],
+			unsigned int numberOfDistricts) {
 		std::list<ListRecord> listas;
 
 		listas.push_back(lists->searchByElection(eleccion));
@@ -89,6 +92,20 @@ private:
 		for (unsigned int i = 0; i < numberOfDistricts; i++) {
 			updateVoteCountingRecordFor(winner.getKey(), distritos[i], eleccion);
 		}
+
+		voter.addElection(eleccion);
+		//voters->remove(voter);
+		//char c;
+		//cout<<eleccion.getKey()<<endl;
+		voters->update(voter);
+		//voters->createReportFile();
+		//std::cin >> c;
+		//std::cin >> c;
+		//voters->createReportFile();
+		//voters->insert(voter);
+		//voters->createReportFile();
+
+		//std::cin>>c;
 
 		//cout << "Votante " << voter.getName() << " voto a la lista: " << winner.getKey().getString() << endl;
 	}
