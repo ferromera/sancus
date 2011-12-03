@@ -75,10 +75,10 @@ public:
 			unsigned int encryptedD = privateKey.d ^ XOR_KEY;
 			privateFile.write(&encryptedD, sizeof(encryptedD));
 			File publicFile(RSA_PUBLIC_KEY_PATH, File::NEW);
-			publicFile << "e: \n";
-			publicFile << publicKey.e;
-			publicFile << " n: \n";
-			publicFile << publicKey.n;
+//			publicFile << "e: \n";
+//			publicFile << publicKey.e;
+//			publicFile << " n: \n";
+//			publicFile << publicKey.n;
 
 		}
 
