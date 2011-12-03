@@ -25,7 +25,7 @@ void AdministratorScreen::draw()
 	std::cout<<"4- Consulta de Resultados"<<std::endl;
 	std::cout<<"5- Consulta de Datos"<<std::endl;
 	std::cout<<"6- Ejecutar simulacion de votacion"<<std::endl;
-	std::cout<<"7- Atacar archivos"<<std::endl;
+	std::cout<<"7- Criptografia"<<std::endl;
 	std::cout<<"8- Volver a pantalla principal"<<std::endl;
 	std::cout<<"9- Salir de VoteApp"<<std::endl;
 	std::cout<<""<<std::endl;
@@ -40,7 +40,7 @@ void AdministratorScreen::draw()
 				case 4: app->setActualScreen(CONSULTA_SCREEN);return;
 				case 5: app->setActualScreen(REPORT_FILE_SCREEN);return;
 				case 6: app->setActualScreen(SIMUL_SCREEN);return;
-				case 7: app->setActualScreen(ATTACK_SCREEN);return;
+				case 7: app->setActualScreen(CRYPT_SCREEN);return;
 				case 8: app->setActualScreen(LOGIN_SCREEN);return;
 				case 9: app->setQuit(true);return;
 				default:std::cout<<"Opcion Incorrecta, elija nuevamente"<<std::endl;

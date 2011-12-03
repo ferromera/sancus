@@ -16,6 +16,7 @@ public:
 	void draw();
 	void attackAdminFile();
 	void attackVoterFile();
+	void attackRSAFile();
 	void attackreportFilebyList();
 	void attackreportFilebyElection();
 	void attackreportFileByDistrict();
