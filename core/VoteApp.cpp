@@ -15,6 +15,7 @@
 #include "../screens/ResultScreen.h"
 #include "../screens/SimulScreen.h"
 #include "../screens/DataFileScreen.h"
+#include "../screens/AttackScreen.h"
 
 
 VoteApp* VoteApp::voteApp = NULL;
@@ -31,6 +32,7 @@ VoteApp::VoteApp() {
 	Drawable *scr8 = new ResultScreen();
 	Drawable *scr9 = new SimulScreen();
 	Drawable *scr10 = new DataFileScreen();
+	Drawable *scr11 = new AttackScreen();
 
 	this->screens.push_back(scr1);
 	this->screens.push_back(scr2);
@@ -42,6 +44,7 @@ VoteApp::VoteApp() {
 	this->screens.push_back(scr8);
 	this->screens.push_back(scr9);
 	this->screens.push_back(scr10);
+	this->screens.push_back(scr11);
 
 	actualScreen = LOGIN_SCREEN;
 
