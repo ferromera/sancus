@@ -46,6 +46,7 @@ void RSABreaker::attack2(std::string encryptedFilePath,unsigned int N,unsigned i
 				if ((splittedSize * (keySize-1)) % 8)
 					painSize++;
 	fileBreaked->write(decryptedBuffer,painSize);
+	std::cout<<"El archivo fue desencriptado en : " << encryptedFilePath << std::endl;
 	delete buffer;
 	delete decryptedBuffer;
 	delete file;
