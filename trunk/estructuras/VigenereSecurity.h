@@ -12,7 +12,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#define VIGENERE_SECURITY_KEYPATH	"VigenereKey.bin"
+#define VIGENERE_SECURITY_KEYPATH	"forbiddenAccessFolder/VigenereKey.bin"
 
 #include "SecurityStrategy.h"
 #include "MathUtils.h"

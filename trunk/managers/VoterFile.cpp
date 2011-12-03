@@ -18,7 +18,7 @@ VoterFile * VoterFile::getInstance(){
 }
 
 VoterFile::VoterFile()
-{	SecurityStrategy *security = new DummySecurity(); //new RsaSecurity(10);
+{	SecurityStrategy *security = new RsaSecurity(10);
 	try
 	{
 		this->table = new HashTable<VoterRecord, 4096> (VOTER_FILE_DATA_PATH,security);
