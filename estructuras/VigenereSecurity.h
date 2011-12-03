@@ -47,40 +47,46 @@ public:
 		generateAndStoreRandomKey(keySize);
 
 	}
+	void setKey(string newKey){
+		delete key;
+		key=new unsigned char[newKey.size()];
+		for(unsigned int i=0;i<newKey.size();i++)
+			key[i]=newKey[i];
+
+	}
 
 	unsigned char * encrypt(unsigned char * buffer, size_t bytes){
 		unsigned int j=0;
 		unsigned char* message = (unsigned char*)buffer;
+		unsigned char* encryptedMessage= new unsigned char[bytes];
 
 		for(unsigned int i = 0; i< bytes; i++){
 			if(j==this->keySize){
 				j=0;
 			}
 
-			message[i] = ((key[j] + message[i])  % SYMBOLS);
+			encryptedMessage[i] = ((key[j] + message[i])  % SYMBOLS);
 			j++;
 		}
-		return buffer;
+		return encryptedMessage;
 	}
 	
 	unsigned char * decrypt(unsigned char * buffer, size_t bytes){
 		unsigned int j=0;
 		unsigned char* message = (unsigned char*)buffer;
+		unsigned char* decryptedMessage= new unsigned char[bytes];
 
 		for(unsigned int i = 0; i< bytes; i++){
 			if(j==this->keySize){
 				j=0;
 			}
-			if (message[i] - key[j] < 0){
-				message[i] = (message[i] - key[j]) + SYMBOLS;
-			}
-			else {
-				message[i] = message[i] - key[j];
-			}
+
+			decryptedMessage[i] = message[i] - key[j];
+
 			j++;
 
 		}
-		return buffer;
+		return decryptedMessage;
 	}
 
 	~VigenereSecurity()

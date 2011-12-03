@@ -101,7 +101,6 @@ void Kasiski::writeBreakedFile(std::string &encryptedFilePath,unsigned char* dec
 	File breakedFile(decryptedFilePath, File::NEW | File::BIN);
 	breakedFile.write(decryptedBuffer, bufferSize);
 	std::cout << "El archivo fue desencriptado en : " << decryptedFilePath << std::endl;
-	IstreamUtils::getString();
 }
 unsigned char * Kasiski::getKey(unsigned char * buffer, unsigned int keyLength, const std::string & header) {
 	unsigned char *key = new unsigned char[keyLength];

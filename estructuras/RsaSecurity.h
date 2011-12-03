@@ -75,10 +75,10 @@ public:
 			unsigned int encryptedD = privateKey.d ^ XOR_KEY;
 			privateFile.write(&encryptedD, sizeof(encryptedD));
 			File publicFile(RSA_PUBLIC_KEY_PATH, File::NEW);
-//			publicFile << "e: \n";
-//			publicFile << publicKey.e;
-//			publicFile << " n: \n";
-//			publicFile << publicKey.n;
+			publicFile << "e: \n";
+			publicFile << publicKey.e;
+			publicFile << " n: \n";
+			publicFile << publicKey.n;
 
 		}
 
@@ -100,9 +100,9 @@ public:
 			privateKey.n = n;
 			publicKey.n = n;
 			publicKey.e = e;
-			cout << "n: " << n << endl;
-						cout << "e: " << publicKey.e << endl;
-						cout << "d: " << privateKey.d << endl;
+//			cout << "n: " << n << endl;
+//						cout << "e: " << publicKey.e << endl;
+//						cout << "d: " << privateKey.d << endl;
 
 		} catch (OpenFileException e) {
 			return false;

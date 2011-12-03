@@ -16,6 +16,9 @@
 #include "../screens/SimulScreen.h"
 #include "../screens/DataFileScreen.h"
 #include "../screens/AttackScreen.h"
+#include "../screens/CryptographyScreen.h"
+#include "../screens/EncryptScreen.h"
+#include "../screens/DecryptScreen.h"
 
 
 VoteApp* VoteApp::voteApp = NULL;
@@ -33,6 +36,10 @@ VoteApp::VoteApp() {
 	Drawable *scr9 = new SimulScreen();
 	Drawable *scr10 = new DataFileScreen();
 	Drawable *scr11 = new AttackScreen();
+	Drawable *scr12 = new EncryptScreen();
+	Drawable *scr13 = new DecryptScreen();
+	Drawable *scr14 = new CryptographyScreen();
+
 
 	this->screens.push_back(scr1);
 	this->screens.push_back(scr2);
@@ -45,6 +52,10 @@ VoteApp::VoteApp() {
 	this->screens.push_back(scr9);
 	this->screens.push_back(scr10);
 	this->screens.push_back(scr11);
+	this->screens.push_back(scr12);
+	this->screens.push_back(scr13);
+	this->screens.push_back(scr14);
+
 
 	actualScreen = LOGIN_SCREEN;
 

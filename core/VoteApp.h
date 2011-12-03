@@ -33,6 +33,9 @@
 #define SIMUL_SCREEN 8
 #define REPORT_FILE_SCREEN 9
 #define ATTACK_SCREEN 10
+#define ENC_SCREEN 11
+#define DESC_SCREEN 12
+#define CRYPT_SCREEN 13
 
 class VoteApp : public Runable{
 public:
