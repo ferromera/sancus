@@ -1,0 +1,1 @@
+En la mitología romana, Sancus era el dios de la lealtad, honestidad y el juramento.
